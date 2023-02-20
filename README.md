@@ -42,7 +42,8 @@ Un `github workflow` sur l'instance générée permet de maintenir le code sourc
 
 
 - Dans l'organisation Compt-Anar [un repo pour le code source](https://github.com/DavidBruant/comptanar) de [https://compte-anar.github.io] (ou `https://comptanar.fr/`)
-- Dans l'organisation Compt-Anar [un repo _template_]() contenant le code source et les fichiers template de données 
+- Dans l'organisation Compt-Anar [un repo _template_](https://github.com/comptanar/comptabilite) contenant le code source et les fichiers template de données 
+- [Logiciel Comptable](https://github.com/comptanar/logiciel-comptable)
 - Votre repo avec vos fichier de donnée et vos sources
 - [Toctoctoc](https://github.com/Scribouilli/toctoctoc), pour la gestion de droit d'authorisation Github
 
