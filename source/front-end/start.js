@@ -1,6 +1,12 @@
+//@ts-check
+
 import Store from "baredux";
 
-// import page from "page";
+import page from "page";
+
+import Welcome from './composants/screens/Welcome.svelte'
+
+import Database from './githubAsDatabase.js'
 
 const ACCESS_TOKEN_STORAGE_KEY = "comptanar_github_access_token"
 
@@ -12,7 +18,6 @@ const store = new Store({
         login: undefined, // Promise<string> | string
         origin: undefined, // Promise<string> | string
         repoName: "test-comptabilite-repo-6731",
-        basePath: location.hostname.endsWith(".github.io") ? "/scribouilli" : ""
     },
     mutations: {
         setLogin(state, login) {
@@ -37,3 +42,100 @@ if (url.searchParams.has("access_token")) {
 }
 
 console.log('token', store.state.accessToken)
+
+/**
+ * Component rendering loop
+ */
+const svelteTarget = document.body;
+
+let currentComponent;
+let currentMapStateToProps = (_) => { };
+
+function replaceComponent(newComponent, newMapStateToProps) {
+    if (!newMapStateToProps) {
+        throw new Error("Missing _mapStateToProps in replaceComponent");
+    }
+
+    if (currentComponent) currentComponent.$destroy();
+
+    currentComponent = newComponent;
+    currentMapStateToProps = newMapStateToProps;
+}
+
+function render(state) {
+
+    const props = currentMapStateToProps(state);
+    // @ts-ignore
+    if (props) {
+        currentComponent.$set(props);
+    }
+}
+
+store.subscribe(render);
+
+
+
+/**
+ * Init script
+ */
+let databaseAPI
+if (store.state.accessToken) {
+    databaseAPI = Database()
+
+    // Retrieve logged in user from access_token
+    databaseAPI.token = store.state.accessToken;
+
+    const loginP = databaseAPI.getAuthenticatedUser()
+        // @ts-ignore
+        .then(({ login }) => {
+            store.mutations.setLogin(login);
+            return login;
+        }).catch(msg => handleErrors(msg));
+
+    store.mutations.setLogin(loginP);
+    
+/*
+    const siteRepoConfigP = loginP.then((login) => {
+        return databaseAPI.getRepository(login, store.state.repoName).catch(msg => handleErrors(msg));
+    })
+
+    store.mutations.setSiteRepoConfig(siteRepoConfigP)
+    siteRepoConfigP.catch((error) => handleErrors(error))*/
+} else {
+    //history.replaceState(undefined, '', store.state.basePath + "/")
+}
+
+
+
+
+/**
+ * Routes
+ */
+
+page("/", () => {
+    /*if (store.state.login) {
+        const repoName = store.state.repoName;
+
+        Promise.resolve(store.state.login).then(async (login) => {
+            return checkRepositoryAvailabilityThen(login, repoName, () => {
+                page("/atelier-list-pages");
+            })
+        });
+    }*/
+
+    function mapStateToProps(state){
+        return {login: state.login}
+    }
+
+    // @ts-ignore
+    const welcome = new Welcome({
+        target: svelteTarget,
+        props: mapStateToProps(store.state),
+    });
+
+    replaceComponent(welcome, mapStateToProps);
+});
+
+
+
+page.start();

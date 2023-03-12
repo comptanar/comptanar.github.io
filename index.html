@@ -162,65 +162,16 @@
             }
         </style>
 
+        <link crossorigin="anonymous" rel="stylesheet" href="./build/rollup-bundle.css">
+
         <script crossorigin="anonymous"
             src="https://polyfill.io/v3/polyfill.min.js?features=default%2Ces2015%2Ces2016%2Ces2017%2Ces2018%2Ces2019%2Ces5%2Ces6%2Ces7%2CString.prototype.replaceAll"></script>
 
-        <script>
-            // adapted from https://github.com/ungap/promise-all-settled/blob/ed43b3d9bc2027789c4388aff198141b4feb8f04/esm/index.js (ISC licence)
-            if (!Promise.allSettled) {
-                Promise.allSettled = function ($) {
-                    'use strict';
-                    var self = this;
-                    return self.all(
-                        $.map(
-                            function (value) {
-                                return self.resolve(value).then(this.$, this._);
-                            },
-                            {
-                                $: function (value) {
-                                    return { status: 'fulfilled', value: value };
-                                },
-                                _: function (reason) {
-                                    return { status: 'rejected', reason: reason };
-                                }
-                            }
-                        )
-                    );
-                };
-            }
-
-        </script>
 
         <script defer src="./build/rollup-bundle.js"></script>
     </head>
 
     <body>
-
-        <header>
-            <h1>🏴‍☠️ Compt'anar 🤓 🔢</h1>
-        </header>
-
-        <main>
-            <p>Bienvenue ! Comptanar, c'est pour faire sa comptabilité en toute autonomie !</p>
-            <p>
-                Pour le moment comptanar est en alpha ultra-privée, ultra-select, 
-                pour [l'Échappée Belle](https://lechappeebelle.team/) seulement
-                <small>on créé un outil pour nous, mais on fait tout pour que ça soit utile pour d'autres un jour :-) </small>
-            </p>
-            
-            <p>Si tu es de l'Échappée Belle, <a href="https://github.com/login/oauth/authorize?client_id=64ecce0b01397c2499a6&scope=public_repo&redirect_uri=https://toctoctoc.dreads-unlock.fr/github-callback?destination=http://localhost:8080/">connecte-toi via github</a></p> 
-           
-
-
-
-            < <!-- login with github qui permet de créer une comptabilité en choisissant l'org ou le compte github pertinent
-                et fork un repo template avec les bons fichiers/dossiers/worflow de base -->
-
-        </main>
-
-        <footer>
-        </footer>
-
     </body>
 
 </html>
