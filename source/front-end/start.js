@@ -1,43 +1,52 @@
 //@ts-check
 
 import Store from "baredux";
-
 import page from "page";
 
 import Welcome from './composants/screens/Welcome.svelte'
-
 import Database from './githubAsDatabase.js'
 
-const ACCESS_TOKEN_STORAGE_KEY = "comptanar_github_access_token"
+import {rememberToken, forgetToken} from './localStorage.js'
+
+const storedToken = await rememberToken()
+
+const GITHUB_TOKEN_SEARCH_PARAM = "access_token"
 
 // @ts-ignore
 const store = new Store({
     state: {
         // @ts-ignore
-        accessToken: new URL(location).searchParams.get("access_token") || localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY),
+        accessToken: new URL(location).searchParams.get(GITHUB_TOKEN_SEARCH_PARAM) || storedToken,
         login: undefined, // Promise<string> | string
-        origin: undefined, // Promise<string> | string
         repoName: "test-comptabilite-repo-6731",
     },
     mutations: {
         setLogin(state, login) {
             state.login = login;
         },
-        invalidateToken(state) {
+        logout(state) {
             state.accessToken = undefined
-            localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY)
-            console.log("Token has been invalidated")
+            state.login = undefined
+            state.repoName = undefined
         }
     },
 });
 
+function logout(){
+    console.info('logout')
+    store.mutations.logout()
 
-// Store access_token in browser
+    forgetToken()
+    .then(() => page('/'))
+}
+
+
+// Store access token in browser localStorage
 const url = new URL(location.href)
-if (url.searchParams.has("access_token")) {
-    localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, store.state.accessToken)
+if (url.searchParams.has(GITHUB_TOKEN_SEARCH_PARAM)) {
+    rememberToken(store.state.accessToken)
 
-    url.searchParams.delete("access_token")
+    url.searchParams.delete(GITHUB_TOKEN_SEARCH_PARAM)
     history.replaceState(undefined, '', url)
 }
 
@@ -82,7 +91,7 @@ let databaseAPI
 if (store.state.accessToken) {
     databaseAPI = Database()
 
-    // Retrieve logged in user from access_token
+    // Retrieve logged in user from access token
     databaseAPI.token = store.state.accessToken;
 
     const loginP = databaseAPI.getAuthenticatedUser()
@@ -90,7 +99,8 @@ if (store.state.accessToken) {
         .then(({ login }) => {
             store.mutations.setLogin(login);
             return login;
-        }).catch(msg => handleErrors(msg));
+        })
+        //.catch(msg => handleErrors(msg));
 
     store.mutations.setLogin(loginP);
     
@@ -113,18 +123,19 @@ if (store.state.accessToken) {
  */
 
 page("/", () => {
-    /*if (store.state.login) {
+    if (store.state.login) {
         const repoName = store.state.repoName;
 
-        Promise.resolve(store.state.login).then(async (login) => {
-            return checkRepositoryAvailabilityThen(login, repoName, () => {
-                page("/atelier-list-pages");
-            })
+        Promise.resolve(store.state.login).then((login) => {
+            
         });
-    }*/
+    }
 
     function mapStateToProps(state){
-        return {login: state.login}
+        return {
+            login: state.login,
+            logout: logout
+        }
     }
 
     // @ts-ignore

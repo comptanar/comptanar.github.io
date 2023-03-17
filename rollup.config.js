@@ -15,9 +15,8 @@ const production = !process.env.ROLLUP_WATCH;
 export default {
 	input: 'source/front-end/start.js',
 	output: {
-		sourcemap: true,
-		format: 'iife',
-		name: 'app',
+		sourcemap: !production,
+		format: 'es',
 		file: 'build/rollup-bundle.js'
 	},
 	plugins: [
