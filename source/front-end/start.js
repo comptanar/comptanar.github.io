@@ -41,6 +41,10 @@ function render(state) {
 store.subscribe(render);
 
 
+function logoutAndRedirect(){
+    logout().then(() => page('/'))
+}
+
 /**
  * Routes
  */
@@ -58,7 +62,7 @@ page("/", () => {
     function mapStateToProps(state){
         return {
             login: state.login,
-            logout: logout
+            logout: logoutAndRedirect
         }
     }
 
@@ -80,7 +84,7 @@ page('/choose-organisation', () => {
     function mapStateToProps(state){
         return {
             login: state.login,
-            logout: logout,
+            logout: logoutAndRedirect,
             possibleOrganisations: state.userOrgs
         }
     }
