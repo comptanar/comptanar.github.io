@@ -6,7 +6,7 @@ import Welcome from './composants/screens/Welcome.svelte'
 import ChooseOrganisation from './composants/screens/ChooseOrganisation.svelte'
 
 import store from './store.js'
-import {logout, saveToken, loginInitDance} from './actions.js'
+import {logout, saveToken, initDance, getUserOrgChoices} from './actions.js'
 
 console.info('start')
 
@@ -74,10 +74,14 @@ page("/", () => {
 
 page('/choose-organisation', () => {
     console.info('route', '/choose-organisation')
+
+    getUserOrgChoices()
+
     function mapStateToProps(state){
         return {
             login: state.login,
-            logout: logout
+            logout: logout,
+            possibleOrganisations: state.userOrgs
         }
     }
 
@@ -104,24 +108,29 @@ const urlToken = url.searchParams.get(GITHUB_TOKEN_SEARCH_PARAM)
 
 if (urlToken) {
     saveToken(urlToken)
-    .then(token => {
-        console.log('after save', token)
-
+    .then(() => {
         url.searchParams.delete(GITHUB_TOKEN_SEARCH_PARAM)
         history.replaceState(undefined, '', url)
     })
     .catch(err => {
         console.error('Saving token failed', err)
     })
-    
 }
 
-loginInitDance()
+initDance()
 .catch(error => {
-    console.error('login dance error', error)
+    console.error('init dance error', error)
+})
+.then(login => {
+    if(!login){
+        page.start({dispatch: false});
+        console.info('no valid login found, redirected to / route')
 
-    logout()
-        .then(() => page('/'))
+        logout()
+            .then(() => page('/'))
+    }
+    else{
+        page.start();
+    }
 })
 
-page.start();

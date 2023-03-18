@@ -4,6 +4,7 @@
     export let login;
     export let logout;
     export let possibleOrganisations = [];
+
 </script>
 
 <Skeleton {login} {logout}>
@@ -12,10 +13,10 @@
     {#await possibleOrganisations}
         (chargement des orgs possibles)
     {:then orgs}
-        <p>Voici les organisations possibles&nbsp;</p>
+        <p>Voici les organisations possibles&nbsp;:</p>
         <ul>
         {#each orgs as org}
-            <li>{org}</li>
+            <li>{org.login}</li>
         {/each}
         </ul>
     {:catch err}

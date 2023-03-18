@@ -2,6 +2,18 @@
     export let login = undefined;
 
     export let logout;
+
+    const scopesList = [
+        'public_repo',
+        'read:org'
+    ];
+    const scopes = scopesList.join(',')
+
+    const client_id = '64ecce0b01397c2499a6';
+    const destination = 'http://localhost:8080/';
+    const redirect_uri = `https://toctoctoc.dreads-unlock.fr/github-callback?destination=${destination}`
+
+    const href = `https://github.com/login/oauth/authorize?client_id=${client_id}&scope=${scopes}&redirect_uri=${redirect_uri}`
 </script>
 
 <header>
@@ -17,7 +29,7 @@
                 Problème de connexion à Github ! {err}
             {/await}
         {:else}
-            <p>Si tu es de l'Échappée Belle, <a href="https://github.com/login/oauth/authorize?client_id=64ecce0b01397c2499a6&scope=public_repo&redirect_uri=https://toctoctoc.dreads-unlock.fr/github-callback?destination=http://localhost:8080/">connecte-toi via github</a></p> 
+            <p>Si tu es de l'Échappée Belle, <a {href}>connecte-toi via github</a></p> 
         {/if}
     </div>
 </header>

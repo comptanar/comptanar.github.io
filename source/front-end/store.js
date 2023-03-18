@@ -9,19 +9,22 @@ export default Store({
         // @ts-ignore
         githubToken: await rememberToken(),
         login: undefined, // Promise<string> | string
-        repoName: "test-comptabilite-repo-6731",
+        userOrgs: undefined
     },
     mutations: {
         setToken(state, githubToken){
             state.githubToken = githubToken
         },
         setLogin(state, login) {
-            state.login = login;
+            state.login = login
+        },
+        setUserOrgs(state, orgs){
+            state.userOrgs = orgs
         },
         logout(state) {
             state.githubToken = undefined
             state.login = undefined
-            state.repoName = undefined
+            state.userOrgs = undefined
         }
     },
 });

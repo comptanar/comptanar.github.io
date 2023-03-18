@@ -23,9 +23,10 @@ export function logout(){
     return forgetToken()
 }
 
-export async function loginInitDance(){
-
+export async function initDance(){
     if (store.state.githubToken) {
+        githubAsDatabase.token = store.state.githubToken
+
         // Retrieve logged in user from access token
         const loginP = githubAsDatabase.getAuthenticatedUser()
             // @ts-ignore
@@ -39,7 +40,21 @@ export async function loginInitDance(){
         return loginP
     }
     else{
-        return Promise.reject('No token in store')
+        return Promise.resolve(undefined)
     }
 
+}
+
+
+
+export function getUserOrgChoices(){
+    const orgsP = githubAsDatabase.getOrgs()
+    .then(orgs => {
+        store.mutations.setUserOrgs(orgs)
+        return orgs
+    })
+
+    store.mutations.setUserOrgs(orgsP)
+
+    return orgsP
 }
