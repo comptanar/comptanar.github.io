@@ -8,38 +8,40 @@ const initialRequestDefaults = {
     }
 }
 
-export default function Database(){
-    
-    let theRequest = request.defaults(initialRequestDefaults)
+let theRequest = request.defaults(initialRequestDefaults)
 
-    return {
-        reset(){
-            theRequest = request.defaults(initialRequestDefaults)
-        },
-        set token(token){
-            theRequest = theRequest.defaults({
-                headers: {
-                    authorization: `token ${token}`,
-                }
+export default {
+    reset(){
+        theRequest = request.defaults(initialRequestDefaults)
+    },
+    set token(token){
+        theRequest = theRequest.defaults({
+            headers: {
+                authorization: `token ${token}`,
+            }
+        })
+    },
+    set owner(owner){
+        theRequest = theRequest.defaults({ owner })
+    },
+    set repo(repo){
+        theRequest = theRequest.defaults({ repo })
+    },
+    getAuthenticatedUser() {
+        return theRequest("https://api.github.com/user")
+            .then(({data}) => {
+                const login = data.login
+                this.owner = login;
+
+                return data
             })
-        },
-        set owner(owner){
-            theRequest = theRequest.defaults({ owner })
-        },
-        set repo(repo){
-            theRequest = theRequest.defaults({ repo })
-        },
-        getAuthenticatedUser() {
-            return theRequest("https://api.github.com/user")
-                .then(({data}) => {
-                    const login = data.login
-                    this.owner = login;
+    },
+    getOrgs(){
+        return theRequest("https://api.github.com/user/orgs")
+            .then(({data: organisations}) => {
+                console.log('organisations', organisations)
 
-                    return data
-                })
-        }
+                return organisations
+            })
     }
-
-
-
 }
