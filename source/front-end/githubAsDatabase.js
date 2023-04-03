@@ -4,7 +4,7 @@ import { request } from "@octokit/request";
 
 const initialRequestDefaults = {
     headers: {
-        "user-agent": "comptanar https://github.com/comptanar/comptanar.github.io",
+        'user-agent': 'comptanar https://github.com/comptanar/comptanar.github.io',
     }
 }
 
@@ -21,27 +21,29 @@ export default {
             }
         })
     },
-    set owner(owner){
+/*    set owner(owner){
         theRequest = theRequest.defaults({ owner })
     },
     set repo(repo){
         theRequest = theRequest.defaults({ repo })
-    },
+    },*/
     getAuthenticatedUser() {
-        return theRequest("https://api.github.com/user")
+        return theRequest("/user")
             .then(({data}) => {
                 const login = data.login
-                this.owner = login;
 
                 return data
             })
     },
     getOrgs(){
-        return theRequest("https://api.github.com/user/orgs")
+        return theRequest("/user/orgs")
             .then(({data: organisations}) => {
                 console.log('organisations', organisations)
 
                 return organisations
             })
+    },
+    getRepo(owner, repo){
+        return theRequest(`/repos/${owner}/${repo}`)
     }
 }
