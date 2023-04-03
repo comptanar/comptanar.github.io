@@ -9,23 +9,16 @@
     export let logout;
     export let possibleOrganisations = [];
 
-    let orgChoice = undefined
-
-    /*
-    throw `PPP : C'est dur de trouver "la" bonne solution. 
-        Alors pour le moment, quand on clique, 
-            ça va chercher le repo avec le bon nom 
-                et si on ne le trouve pas, on propose de le créer 
-                et s'il existe, on avance à l'écran suivant`
-    */
+    let chosenOrg = undefined
+    let orgComptabiliteRepo;
 
     const DEFAULT_REPO_NAME = 'comptabilite'
 
-    let orgComptabiliteRepo;
+    function selectOrg(org){
+        chosenOrg = org
 
-    function getOrgRepo(org){
         orgComptabiliteRepo = githubAsDatabase
-            .getRepo(org, DEFAULT_REPO_NAME)
+            .getRepo(chosenOrg.login, DEFAULT_REPO_NAME)
             .catch(err => {
                 if(err.status === 404){
                     // repo does not exist
@@ -35,21 +28,21 @@
                 else
                     throw err;
             })
-
-        return orgComptabiliteRepo
     }
 
+    let creatingOrgComptabilite;
 
-    function selectOrg(org){
-        orgChoice = org
-        getOrgRepo(orgChoice.login)
+    function createComptabiliteRepo(){
+        creatingOrgComptabilite = githubAsDatabase
+            .createComptabilityRepo(chosenOrg.login, DEFAULT_REPO_NAME)
     }
+
 
 </script>
 
 <Skeleton {login} {logout}>
 
-    {#if !orgChoice}
+    {#if !chosenOrg}
         <h1 transition:fade>Yello {login}, tu veux faire de la comptabilité sur quelle organisation ?</h1>
 
         {#await possibleOrganisations}
@@ -70,7 +63,7 @@
             </section>
         {/await}
     {:else}
-        <h1 transition:fade>Concernant l'organisation {orgChoice.login}</h1>
+        <h1 transition:fade>Concernant l'organisation {chosenOrg.login}</h1>
         {#await orgComptabiliteRepo}
             <section transition:fade>(Vérification de s'il existe déjà un repo de comptabilité)</section>
         {:then repo}
@@ -81,20 +74,36 @@
                 </section>
 
             {:else}
-                <section transition:fade>
-                    Il n'existe pas de repo. <button disabled>En créer un</button>
-                </section>
+                {#if !creatingOrgComptabilite}
+                    <section transition:fade>
+                        <p>Il n'existe pas de repo de comptabilité dans cette organisation.</p>
+                        <small>(Cliquer sur le bouton va créer le repo Github <code>{chosenOrg.login}/{DEFAULT_REPO_NAME}</code>)</small>
+
+                        <p><button on:click={() => createComptabiliteRepo()}>Créer un repo de comptabilité</button></p>
+                    </section>
+                {:else}
+                    {#await creatingOrgComptabilite}
+                        <section transition:fade>(Création de repo <code>{chosenOrg.login}/{DEFAULT_REPO_NAME}</code>...)</section>
+                    {:then orgs}
+                        <section transition:fade>
+                            <p>Repo créé !</p>
+                            <a href={`/comptabilite?org=${chosenOrg.login}`}>Allé, on va faire de la compta !</a>
+                        </section>
+                    {:catch err}
+                        <section transition:fade>
+                            <div>Erreur dans la création du repo de comptabilité <code>{chosenOrg.login}/{DEFAULT_REPO_NAME}</code>.</div>
+                            <div> {err} </div>
+                        </section>
+                    {/await}
+                {/if}
             {/if}
             
         {:catch err}
-            <div>Erreur dans le chargement de le liste d'organisation.</div>
+            <div>Erreur dans le chargement du repo de comptabilité.</div>
             <div> {err} </div>
         {/await}
 
     {/if}
-
-    
-
 
 </Skeleton>
 

@@ -45,5 +45,15 @@ export default {
     },
     getRepo(owner, repo){
         return theRequest(`/repos/${owner}/${repo}`)
+    },
+    createComptabilityRepo(owner, name){
+        const TEMPLATE_OWNER = 'comptanar'
+        const TEMPLATE_REPO = 'comptabilite'
+
+        return theRequest(`/repos/${TEMPLATE_OWNER}/${TEMPLATE_REPO}/generate`, {
+            method: 'POST',
+            owner,
+            name
+        })
     }
 }
