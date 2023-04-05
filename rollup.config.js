@@ -13,12 +13,11 @@ const production = !process.env.ROLLUP_WATCH;
 
 
 export default {
-	input: 'source/front-end/compta-individuelle.js',
+	input: 'source/front-end/start.js',
 	output: {
-		sourcemap: true,
-		format: 'iife',
-		name: 'app',
-		file: 'build/bundle.js'
+		sourcemap: !production,
+		format: 'es',
+		file: 'build/rollup-bundle.js'
 	},
 	plugins: [
 		svelte({
@@ -29,7 +28,7 @@ export default {
 			preprocess: sveltePreprocess()
 		}),
 
-		css({ output: 'bundle.css' }),
+		css({ output: 'rollup-bundle.css' }),
 
 		// If you have external dependencies installed from
 		// npm, you'll most likely need these plugins. In
