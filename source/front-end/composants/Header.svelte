@@ -10,7 +10,7 @@
     const scopes = scopesList.join(',')
 
     const client_id = '64ecce0b01397c2499a6';
-    const destination = 'http://localhost:8080/';
+    const destination = `${location.origin}/`;
     const redirect_uri = `https://toctoctoc.dreads-unlock.fr/github-callback?destination=${destination}`
 
     const href = `https://github.com/login/oauth/authorize?client_id=${client_id}&scope=${scopes}&redirect_uri=${redirect_uri}`
