@@ -4,7 +4,7 @@
 
     import Skeleton from "../Skeleton.svelte";
     import githubAsDatabase from "../../githubAsDatabase.js";
-    
+
     export let login;
     export let logout;
     export let possibleOrganisations = [];
@@ -97,7 +97,7 @@
                     {/await}
                 {/if}
             {/if}
-            
+
         {:catch err}
             <div>Erreur dans le chargement du repo de comptabilité.</div>
             <div> {err} </div>
