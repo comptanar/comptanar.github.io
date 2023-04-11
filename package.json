@@ -8,7 +8,7 @@
     "node": ">=16"
   },
   "scripts": {
-    "start": "http-server",
+    "start": "http-server -a localhost",
     "test": "ava tests",
     "build": "rollup -c",
     "dev": "rollup -c -w"
