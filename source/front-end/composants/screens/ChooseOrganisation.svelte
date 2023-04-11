@@ -70,7 +70,7 @@
 
             {#if repo}
                 <section transition:fade>
-                    La compta est là ! <a href="TODO">Y aller =></a>
+                    La compta est là ! <a href="/comptabilite/?org={chosenOrg.login}">Y aller =></a>
                 </section>
 
             {:else}
