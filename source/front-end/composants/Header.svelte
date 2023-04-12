@@ -9,9 +9,10 @@
     ];
     const scopes = scopesList.join(',')
 
-    const client_id = '64ecce0b01397c2499a6';
+    const toctoctoc_origin = 'http://fsu7dvuq.fbxos.fr';
+    const client_id = 'fe09b09c65edef4ec9cc';
     const destination = `${location.origin}/`;
-    const redirect_uri = `https://toctoctoc.dreads-unlock.fr/github-callback?destination=${destination}`
+    const redirect_uri = `${toctoctoc_origin}/github-callback?destination=${destination}`
 
     const href = `https://github.com/login/oauth/authorize?client_id=${client_id}&scope=${scopes}&redirect_uri=${redirect_uri}`
 </script>
@@ -29,7 +30,7 @@
                 Problème de connexion à Github ! {err}
             {/await}
         {:else}
-            <p>Si tu es de l'Échappée Belle, <a {href}>connecte-toi via github</a></p> 
+            <p>Si tu es de l'Échappée Belle, <a {href}>connecte-toi via github</a></p>
         {/if}
     </div>
 </header>

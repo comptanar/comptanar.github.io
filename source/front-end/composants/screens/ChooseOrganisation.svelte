@@ -4,7 +4,7 @@
 
     import Skeleton from "../Skeleton.svelte";
     import githubAsDatabase from "../../githubAsDatabase.js";
-    
+
     export let login;
     export let logout;
     export let possibleOrganisations = [];
@@ -70,7 +70,7 @@
 
             {#if repo}
                 <section transition:fade>
-                    La compta est là ! <a href="TODO">Y aller =></a>
+                    La compta est là ! <a href="/comptabilite/?org={chosenOrg.login}">Y aller =></a>
                 </section>
 
             {:else}
@@ -97,7 +97,7 @@
                     {/await}
                 {/if}
             {/if}
-            
+
         {:catch err}
             <div>Erreur dans le chargement du repo de comptabilité.</div>
             <div> {err} </div>

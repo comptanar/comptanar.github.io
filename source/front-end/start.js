@@ -4,6 +4,8 @@ import page from "page";
 
 import Welcome from './composants/screens/Welcome.svelte'
 import ChooseOrganisation from './composants/screens/ChooseOrganisation.svelte'
+import Comptabilite from "./composants/screens/Comptabilite.svelte";
+import Factures from "./composants/screens/Factures.svelte";
 
 import store from './store.js'
 import {logout, saveToken, initDance, getUserOrgChoices} from './actions.js'
@@ -97,7 +99,47 @@ page('/choose-organisation', () => {
     replaceComponent(chooseOrganisation, mapStateToProps);
 })
 
+page('/comptabilite/', ({ querystring }) => {
+    console.info('route', '/comptabilite/', querystring)
 
+    const org = new URLSearchParams(querystring).get('org');
+
+    function mapStateToProps(state){
+        return {
+            login: state.login,
+            logout: logoutAndRedirect,
+            org
+        }
+    }
+
+    const comptabilite = new Comptabilite({
+        target: svelteTarget,
+        props: mapStateToProps(store.state),
+    });
+
+    replaceComponent(comptabilite, mapStateToProps);
+})
+
+page('/comptabilite/factures', ({ querystring }) => {
+    console.info('route', '/comptabilite/factures', querystring)
+
+    const org = new URLSearchParams(querystring).get('org');
+
+    function mapStateToProps(state){
+        return {
+            login: state.login,
+            logout: logoutAndRedirect,
+            org
+        }
+    }
+
+    const factures = new Factures({
+        target: svelteTarget,
+        props: mapStateToProps(store.state),
+    });
+
+    replaceComponent(factures, mapStateToProps);
+})
 
 /**
  * Init script

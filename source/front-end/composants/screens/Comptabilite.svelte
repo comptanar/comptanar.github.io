@@ -1,0 +1,23 @@
+<script>
+import Skeleton from '../Skeleton.svelte'
+export let login
+export let logout
+export let org
+</script>
+
+<Skeleton {login} {logout}>
+  <h1>Voici la comptabilité de l'organisation <code>{org}</code></h1>
+  <section>
+
+    <a href="/comptabilite/factures?org={org}">
+      <h2>Factures</h2>
+    </a>
+
+    <h2>Compte de résultat et bilan comptable</h2>
+
+  </section>
+</Skeleton>
+
+<style>
+
+</style>
