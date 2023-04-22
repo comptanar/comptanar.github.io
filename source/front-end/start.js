@@ -8,7 +8,7 @@ import Comptabilite from "./composants/screens/Comptabilite.svelte";
 import Factures from "./composants/screens/Factures.svelte";
 
 import store from './store.js'
-import {logout, saveToken, initDance, getUserOrgChoices} from './actions.js'
+import {logout, saveToken, initDance, getUserOrgChoices, selectOrgAndRepo} from './actions.js'
 
 console.info('start')
 
@@ -102,7 +102,12 @@ page('/choose-organisation', () => {
 page('/comptabilite/', ({ querystring }) => {
     console.info('route', '/comptabilite/', querystring)
 
-    const org = new URLSearchParams(querystring).get('org');
+    const params = new URLSearchParams(querystring)
+
+    const org = params.get('org');
+    const repo = params.get('repo');
+
+    selectOrgAndRepo(org, repo)
 
     function mapStateToProps(state){
         return {
@@ -122,14 +127,17 @@ page('/comptabilite/', ({ querystring }) => {
 
 page('/comptabilite/factures', ({ querystring }) => {
     console.info('route', '/comptabilite/factures', querystring)
+    const params = new URLSearchParams(querystring)
 
-    const org = new URLSearchParams(querystring).get('org');
+    const org = params.get('org');
+    const repo = params.get('repo');
 
     function mapStateToProps(state){
         return {
             login: state.login,
             logout: logoutAndRedirect,
-            org
+            org,
+            repo
         }
     }
 

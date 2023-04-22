@@ -2,6 +2,8 @@
 
 import { request } from "@octokit/request";
 
+import { parseOpérationsHautNiveauYaml } from '../format-données/opérationsHautNiveau.js'
+
 const initialRequestDefaults = {
     headers: {
         'user-agent': 'comptanar https://github.com/comptanar/comptanar.github.io',
@@ -21,12 +23,12 @@ export default {
             }
         })
     },
-/*    set owner(owner){
+    set owner(owner){
         theRequest = theRequest.defaults({ owner })
     },
     set repo(repo){
         theRequest = theRequest.defaults({ repo })
-    },*/
+    },
     getAuthenticatedUser() {
         return theRequest("/user")
             .then(({data}) => {
@@ -54,6 +56,60 @@ export default {
             method: 'POST',
             owner,
             name
+        })
+    },
+    getExercices(){
+        return theRequest(`/repos/{owner}/{repo}/contents/exercices`)
+        .then(({data: exercicesDir}) => {
+            console.log('exercices', exercicesDir)
+            
+            const files = exercicesDir.files
+
+            console.log('files', files);
+
+            const promisesToWait = [];
+
+            const opérationsHautNiveauByYear = new Map();
+            for(const {name, urls: {git}} of files){
+                const year = Number(name)
+                console.log('year', year);
+                console.log('git url', git);
+                
+                const exerciceDirP = theRequest(git).then(({data: exerciceDir}) => {
+                    const exerciceFiles = exerciceDir.files
+                    console.log('exerciceFiles', year, exerciceFiles);
+                  
+                    if(exerciceFiles.length >= 2){
+                        throw TypeError(`Il ne devrait y avoir qu'un seule fichier opérationsHautNiveau.yml et il y a plusieurs fichiers`)
+                    }
+
+                    const opérationsHautNiveauFile = exerciceFiles[0];
+
+                    const {name, urls: {git}} = opérationsHautNiveauFile
+                    console.log('opérationsHautNiveauFile', year, name, git);
+
+                    const opérationsHautNiveauFileContentP = theRequest(git).then(({data: {content, type}}) => {
+                        if(type === 'base64'){
+                            const ymlContent = btoa(content)
+                            console.log('ymlContent', ymlContent)
+
+                            const opérationsHautNiveau = parseOpérationsHautNiveauYaml(ymlContent)
+                            console.log('opérationsHautNiveau', opérationsHautNiveau)
+
+                            opérationsHautNiveauByYear.set(year, opérationsHautNiveau)
+                        }
+                        else{
+                            throw new TypeError(`type de fichier inconnu: ${type}. On ne sait gérer que 'base64'`)
+                        }
+                    })
+
+                    promisesToWait.push(opérationsHautNiveauFileContentP)
+                })
+
+                promisesToWait.push(exerciceDirP)
+
+                return Promise.all(promisesToWait).then(() => opérationsHautNiveauByYear)
+            }
         })
     }
 }

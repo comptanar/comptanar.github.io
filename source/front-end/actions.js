@@ -45,7 +45,17 @@ export async function initDance(){
 
 }
 
+export function selectOrgAndRepo(org, repo){
+    store.mutations.setOrgAndRepo(org, repo)
 
+    githubAsDatabase.owner = org;
+    githubAsDatabase.repo = repo;
+
+    const exercicesP = githubAsDatabase.getExercices()
+    .then(opérationsHautNiveauByYear => store.mutations.setOpérationsHautNiveauByYear(opérationsHautNiveauByYear))
+
+    return exercicesP
+}
 
 export function getUserOrgChoices(){
     const orgsP = githubAsDatabase.getOrgs()
@@ -57,4 +67,18 @@ export function getUserOrgChoices(){
     store.mutations.setUserOrgs(orgsP)
 
     return orgsP
+}
+
+
+
+export function créerEnvoiFactureÀClient({compteClient, identifiantFacture, dateFacture, montantHT, montantTVA, compteProduit}){
+    throw `PPP 
+    - recup les données de l'exercice en cours
+    - ajouter une opération haut niveau d'envoi de facture
+    - synchroniser avec le repo git
+    
+    Le faire de manière optimiste
+    `
+
+
 }

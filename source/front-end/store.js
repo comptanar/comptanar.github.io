@@ -9,7 +9,10 @@ export default Store({
         // @ts-ignore
         githubToken: await rememberToken(),
         login: undefined, // Promise<string> | string
-        userOrgs: undefined
+        userOrgs: undefined,
+        org: undefined,
+        repo: undefined,
+        opérationsHautNiveauByYear: undefined
     },
     mutations: {
         setToken(state, githubToken){
@@ -25,6 +28,13 @@ export default Store({
             state.githubToken = undefined
             state.login = undefined
             state.userOrgs = undefined
+        },
+        setOrgAndRepo(state, org, repo) {
+            state.org = org
+            state.repo = repo
+        },
+        setOpérationsHautNiveauByYear(state, opérationsHautNiveauByYear){
+            state.opérationsHautNiveauByYear = opérationsHautNiveauByYear
         }
     },
 });

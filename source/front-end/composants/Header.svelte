@@ -15,6 +15,8 @@
     const redirect_uri = `${toctoctoc_origin}/github-callback?destination=${destination}`
 
     const href = `https://github.com/login/oauth/authorize?client_id=${client_id}&scope=${scopes}&redirect_uri=${redirect_uri}`
+
+    // PPP : rajouter l'org actuelle dans le header + bouton pour changer d'org facilement
 </script>
 
 <header>
