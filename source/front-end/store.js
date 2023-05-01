@@ -49,6 +49,11 @@ export default Store({
             // now, the content of opérationsHautNiveau and the sha are de-synchronized temporarily
 
             state.opérationsHautNiveauByYear.set(year, {sha, opérationsHautNiveau})
+        },
+        updateOpérationsHautNiveauSha(state, year, newSha){
+            const {sha, opérationsHautNiveau} = state.opérationsHautNiveauByYear.get(year)
+            state.opérationsHautNiveauByYear.set(year, {sha: newSha, opérationsHautNiveau})
+            // hopefully the opérationsHautNiveau and sha are now sychronized
         }
-    },
+    }
 });

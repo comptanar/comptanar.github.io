@@ -100,11 +100,15 @@ export function créerEnvoiFactureÀClient({compteClient, identifiantFacture, da
     store.mutations.addOpérationHautNiveau(year, envoiFactureÀClient)
     const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
 
-    githubAsDatabase.writeExercice(
+    return githubAsDatabase.writeExercice(
         year, 
         yearSha, 
         store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau, 
         `Rajout de la facture ${identifiantFacture} envoyée au client ${compteClient} le ${dateFacture}`
     )
+    .then(({data: {content: {sha}}}) => {
+        // sha is the new modified content sha
+        return store.mutations.updateOpérationsHautNiveauSha(year, sha)
+    })
 
 }
