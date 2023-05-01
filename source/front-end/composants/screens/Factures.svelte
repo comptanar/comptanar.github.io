@@ -2,14 +2,13 @@
     //@ts-check
     
     import Skeleton from '../Skeleton.svelte'
-    import {créerEnvoiFactureÀClient} from '../../actions.js'
 
     import '../../../format-données/types.js'
 
     export let login
     export let logout
     export let org
-    //export let factures
+    export let créerEnvoiFactureÀClient
 
     /**
     * @typedef {Object} BaseOpérationHautNiveau
@@ -67,13 +66,27 @@
             <input bind:value={dateFacture} type="date">
         </label>
         <label>
-            <div>Produit/service</div>
-            <input name="produit" type="text">
+            <div>Montant HT (€)</div>
+            <input bind:value={montantHT} step="0.01" type="number">
         </label>
+        <label>
+            <div>Montant TVA (€)</div>
+            <input bind:value={montantTVA} step="0.01" type="number">
+        </label>
+        <label>
+            <div>Compte Produit</div>
+            <input bind:value={compteProduit} placeholder="706xxx">
+        </label>
+
+        <button type="submit">Créer la facture</button>
 
     </form>
 </Skeleton>
 
-<style>
-
+<style lang="scss">
+    form label{
+        input{
+            margin-left: 1rem;
+        }
+    }
 </style>

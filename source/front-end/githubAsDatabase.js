@@ -2,7 +2,7 @@
 
 import { request } from "@octokit/request";
 
-import { parseOpérationsHautNiveauYaml } from '../format-données/opérationsHautNiveau.js'
+import { parseOpérationsHautNiveauYaml, stringifyOpérationsHautNiveauYaml } from '../format-données/opérationsHautNiveau.js'
 
 const initialRequestDefaults = {
     headers: {
@@ -11,6 +11,10 @@ const initialRequestDefaults = {
 }
 
 let theRequest = request.defaults(initialRequestDefaults)
+
+function opérationsHautNiveauPath(year){
+    return `exercices/${year}/opérationsHautNiveau.yml`
+}
 
 export default {
     reset(){
@@ -62,54 +66,67 @@ export default {
         return theRequest(`/repos/{owner}/{repo}/contents/exercices`)
         .then(({data: exercicesDir}) => {
             console.log('exercices', exercicesDir)
-            
-            const files = exercicesDir.files
-
-            console.log('files', files);
 
             const promisesToWait = [];
 
             const opérationsHautNiveauByYear = new Map();
-            for(const {name, urls: {git}} of files){
+            for(const {name, git_url} of exercicesDir){
                 const year = Number(name)
                 console.log('year', year);
-                console.log('git url', git);
+                console.log('git url', git_url);
                 
-                const exerciceDirP = theRequest(git).then(({data: exerciceDir}) => {
-                    const exerciceFiles = exerciceDir.files
-                    console.log('exerciceFiles', year, exerciceFiles);
-                  
-                    if(exerciceFiles.length >= 2){
-                        throw TypeError(`Il ne devrait y avoir qu'un seule fichier opérationsHautNiveau.yml et il y a plusieurs fichiers`)
+                const exerciceDirP = theRequest(git_url).then(({data: exerciceDirGitObj}) => {
+                    console.log('exerciceFiles', year, exerciceDirGitObj);
+                    
+                    const treeFiles = exerciceDirGitObj.tree;
+
+                    if(treeFiles.length >= 2){
+                        throw TypeError(`Il ne devrait y avoir qu'un seul fichier opérationsHautNiveau.yml et il y a plusieurs fichiers`)
                     }
 
-                    const opérationsHautNiveauFile = exerciceFiles[0];
+                    const opérationsHautNiveauTreeFile = treeFiles[0];
 
-                    const {name, urls: {git}} = opérationsHautNiveauFile
-                    console.log('opérationsHautNiveauFile', year, name, git);
+                    const {path, url} = opérationsHautNiveauTreeFile
+                    console.log('opérationsHautNiveauFile', year, path, url);
 
-                    const opérationsHautNiveauFileContentP = theRequest(git).then(({data: {content, type}}) => {
-                        if(type === 'base64'){
-                            const ymlContent = btoa(content)
+                    const opérationsHautNiveauFileContentP = theRequest(url).then(({data: {encoding, content, sha}}) => {
+                        if(encoding === 'base64'){
+                            const ymlContent = atob(content)
                             console.log('ymlContent', ymlContent)
 
                             const opérationsHautNiveau = parseOpérationsHautNiveauYaml(ymlContent)
                             console.log('opérationsHautNiveau', opérationsHautNiveau)
 
-                            opérationsHautNiveauByYear.set(year, opérationsHautNiveau)
+                            opérationsHautNiveauByYear.set(year, {opérationsHautNiveau, sha})
                         }
                         else{
-                            throw new TypeError(`type de fichier inconnu: ${type}. On ne sait gérer que 'base64'`)
+                            throw new TypeError(`type de fichier inconnu: ${encoding}. On ne sait gérer que 'base64'`)
                         }
                     })
 
                     promisesToWait.push(opérationsHautNiveauFileContentP)
+
+                    return opérationsHautNiveauFileContentP
                 })
 
                 promisesToWait.push(exerciceDirP)
 
                 return Promise.all(promisesToWait).then(() => opérationsHautNiveauByYear)
             }
+        })
+    },
+    /**
+     * @param {number} year
+     * @param {string} sha
+     * @param {OpérationHautNiveau[]} opérationsHautNiveau
+     * @param {string?} message
+     */
+    writeExercice(year, sha, opérationsHautNiveau, message){
+        return theRequest(`/repos/{owner}/{repo}/contents/${opérationsHautNiveauPath(year)}`, {
+            method: 'PUT',
+            message: message || `Mise à jour des opérations haut niveau de l'exercice ${year}`,
+            sha,
+            content: btoa(stringifyOpérationsHautNiveauYaml(opérationsHautNiveau))
         })
     }
 }

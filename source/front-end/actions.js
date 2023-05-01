@@ -72,13 +72,39 @@ export function getUserOrgChoices(){
 
 
 export function créerEnvoiFactureÀClient({compteClient, identifiantFacture, dateFacture, montantHT, montantTVA, compteProduit}){
-    throw `PPP 
-    - recup les données de l'exercice en cours
-    - ajouter une opération haut niveau d'envoi de facture
-    - synchroniser avec le repo git
-    
-    Le faire de manière optimiste
-    `
+    const date = new Date(dateFacture)
 
+    const year = date.getFullYear()
+
+    /** @type {EnvoiFactureClient} */
+    const envoiFactureÀClient = {
+        type: 'Envoi facture client',
+        numéroFacture: identifiantFacture,
+        date,
+        compteClient,
+        identifiantOpération: Math.random().toString(32).slice(2),
+        opérations: [
+            {
+                compte: compteProduit,
+                montant: montantHT,
+                sens: 'Débit'
+            },
+            {
+                compte: '44566', // TVA
+                montant: montantTVA,
+                sens: 'Débit'
+            }
+        ]
+    }
+
+    store.mutations.addOpérationHautNiveau(year, envoiFactureÀClient)
+    const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
+
+    githubAsDatabase.writeExercice(
+        year, 
+        yearSha, 
+        store.state.opérationsHautNiveauByYear.get(year), 
+        `Rajout de la facture ${identifiantFacture} envoyée au client ${compteClient} le ${dateFacture}`
+    )
 
 }

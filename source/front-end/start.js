@@ -8,7 +8,7 @@ import Comptabilite from "./composants/screens/Comptabilite.svelte";
 import Factures from "./composants/screens/Factures.svelte";
 
 import store from './store.js'
-import {logout, saveToken, initDance, getUserOrgChoices, selectOrgAndRepo} from './actions.js'
+import {logout, saveToken, initDance, getUserOrgChoices, selectOrgAndRepo, créerEnvoiFactureÀClient} from './actions.js'
 
 console.info('start')
 
@@ -113,7 +113,8 @@ page('/comptabilite/', ({ querystring }) => {
         return {
             login: state.login,
             logout: logoutAndRedirect,
-            org
+            org,
+            repo
         }
     }
 
@@ -132,12 +133,14 @@ page('/comptabilite/factures', ({ querystring }) => {
     const org = params.get('org');
     const repo = params.get('repo');
 
+    selectOrgAndRepo(org, repo)
+
     function mapStateToProps(state){
         return {
             login: state.login,
             logout: logoutAndRedirect,
             org,
-            repo
+            créerEnvoiFactureÀClient
         }
     }
 

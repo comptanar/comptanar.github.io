@@ -34,7 +34,24 @@ export default Store({
             state.repo = repo
         },
         setOpérationsHautNiveauByYear(state, opérationsHautNiveauByYear){
+            console.log('opérationsHautNiveauByYear', opérationsHautNiveauByYear)
             state.opérationsHautNiveauByYear = opérationsHautNiveauByYear
+        },
+        /**
+         * @param {any} state
+         * @param {number} year
+         * @param {EnvoiFactureClient} envoiFactureÀClient
+         */
+        addOpérationHautNiveau(state, year, envoiFactureÀClient){
+            const yearOpHauNiv = state.opérationsHautNiveauByYear.get(year)
+
+            const opHautNiv = yearOpHauNiv.opérationsHautNiveau
+
+            // Note: here the content of opérationsHautNiveau and the sha are de-synchronized temporarily
+
+            opHautNiv.push(envoiFactureÀClient)
+
+            state.opérationsHautNiveauByYear.set(year, opHautNiv)
         }
     },
 });
