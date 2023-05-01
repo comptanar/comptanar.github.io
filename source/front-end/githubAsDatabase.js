@@ -13,7 +13,7 @@ const initialRequestDefaults = {
 let theRequest = request.defaults(initialRequestDefaults)
 
 function opérationsHautNiveauPath(year){
-    return `exercices/${year}/opérationsHautNiveau.yml`
+    return `exercices/${year}/operationsHautNiveau.yml`
 }
 
 export default {

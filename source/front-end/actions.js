@@ -103,7 +103,7 @@ export function créerEnvoiFactureÀClient({compteClient, identifiantFacture, da
     githubAsDatabase.writeExercice(
         year, 
         yearSha, 
-        store.state.opérationsHautNiveauByYear.get(year), 
+        store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau, 
         `Rajout de la facture ${identifiantFacture} envoyée au client ${compteClient} le ${dateFacture}`
     )
 

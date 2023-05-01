@@ -43,15 +43,12 @@ export default Store({
          * @param {EnvoiFactureClient} envoiFactureÀClient
          */
         addOpérationHautNiveau(state, year, envoiFactureÀClient){
-            const yearOpHauNiv = state.opérationsHautNiveauByYear.get(year)
+            const {sha, opérationsHautNiveau} = state.opérationsHautNiveauByYear.get(year)
 
-            const opHautNiv = yearOpHauNiv.opérationsHautNiveau
+            opérationsHautNiveau.push(envoiFactureÀClient)
+            // now, the content of opérationsHautNiveau and the sha are de-synchronized temporarily
 
-            // Note: here the content of opérationsHautNiveau and the sha are de-synchronized temporarily
-
-            opHautNiv.push(envoiFactureÀClient)
-
-            state.opérationsHautNiveauByYear.set(year, opHautNiv)
+            state.opérationsHautNiveauByYear.set(year, {sha, opérationsHautNiveau})
         }
     },
 });
