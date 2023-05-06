@@ -9,12 +9,14 @@
     ];
     const scopes = scopesList.join(',')
 
-    const toctoctoc_origin = 'http://fsu7dvuq.fbxos.fr';
+    const toctoctoc_origin = 'https://ttt.olibri.us';
     const client_id = 'fe09b09c65edef4ec9cc';
     const destination = `${location.origin}/`;
     const redirect_uri = `${toctoctoc_origin}/github-callback?destination=${destination}`
 
     const href = `https://github.com/login/oauth/authorize?client_id=${client_id}&scope=${scopes}&redirect_uri=${redirect_uri}`
+
+    // PPP : rajouter l'org actuelle dans le header + bouton pour changer d'org facilement
 </script>
 
 <header>

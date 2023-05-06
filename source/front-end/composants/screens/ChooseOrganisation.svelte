@@ -3,32 +3,37 @@
     import { fade } from 'svelte/transition';
 
     import Skeleton from "../Skeleton.svelte";
+
     import githubAsDatabase from "../../githubAsDatabase.js";
 
     export let login;
     export let logout;
     export let possibleOrganisations = [];
 
+    const DEFAULT_REPO_NAME = 'comptabilite'
+
     let chosenOrg = undefined
+    let chosenRepo = DEFAULT_REPO_NAME // PPP hardcoded. Write selection
     let orgComptabiliteRepo;
 
-    const DEFAULT_REPO_NAME = 'comptabilite'
 
     function selectOrg(org){
         chosenOrg = org
 
-        orgComptabiliteRepo = githubAsDatabase
-            .getRepo(chosenOrg.login, DEFAULT_REPO_NAME)
-            .catch(err => {
-                if(err.status === 404){
-                    // repo does not exist
-                    console.info('Expected error trying to find a repo that may not exist')
-                    return undefined
-                }
-                else
-                    throw err;
-            })
+        const repoP = githubAsDatabase
+        .getRepo(chosenOrg.login, chosenRepo)
+
+        orgComptabiliteRepo = repoP.catch(err => {
+            if(err.status === 404){
+                // repo does not exist
+                console.info('Expected error trying to find a repo that may not exist')
+                return undefined
+            }
+            else
+                throw err;
+        });
     }
+
 
     let creatingOrgComptabilite;
 
@@ -70,7 +75,7 @@
 
             {#if repo}
                 <section transition:fade>
-                    La compta est là ! <a href="/comptabilite/?org={chosenOrg.login}">Y aller =></a>
+                    La compta est là ! <a href="/comptabilite/?org={chosenOrg.login}&repo={chosenRepo}">Y aller =></a>
                 </section>
 
             {:else}
@@ -87,7 +92,7 @@
                     {:then orgs}
                         <section transition:fade>
                             <p>Repo créé !</p>
-                            <a href={`/comptabilite?org=${chosenOrg.login}`}>Allé, on va faire de la compta !</a>
+                            <a href="/comptabilite?org={chosenOrg.login}&repo={chosenRepo}">Allé, on va faire de la compta !</a>
                         </section>
                     {:catch err}
                         <section transition:fade>

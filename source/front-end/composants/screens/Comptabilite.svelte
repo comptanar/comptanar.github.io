@@ -3,13 +3,14 @@ import Skeleton from '../Skeleton.svelte'
 export let login
 export let logout
 export let org
+export let repo
 </script>
 
 <Skeleton {login} {logout}>
   <h1>Voici la comptabilité de l'organisation <code>{org}</code></h1>
   <section>
 
-    <a href="/comptabilite/factures?org={org}">
+    <a href="/comptabilite/factures?org={org}&repo={repo}">
       <h2>Factures</h2>
     </a>
 

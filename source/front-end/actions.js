@@ -45,7 +45,17 @@ export async function initDance(){
 
 }
 
+export function selectOrgAndRepo(org, repo){
+    store.mutations.setOrgAndRepo(org, repo)
 
+    githubAsDatabase.owner = org;
+    githubAsDatabase.repo = repo;
+
+    const exercicesP = githubAsDatabase.getExercices()
+    .then(opérationsHautNiveauByYear => store.mutations.setOpérationsHautNiveauByYear(opérationsHautNiveauByYear))
+
+    return exercicesP
+}
 
 export function getUserOrgChoices(){
     const orgsP = githubAsDatabase.getOrgs()
@@ -57,4 +67,48 @@ export function getUserOrgChoices(){
     store.mutations.setUserOrgs(orgsP)
 
     return orgsP
+}
+
+
+
+export function créerEnvoiFactureÀClient({compteClient, identifiantFacture, dateFacture, montantHT, montantTVA, compteProduit}){
+    const date = new Date(dateFacture)
+
+    const year = date.getFullYear()
+
+    /** @type {EnvoiFactureClient} */
+    const envoiFactureÀClient = {
+        type: 'Envoi facture client',
+        numéroFacture: identifiantFacture,
+        date,
+        compteClient,
+        identifiantOpération: Math.random().toString(32).slice(2),
+        opérations: [
+            {
+                compte: compteProduit,
+                montant: montantHT,
+                sens: 'Débit'
+            },
+            {
+                compte: '44566', // TVA
+                montant: montantTVA,
+                sens: 'Débit'
+            }
+        ]
+    }
+
+    store.mutations.addOpérationHautNiveau(year, envoiFactureÀClient)
+    const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
+
+    return githubAsDatabase.writeExercice(
+        year, 
+        yearSha, 
+        store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau, 
+        `Rajout de la facture ${identifiantFacture} envoyée au client ${compteClient} le ${dateFacture}`
+    )
+    .then(({data: {content: {sha}}}) => {
+        // sha is the new modified content sha
+        return store.mutations.updateOpérationsHautNiveauSha(year, sha)
+    })
+
 }

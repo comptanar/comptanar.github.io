@@ -10,6 +10,9 @@ import { isOpérationHautNiveau } from './predicates.js';
  * @returns {OpérationHautNiveau[]}
  */
 export function parseOpérationsHautNiveauYaml(str){
+    if(str.trim() === '')
+        return [];
+    
     const parsed = parse(str, (key, value) => {
         if(key === 'date' && typeof value === 'string'){
             return new Date(value)
