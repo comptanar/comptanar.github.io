@@ -4,7 +4,7 @@ import Store from "baredux";
 
 import {rememberToken} from './localStorage.js';
 
-export default Store({
+const store = Store({
     state: {
         // @ts-ignore
         githubToken: await rememberToken(),
@@ -40,12 +40,12 @@ export default Store({
         /**
          * @param {any} state
          * @param {number} year
-         * @param {EnvoiFactureClient} envoiFactureÀClient
+         * @param {OpérationHautNiveau} opérationHautNiveau
          */
-        addOpérationHautNiveau(state, year, envoiFactureÀClient){
+        addOpérationHautNiveau(state, year, opérationHautNiveau){
             const {sha, opérationsHautNiveau} = state.opérationsHautNiveauByYear.get(year)
 
-            opérationsHautNiveau.push(envoiFactureÀClient)
+            opérationsHautNiveau.push(opérationHautNiveau)
             // now, the content of opérationsHautNiveau and the sha are de-synchronized temporarily
 
             state.opérationsHautNiveauByYear.set(year, {sha, opérationsHautNiveau})
@@ -57,3 +57,15 @@ export default Store({
         }
     }
 });
+
+export default store;
+
+export function getEnvoiFactureÀClients(state){
+    const {opérationsHautNiveauByYear} = state
+
+    return opérationsHautNiveauByYear ?
+        [...opérationsHautNiveauByYear.values()]
+            .map(({opérationsHautNiveau}) => opérationsHautNiveau.filter(op => op.type === 'Envoi facture client'))
+            .flat(Infinity) :
+        undefined;
+}

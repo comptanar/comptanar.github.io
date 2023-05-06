@@ -72,11 +72,8 @@ export default {
             const opérationsHautNiveauByYear = new Map();
             for(const {name, git_url} of exercicesDir){
                 const year = Number(name)
-                console.log('year', year);
-                console.log('git url', git_url);
                 
                 const exerciceDirP = theRequest(git_url).then(({data: exerciceDirGitObj}) => {
-                    console.log('exerciceFiles', year, exerciceDirGitObj);
                     
                     const treeFiles = exerciceDirGitObj.tree;
 
@@ -85,18 +82,13 @@ export default {
                     }
 
                     const opérationsHautNiveauTreeFile = treeFiles[0];
-
-                    const {path, url} = opérationsHautNiveauTreeFile
-                    console.log('opérationsHautNiveauFile', year, path, url);
+                    const {url} = opérationsHautNiveauTreeFile
 
                     const opérationsHautNiveauFileContentP = theRequest(url).then(({data: {encoding, content, sha}}) => {
                         if(encoding === 'base64'){
                             const ymlContent = atob(content)
-                            console.log('ymlContent', ymlContent)
 
                             const opérationsHautNiveau = parseOpérationsHautNiveauYaml(ymlContent)
-                            console.log('opérationsHautNiveau', opérationsHautNiveau)
-
                             opérationsHautNiveauByYear.set(year, {opérationsHautNiveau, sha})
                         }
                         else{

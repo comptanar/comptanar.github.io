@@ -1,6 +1,11 @@
 <script>
     //@ts-check
     
+    import {differenceInDays, differenceInMonths, formatDistanceToNow, format} from 'date-fns';
+    import { fr } from 'date-fns/locale'
+    import { sum } from 'd3-array'
+
+
     import Skeleton from '../Skeleton.svelte'
     import Loader from '../Loader.svelte'
 
@@ -9,25 +14,10 @@
     export let login
     export let logout
     export let org
+    export let envoiFactureàClients
     export let créerEnvoiFactureÀClient
 
-    /**
-    * @typedef {Object} BaseOpérationHautNiveau
-    * @property {string} identifiantOpération
-    * @property {string} type
-    * @property {Date} date
-    * @property {OpérationDeCompte[]} opérations
-    */
-
-    /**
-    * @typedef {Object} SpécifiqueEnvoiFactureClient
-    * @property {'Envoi facture client'} type
-    * @property {string} numéroFacture
-    * @property {string} compteClient
-    * 
-    * @typedef {BaseOpérationHautNiveau & SpécifiqueEnvoiFactureClient} EnvoiFactureClient
-    */
-    
+    console.log('envoiFactureàClients', envoiFactureàClients)
 
     let compteClient
     let identifiantFacture
@@ -53,13 +43,48 @@
         return x === Object(x) && typeof x.then === 'function'
     }
 
+    function displayDate(date){
+        if(differenceInDays(date, new Date()) === 0){
+            return `Aujourd'hui`
+        }
+        
+        if(differenceInMonths(date, new Date()) > -3){
+            return `il y a ${formatDistanceToNow(date, {locale: fr})}`
+        }
+        
+        return format(date, 'd MMMM yyyy', {locale: fr})
+    }
+
 </script>
 
 <Skeleton {login} {logout}>
     <h1>Voici les factures de l'organisation <code>{org}</code></h1>
 
     <h2>Liste des factures</h2>
-    <p>à faire ...</p>
+    {#if envoiFactureàClients}
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Client</th>
+                <th>Montant total</th>
+                <th>(dont montant HT)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {#each envoiFactureàClients as {date, compteClient, opérations}}
+                <tr>
+                    <td title="{format(date, 'd MMMM yyyy', {locale: fr})}">{displayDate(date)}</td>
+                    <td>{compteClient}</td>
+                    <td>{sum(opérations.map(({montant}) => montant))}&nbsp;€</td>
+                    <td>{sum(opérations.filter(({compte}) => compte !== '44566').map(({montant}) => montant))}&nbsp;€</td>
+                </tr>
+            {/each}
+        </tbody>
+
+    </table>
+    {/if}
+
 
     <h2>Saisir les données d'une facture</h2>
 

@@ -7,7 +7,7 @@ import ChooseOrganisation from './composants/screens/ChooseOrganisation.svelte'
 import Comptabilite from "./composants/screens/Comptabilite.svelte";
 import Factures from "./composants/screens/Factures.svelte";
 
-import store from './store.js'
+import store, {getEnvoiFactureÀClients} from './store.js'
 import {logout, saveToken, initDance, getUserOrgChoices, selectOrgAndRepo, créerEnvoiFactureÀClient} from './actions.js'
 
 console.info('start')
@@ -140,6 +140,7 @@ page('/comptabilite/factures', ({ querystring }) => {
             login: state.login,
             logout: logoutAndRedirect,
             org,
+            envoiFactureàClients : getEnvoiFactureÀClients(state),
             créerEnvoiFactureÀClient
         }
     }

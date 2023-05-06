@@ -54,10 +54,10 @@
   "dependencies": {
     "@octokit/request": "^6.2.3",
     "baredux": "github:DavidBruant/baredux",
-    "d3-array": "^3.2.0",
+    "d3-array": "^3.2.3",
     "d3-dsv": "^3.0.1",
     "d3-fetch": "^3.0.1",
-    "date-fns": "^2.29.3",
+    "date-fns": "^2.30.0",
     "page": "^1.11.6",
     "remember": "github:DavidBruant/remember#v1.0.1",
     "yaml": "^2.2.2"
