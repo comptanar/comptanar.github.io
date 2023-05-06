@@ -9,7 +9,7 @@
     ];
     const scopes = scopesList.join(',')
 
-    const toctoctoc_origin = 'http://fsu7dvuq.fbxos.fr';
+    const toctoctoc_origin = 'https://ttt.olibri.us';
     const client_id = 'fe09b09c65edef4ec9cc';
     const destination = `${location.origin}/`;
     const redirect_uri = `${toctoctoc_origin}/github-callback?destination=${destination}`
