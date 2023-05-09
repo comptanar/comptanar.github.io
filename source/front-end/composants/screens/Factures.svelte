@@ -18,34 +18,62 @@
     export let envoiFactureàClients
     export let créerEnvoiFactureÀClient
     export let supprimerEnvoiFactureÀClient
+    export let màjEnvoiFactureÀClient
 
+    // modale demandant quoi faire en cas de changements non sauvegardés
+    // (cf le HTML plus bas)
     let questionSauvegarde
-
     let changementsNonSauvegardés = false
 
+    // infos du formulaire
     let compteClient
     let identifiantFacture
     let dateFacture
-    //let lignes
 
     let montantHT
     let montantTVA
     let compteProduit
 
+    // facture que l'on veut modifier ensuite, mais qu'on est pas forcément en
+    // train de modifier tout de suite : on peut avoir une autre facture en édition
+    // si on est face à la modale qui demande si on veut sauvegarder les changements
+    // précédents
     let prochaineFactureÀModifier = undefined
+    // cette variable correspond à la facture qu'on est en train de modifier, ou `undefined`
+    // dans le cas où on rempli le formulaire pour créer une nouvelle facture
     let factureEnModification = undefined
 
     let factureSent = undefined;
 
-    function créerFacture(e){
-        // TODO: gérer quand on est en mode "modification"
-        factureSent = créerEnvoiFactureÀClient({compteClient, identifiantFacture, dateFacture, montantHT, montantTVA, compteProduit})
+    /**
+     * Cette fonction enregistre (ou enregistre les modifications apportées à) une facture
+     * dans le dépôt. Elle passe ensuite à la facture à éditer ensuite si elle existe, sinon
+     * elle vide juste le formulaire.
+     */
+    function créerFacture(){
+        if (factureEnModification) {
+            factureSent = màjEnvoiFactureÀClient({
+                identifiantOpération: factureEnModification.identifiantOpération,
+                compteClient,
+                identifiantFacture,
+                dateFacture,
+                montantHT,
+                montantTVA,
+                compteProduit,
+            })
+        } else {
+            factureSent = créerEnvoiFactureÀClient({compteClient, identifiantFacture, dateFacture, montantHT, montantTVA, compteProduit})
+        }
 
         factureSent.then(() => {
             factureSent = undefined
-            e.target.reset()
-            changementsNonSauvegardés = false
+            factureEnModification = prochaineFactureÀModifier
+            prochaineFactureÀModifier = undefined
+            màjFormulaire()
         })
+
+        // au cas où elle était ouverte parce qu'on avait des changements non sauvegardés juste avant
+        questionSauvegarde.close()
     }
 
     function isPromise(x){
@@ -86,26 +114,29 @@
     }
 
     function màjFormulaire() {
-        compteClient = factureEnModification.compteClient
-        identifiantFacture = factureEnModification.numéroFacture
-        dateFacture = format(factureEnModification.date, 'yyyy-MM-dd')
+        if (factureEnModification) {
+            compteClient = factureEnModification.compteClient
+            identifiantFacture = factureEnModification.numéroFacture
+            dateFacture = format(factureEnModification.date, 'yyyy-MM-dd')
 
-        const sommeMontants = (total, op) => total + op.montant
-        montantHT = factureEnModification.opérations.filter(o => o.compte !== '44566').reduce(sommeMontants, 0)
-        montantTVA = factureEnModification.opérations.filter(o => o.compte === '44566').reduce(sommeMontants, 0)
-        compteProduit = factureEnModification.opérations.find(o => o.compte !== '44566').compte
+            const sommeMontants = (total, op) => total + op.montant
+            montantHT = factureEnModification.opérations.filter(o => o.compte !== '44566').reduce(sommeMontants, 0)
+            montantTVA = factureEnModification.opérations.filter(o => o.compte === '44566').reduce(sommeMontants, 0)
+            compteProduit = factureEnModification.opérations.find(o => o.compte !== '44566').compte
+        } else {
+            compteClient = ''
+            identifiantFacture = ''
+            dateFacture = ''
+            montantHT = 0
+            montantTVA = 0
+            compteProduit = ''
+        }
         changementsNonSauvegardés = false
     }
 
     function annulerÉdition() {
         factureEnModification = undefined
-        changementsNonSauvegardés = false
-        compteClient = ''
-        identifiantFacture = ''
-        dateFacture = ''
-        montantHT = 0
-        montantTVA = 0
-        compteProduit = ''
+        màjFormulaire()
     }
 
     function nePlusÉditer() {
@@ -115,24 +146,8 @@
 
     function effacerEtÉditer() {
         factureEnModification = prochaineFactureÀModifier
+        prochaineFactureÀModifier = undefined
         màjFormulaire()
-        questionSauvegarde.close()
-    }
-
-    function sauvegarderPuisÉditer() {
-        // TODO: not always a creation, sometimes an edition
-        if (factureEnModification) {
-            // TODO: enregistrer les modifications
-        } else {
-            factureSent = créerEnvoiFactureÀClient({compteClient, identifiantFacture, dateFacture, montantHT, montantTVA, compteProduit})
-        }
-
-        factureSent.then(() => {
-            factureSent = undefined
-            factureEnModification = prochaineFactureÀModifier
-            màjFormulaire()
-        })
-
         questionSauvegarde.close()
     }
 </script>
@@ -224,7 +239,7 @@
     <Modal bind:dialog={questionSauvegarde} on:close={nePlusÉditer}>
         <p>Certaines informations entrées dans le formulaire n'ont pas encore été sauvegardées.<p>
         <button on:click={effacerEtÉditer}>Les effacer et modifier l'autre facture</button>
-        <button on:click={sauvegarderPuisÉditer}>Les sauvegarder puis modifier l'autre facture</button>
+        <button on:click={créerFacture}>Les sauvegarder puis modifier l'autre facture</button>
         <button on:click={nePlusÉditer}>Je ne veux plus modifier l'autre facture tout suite</button>
     </Modal>
 </Skeleton>

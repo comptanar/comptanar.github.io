@@ -56,10 +56,21 @@ const store = Store({
             // hopefully the opérationsHautNiveau and sha are now sychronized
         },
         supprimerOpérationHautNiveau(state, year, idOpération) {
-            console.log(year, idOpération)
             const { sha, opérationsHautNiveau } = state.opérationsHautNiveauByYear.get(year)
             state.opérationsHautNiveauByYear.set(year,
                 { sha, opérationsHautNiveau: opérationsHautNiveau.filter(op => op.identifiantOpération != idOpération) }
+            )
+        },
+        updateOpérationsHautNiveau(state, year, opérationHautNiveau) {
+            const { sha, opérationsHautNiveau } = state.opérationsHautNiveauByYear.get(year)
+            state.opérationsHautNiveauByYear.set(year,
+                { sha, opérationsHautNiveau: opérationsHautNiveau.map(op => {
+                    if (op.identifiantOpération === opérationHautNiveau.identifiantOpération) {
+                        return opérationHautNiveau
+                    } else {
+                        return op
+                    }
+                }) }
             )
         }
     }

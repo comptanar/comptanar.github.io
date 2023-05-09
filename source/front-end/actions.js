@@ -136,3 +136,52 @@ export function supprimerEnvoiFactureÀClient({ identifiantOpération, date, com
         return store.mutations.updateOpérationsHautNiveauSha(year, sha)
     })
 }
+
+export function màjEnvoiFactureÀClient({
+    identifiantOpération,
+    compteClient,
+    identifiantFacture,
+    dateFacture,
+    montantHT,
+    montantTVA,
+    compteProduit,
+}) {
+    const date = new Date(dateFacture)
+    const year = date.getFullYear()
+
+    /** @type {EnvoiFactureClient} */
+    const envoiFactureÀClient = {
+        type: 'Envoi facture client',
+        numéroFacture: identifiantFacture,
+        date,
+        compteClient,
+        identifiantOpération,
+        opérations: [
+            {
+                compte: compteProduit,
+                montant: montantHT,
+                sens: 'Débit'
+            },
+            {
+                compte: '44566', // TVA
+                montant: montantTVA,
+                sens: 'Débit'
+            }
+        ]
+    }
+
+    store.mutations.updateOpérationsHautNiveau(year, envoiFactureÀClient)
+    const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
+
+    const formattedDate = format(date, 'd MMMM yyyy', {locale: fr})
+
+    return githubAsDatabase.writeExercice(
+        year,
+        yearSha,
+        store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
+        `Modification de la facture ${identifiantFacture} envoyée au client ${compteClient} le ${formattedDate}`
+    )
+    .then(({data: {content: {sha}}}) => {
+        return store.mutations.updateOpérationsHautNiveauSha(year, sha)
+    })
+}
