@@ -16,6 +16,7 @@
     export let org
     export let envoiFactureàClients
     export let créerEnvoiFactureÀClient
+    export let supprimerEnvoiFactureÀClient
 
     console.log('envoiFactureàClients', envoiFactureàClients)
 
@@ -55,6 +56,9 @@
         return format(date, 'd MMMM yyyy', {locale: fr})
     }
 
+    function supprimerFacture(facture) {
+        supprimerEnvoiFactureÀClient(facture)
+    }
 </script>
 
 <Skeleton {login} {logout}>
@@ -72,12 +76,13 @@
             </tr>
         </thead>
         <tbody>
-            {#each envoiFactureàClients as {date, compteClient, opérations}}
+            {#each envoiFactureàClients as facture}
                 <tr>
-                    <td title="{format(date, 'd MMMM yyyy', {locale: fr})}">{displayDate(date)}</td>
-                    <td>{compteClient}</td>
-                    <td>{sum(opérations.map(({montant}) => montant))}&nbsp;€</td>
-                    <td>{sum(opérations.filter(({compte}) => compte !== '44566').map(({montant}) => montant))}&nbsp;€</td>
+                    <td title="{format(facture.date, 'd MMMM yyyy', {locale: fr})}">{displayDate(facture.date)}</td>
+                    <td>{facture.compteClient}</td>
+                    <td>{sum(facture.opérations.map(({montant}) => montant))}&nbsp;€</td>
+                    <td>{sum(facture.opérations.filter(({compte}) => compte !== '44566').map(({montant}) => montant))}&nbsp;€</td>
+                    <td><button on:click={_ => supprimerFacture(facture)}>Supprimer</button></td>
                 </tr>
             {/each}
         </tbody>

@@ -1,5 +1,8 @@
 //@ts-check
 
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale'
+
 import githubAsDatabase from './githubAsDatabase.js'
 import {rememberToken, forgetToken} from './localStorage.js'
 
@@ -111,4 +114,25 @@ export function créerEnvoiFactureÀClient({compteClient, identifiantFacture, da
         return store.mutations.updateOpérationsHautNiveauSha(year, sha)
     })
 
+}
+
+export function supprimerEnvoiFactureÀClient({ identifiantOpération, date, compteClient, numéroFacture }) {
+    const year = date.getFullYear()
+
+    store.mutations.supprimerOpérationHautNiveau(year, identifiantOpération)
+    
+    const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
+
+    const formattedDate = format(date, 'd MMMM yyyy', {locale: fr})
+
+    return githubAsDatabase.writeExercice(
+        year,
+        yearSha,
+        store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
+        `Suppression de la facture ${numéroFacture} envoyée au client ${compteClient} le ${formattedDate}`
+    )
+    .then(({data: {content: {sha}}}) => {
+        // sha is the new modified content sha
+        return store.mutations.updateOpérationsHautNiveauSha(year, sha)
+    })
 }
