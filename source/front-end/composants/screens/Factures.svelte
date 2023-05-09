@@ -18,8 +18,6 @@
     export let créerEnvoiFactureÀClient
     export let supprimerEnvoiFactureÀClient
 
-    console.log('envoiFactureàClients', envoiFactureàClients)
-
     let compteClient
     let identifiantFacture
     let dateFacture
@@ -28,6 +26,8 @@
     let montantHT
     let montantTVA
     let compteProduit
+
+    let factureEnCoursDÉdition = undefined
 
     let factureSent = undefined;
 
@@ -59,6 +59,26 @@
     function supprimerFacture(facture) {
         supprimerEnvoiFactureÀClient(facture)
     }
+
+    /**
+     * @param {EnvoiFactureClient} facture
+     */
+    function commencerModification(facture) {
+        factureEnCoursDÉdition = facture
+
+        compteClient = facture.compteClient
+        identifiantFacture = facture.numéroFacture
+        dateFacture = format(facture.date, 'yyyy-MM-dd')
+
+        const sommeMontants = (total, op) => total + op.montant
+        montantHT = facture.opérations.filter(o => o.compte !== '44566').reduce(sommeMontants, 0)
+        montantTVA = facture.opérations.filter(o => o.compte !== '44566').reduce(sommeMontants, 0)
+        compteProduit = facture.opérations.find(o => o.compte !== '44566').compte
+    }
+
+    function annulerÉdition() {
+        factureEnCoursDÉdition = undefined
+    }
 </script>
 
 <Skeleton {login} {logout}>
@@ -77,12 +97,13 @@
         </thead>
         <tbody>
             {#each envoiFactureàClients as facture}
-                <tr>
+                <tr class:edition={facture === factureEnCoursDÉdition}>
                     <td title="{format(facture.date, 'd MMMM yyyy', {locale: fr})}">{displayDate(facture.date)}</td>
                     <td>{facture.compteClient}</td>
                     <td>{sum(facture.opérations.map(({montant}) => montant))}&nbsp;€</td>
                     <td>{sum(facture.opérations.filter(({compte}) => compte !== '44566').map(({montant}) => montant))}&nbsp;€</td>
                     <td><button on:click={_ => supprimerFacture(facture)}>Supprimer</button></td>
+                    <td><button on:click={_ => commencerModification(facture)}>Modifier</button></td>
                 </tr>
             {/each}
         </tbody>
@@ -92,6 +113,15 @@
 
 
     <h2>Saisir les données d'une facture</h2>
+
+    {#if factureEnCoursDÉdition}
+        <div class="info">
+            <p>
+                ℹ️ Tu es en train de modifier la facture <em>{factureEnCoursDÉdition.numéroFacture}</em>
+            </p>
+            <button on:click={annulerÉdition}>Annuler l'édition</button>
+        </div>
+    {/if}
 
     <form on:submit|preventDefault={créerFacture}>
         <fieldset disabled={isPromise(factureSent)}>
@@ -121,7 +151,11 @@
             </label>
 
             <div class="button-with-loader">
-                <button type="submit">Créer la facture</button>
+                {#if factureEnCoursDÉdition}
+                    <button type="submit">Modifier la facture</button>
+                {:else}
+                    <button type="submit">Créer la facture</button>
+                {/if}
                 {#await factureSent}
                     <Loader></Loader>
                 {:catch err}
@@ -142,6 +176,22 @@
             display: flex;
             flex-direction: row;
             align-items: flex-start;
+        }
+    }
+
+    .edition {
+        background: #71cbff;
+    }
+
+    .info {
+        background: #71cbff;
+        margin: 1em 0;
+        padding: 1em;
+        display: flex;
+        justify-content: space-between;
+
+        em {
+            font-weight: bold;
         }
     }
 </style>
