@@ -8,6 +8,7 @@
 
     import Skeleton from '../Skeleton.svelte'
     import Loader from '../Loader.svelte'
+    import Modal from '../Modal.svelte'
 
     import '../../../format-données/types.js'
 
@@ -18,6 +19,10 @@
     export let créerEnvoiFactureÀClient
     export let supprimerEnvoiFactureÀClient
 
+    let questionSauvegarde
+
+    let changementsNonSauvegardés = false
+
     let compteClient
     let identifiantFacture
     let dateFacture
@@ -27,16 +32,19 @@
     let montantTVA
     let compteProduit
 
-    let factureEnCoursDÉdition = undefined
+    let prochaineFactureÀModifier = undefined
+    let factureEnModification = undefined
 
     let factureSent = undefined;
 
     function créerFacture(e){
+        // TODO: gérer quand on est en mode "modification"
         factureSent = créerEnvoiFactureÀClient({compteClient, identifiantFacture, dateFacture, montantHT, montantTVA, compteProduit})
 
         factureSent.then(() => {
             factureSent = undefined
             e.target.reset()
+            changementsNonSauvegardés = false
         })
     }
 
@@ -60,24 +68,72 @@
         supprimerEnvoiFactureÀClient(facture)
     }
 
+    function marquerCommeModifié() {
+        changementsNonSauvegardés = true
+    }
+
     /**
      * @param {EnvoiFactureClient} facture
      */
     function commencerModification(facture) {
-        factureEnCoursDÉdition = facture
+        if (changementsNonSauvegardés) {
+            prochaineFactureÀModifier = facture
+            questionSauvegarde.showModal()
+        } else {
+            factureEnModification = facture
+            màjFormulaire()
+        }
+    }
 
-        compteClient = facture.compteClient
-        identifiantFacture = facture.numéroFacture
-        dateFacture = format(facture.date, 'yyyy-MM-dd')
+    function màjFormulaire() {
+        compteClient = factureEnModification.compteClient
+        identifiantFacture = factureEnModification.numéroFacture
+        dateFacture = format(factureEnModification.date, 'yyyy-MM-dd')
 
         const sommeMontants = (total, op) => total + op.montant
-        montantHT = facture.opérations.filter(o => o.compte !== '44566').reduce(sommeMontants, 0)
-        montantTVA = facture.opérations.filter(o => o.compte !== '44566').reduce(sommeMontants, 0)
-        compteProduit = facture.opérations.find(o => o.compte !== '44566').compte
+        montantHT = factureEnModification.opérations.filter(o => o.compte !== '44566').reduce(sommeMontants, 0)
+        montantTVA = factureEnModification.opérations.filter(o => o.compte === '44566').reduce(sommeMontants, 0)
+        compteProduit = factureEnModification.opérations.find(o => o.compte !== '44566').compte
+        changementsNonSauvegardés = false
     }
 
     function annulerÉdition() {
-        factureEnCoursDÉdition = undefined
+        factureEnModification = undefined
+        changementsNonSauvegardés = false
+        compteClient = ''
+        identifiantFacture = ''
+        dateFacture = ''
+        montantHT = 0
+        montantTVA = 0
+        compteProduit = ''
+    }
+
+    function nePlusÉditer() {
+        prochaineFactureÀModifier = undefined
+        questionSauvegarde.close()
+    }
+
+    function effacerEtÉditer() {
+        factureEnModification = prochaineFactureÀModifier
+        màjFormulaire()
+        questionSauvegarde.close()
+    }
+
+    function sauvegarderPuisÉditer() {
+        // TODO: not always a creation, sometimes an edition
+        if (factureEnModification) {
+            // TODO: enregistrer les modifications
+        } else {
+            factureSent = créerEnvoiFactureÀClient({compteClient, identifiantFacture, dateFacture, montantHT, montantTVA, compteProduit})
+        }
+
+        factureSent.then(() => {
+            factureSent = undefined
+            factureEnModification = prochaineFactureÀModifier
+            màjFormulaire()
+        })
+
+        questionSauvegarde.close()
     }
 </script>
 
@@ -97,7 +153,7 @@
         </thead>
         <tbody>
             {#each envoiFactureàClients as facture}
-                <tr class:edition={facture === factureEnCoursDÉdition}>
+                <tr class:edition={factureEnModification === facture}>
                     <td title="{format(facture.date, 'd MMMM yyyy', {locale: fr})}">{displayDate(facture.date)}</td>
                     <td>{facture.compteClient}</td>
                     <td>{sum(facture.opérations.map(({montant}) => montant))}&nbsp;€</td>
@@ -114,10 +170,10 @@
 
     <h2>Saisir les données d'une facture</h2>
 
-    {#if factureEnCoursDÉdition}
+    {#if factureEnModification}
         <div class="info">
             <p>
-                ℹ️ Tu es en train de modifier la facture <em>{factureEnCoursDÉdition.numéroFacture}</em>
+                ℹ️ Tu es en train de modifier la facture <em>{factureEnModification.numéroFacture}</em>
             </p>
             <button on:click={annulerÉdition}>Annuler l'édition</button>
         </div>
@@ -127,31 +183,31 @@
         <fieldset disabled={isPromise(factureSent)}>
             <label>
                 <div>Client</div>
-                <input bind:value={compteClient} placeholder="411xxxx">
+                <input on:change={marquerCommeModifié} bind:value={compteClient} placeholder="411xxxx">
             </label>
             <label>
                 <div>Identifiant de facture</div>
-                <input bind:value={identifiantFacture} type="text">
+                <input on:change={marquerCommeModifié} bind:value={identifiantFacture} type="text">
             </label>
             <label>
                 <div>Date</div>
-                <input bind:value={dateFacture} type="date">
+                <input on:change={marquerCommeModifié} bind:value={dateFacture} type="date">
             </label>
             <label>
                 <div>Montant HT (€)</div>
-                <input bind:value={montantHT} step="0.01" type="number">
+                <input on:change={marquerCommeModifié} bind:value={montantHT} step="0.01" type="number">
             </label>
             <label>
                 <div>Montant TVA (€)</div>
-                <input bind:value={montantTVA} step="0.01" type="number">
+                <input on:change={marquerCommeModifié} bind:value={montantTVA} step="0.01" type="number">
             </label>
             <label>
                 <div>Compte Produit</div>
-                <input bind:value={compteProduit} placeholder="706xxx">
+                <input on:change={marquerCommeModifié} bind:value={compteProduit} placeholder="706xxx">
             </label>
 
             <div class="button-with-loader">
-                {#if factureEnCoursDÉdition}
+                {#if factureEnModification}
                     <button type="submit">Modifier la facture</button>
                 {:else}
                     <button type="submit">Créer la facture</button>
@@ -164,6 +220,13 @@
             </div>
         </fieldset>
     </form>
+
+    <Modal bind:dialog={questionSauvegarde} on:close={nePlusÉditer}>
+        <p>Certaines informations entrées dans le formulaire n'ont pas encore été sauvegardées.<p>
+        <button on:click={effacerEtÉditer}>Les effacer et modifier l'autre facture</button>
+        <button on:click={sauvegarderPuisÉditer}>Les sauvegarder puis modifier l'autre facture</button>
+        <button on:click={nePlusÉditer}>Je ne veux plus modifier l'autre facture tout suite</button>
+    </Modal>
 </Skeleton>
 
 <style lang="scss">
