@@ -3,6 +3,7 @@
 import { request } from "@octokit/request";
 
 import { parseOpérationsHautNiveauYaml, stringifyOpérationsHautNiveauYaml } from '../format-données/opérationsHautNiveau.js'
+import { parsePersonnes, stringifyPersonnesYaml } from "../format-données/personnes.js";
 
 const initialRequestDefaults = {
     headers: {
@@ -15,6 +16,8 @@ let theRequest = request.defaults(initialRequestDefaults)
 function opérationsHautNiveauPath(year){
     return `exercices/${year}/operationsHautNiveau.yml`
 }
+
+const personnesPath = 'personnes.yml'
 
 export default {
     reset(){
@@ -120,5 +123,33 @@ export default {
             sha,
             content: btoa(stringifyOpérationsHautNiveauYaml(opérationsHautNiveau))
         })
-    }
+    },
+    /**
+     * Renvoie la liste des personnes stockée sur GitHub
+     * @returns {Promise<{ sha: string, personnes: Personne[] }>}
+     */
+    async getPersonnes() {
+        // @ts-ignore
+        const { encoding, content, sha } = await theRequest(`/repos/{owner}/{repo}/contents/${personnesPath}`)
+
+        if (encoding === 'base64') {
+            return { sha, personnes: parsePersonnes(btoa(content)) }
+        } else {
+            throw new TypeError(`Encodage du fichier ${personnesPath} incorrect : on attendait du base64, on a du ${encoding}`)
+        }
+    },
+    /**
+     * Sauvegarde une liste de personnes dans le dépôt GitHub
+     * @param {string} sha 
+     * @param {Personne[]} personnes 
+     * @param {string} message 
+     */
+    writePersonnes(sha, personnes, message) {
+        return theRequest(`/repos/{owner}/{repo}/contents/${personnesPath}`, {
+            method: 'PUT',
+            message: message || 'Mise à jour des personnes',
+            sha,
+            content: btoa(stringifyPersonnesYaml(personnes))
+        })
+    },
 }

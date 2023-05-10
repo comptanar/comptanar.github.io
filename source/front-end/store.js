@@ -4,7 +4,6 @@ import Store from "baredux";
 
 import {rememberToken} from './localStorage.js';
 
-
 const store = Store({
     state: {
         // @ts-ignore
@@ -13,7 +12,9 @@ const store = Store({
         userOrgs: undefined,
         org: undefined,
         repo: undefined,
-        opérationsHautNiveauByYear: undefined
+        opérationsHautNiveauByYear: undefined,
+        /** @type {{ sha: string, personnes: Personne[] } | undefined} */
+        personnes: undefined,
     },
     mutations: {
         // Dans un store baredux, les mutations sont des fonctions qui modifient les données de manière synchrone
@@ -70,7 +71,23 @@ const store = Store({
             }
 
             state.opérationsHautNiveauByYear.set(year,{ sha, opérationsHautNiveau })
-        }
+        },
+        /**
+         * @param {*} state 
+         * @param {{ sha: string, personnes: Personne[] }} personnes 
+         */
+        setPersonnes(state, personnes) {
+            state.personnes = personnes
+        },
+        /**
+         * @param {*} state 
+         * @param {Personne} personne 
+         */
+        addPersonne(state, personne) {
+            const { sha, personnes } = state.personnes
+            personnes.push(personne)
+            state.personnes = { sha, personnes }
+        },
     }
 });
 

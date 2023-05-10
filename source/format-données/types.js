@@ -56,3 +56,25 @@
         PaiementFactureFournisseur
     } OpérationHautNiveau 
 */
+
+/**
+ * @typedef BasePersonne
+ * @property {string} type
+ * @property {string} nom
+ */
+
+/**
+ * @typedef {Object} SpécifiqueSalarié_e
+ * @property {'Salarié.e'} type
+ * @property {number} suffixeCompte
+ * 
+ * @typedef {SpécifiqueSalarié_e & BasePersonne} Salarié_e
+ */
+
+/**
+ * @typedef {BasePersonne} Client
+ */
+
+/**
+ * @typedef { Salarié_e | Client } Personne
+ */
