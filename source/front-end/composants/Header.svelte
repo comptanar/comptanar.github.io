@@ -1,4 +1,6 @@
 <script>
+    //@ts-check
+    
     export let login = undefined;
 
     export let logout;
