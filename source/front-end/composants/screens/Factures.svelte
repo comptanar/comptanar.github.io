@@ -264,7 +264,7 @@
     }
 
     .edition {
-        background: white;
+        background-color: white;
     }
 
     .tableau-editable {
@@ -275,7 +275,7 @@
         height: 100%;
 
         & > form {
-            background: white;
+            background-color: white;
             grid-area: form-body;
             padding: 2rem;
         }
@@ -293,14 +293,14 @@
                 cursor: pointer;
 
                 &:hover:not(.edition) {
-                    background: #f1f1f1;
+                    background-color: #f1f1f1;
                 }
             }
 
             thead {
                 position: sticky;
                 top: 0;
-                background: #e9e9e9;
+                background-color: #e9e9e9;
             }
 
             td, th {
@@ -326,7 +326,7 @@
         }
 
         .form-header {
-            background: white;
+            background-color: white;
             grid-area: form-title;
         }
     }
@@ -343,6 +343,17 @@
         font-size: 1.3rem;
         font-weight: bold;
         color: gray;
-        background: white;
+        background-color: white;
+    }
+
+    // sur les petits écrans, on affiche le formulaire en dessous de la liste
+    @media (max-width: 1200px) {
+        .tableau-editable {
+            grid-template: "table-title" auto
+                           "table-body" auto
+                           "form-title" auto
+                           "form-body" auto
+                           / 1fr;
+        }
     }
 </style>
