@@ -93,3 +93,11 @@ Il y a un compromis à trouver entre passer trop de temps à satisfaire le compi
 
 Ce repo utilise SCSS (version de SASS qui ressemble très fort à du CSS), principalement pour le nesting et les variables
 
+
+#### Organisation collective
+
+On peut suivre les avancements ici : https://github.com/orgs/comptanar/projects/1/views/1
+
+Les cartes peuvent devenir des issues dans le repo, on les change de colonne au fur et à mesure
+
+Chaque personne s'auto-assigne les cartes selon l'envie et la disponibilité
