@@ -55,9 +55,12 @@ export function selectOrgAndRepo(org, repo){
     githubAsDatabase.repo = repo;
 
     const exercicesP = githubAsDatabase.getExercices()
-    .then(opérationsHautNiveauByYear => store.mutations.setOpérationsHautNiveauByYear(opérationsHautNiveauByYear))
+        .then(opérationsHautNiveauByYear => store.mutations.setOpérationsHautNiveauByYear(opérationsHautNiveauByYear))
 
-    return exercicesP
+    const personnesP = githubAsDatabase.getPersonnes()
+        .then(store.mutations.setPersonnes)
+
+    return Promise.all([exercicesP, personnesP])
 }
 
 export function getUserOrgChoices(){

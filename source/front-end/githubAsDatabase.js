@@ -129,11 +129,10 @@ export default {
      * @returns {Promise<{ sha: string, personnes: Personne[] }>}
      */
     async getPersonnes() {
-        // @ts-ignore
-        const { encoding, content, sha } = await theRequest(`/repos/{owner}/{repo}/contents/${personnesPath}`)
+        const { data: { encoding, content, sha } } = await theRequest(`/repos/{owner}/{repo}/contents/${personnesPath}`)
 
         if (encoding === 'base64') {
-            return { sha, personnes: parsePersonnes(btoa(content)) }
+            return { sha, personnes: parsePersonnes(atob(content)) }
         } else {
             throw new TypeError(`Encodage du fichier ${personnesPath} incorrect : on attendait du base64, on a du ${encoding}`)
         }
