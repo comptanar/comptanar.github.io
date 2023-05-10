@@ -8,7 +8,6 @@
 
     import Skeleton from '../Skeleton.svelte'
     import Loader from '../Loader.svelte'
-    import Modal from '../Modal.svelte'
 
     import '../../../format-données/types.js'
 
@@ -16,14 +15,9 @@
     export let logout
     export let org
     export let envoiFactureàClients
-    export let créerEnvoiFactureÀClient
     export let supprimerEnvoiFactureÀClient
-    export let màjEnvoiFactureÀClient
-
-    // modale demandant quoi faire en cas de changements non sauvegardés
-    // (cf le HTML plus bas)
-    let questionSauvegarde
-    let changementsNonSauvegardés = false
+    export let sauvegarderEnvoiFactureÀClient
+    export let créerEnvoiFactureÀClientVide
 
     // infos du formulaire
     let compteClient
@@ -34,13 +28,6 @@
     let montantTVA
     let compteProduit
 
-    // facture que l'on veut modifier ensuite, mais qu'on est pas forcément en
-    // train de modifier tout de suite : on peut avoir une autre facture en édition
-    // si on est face à la modale qui demande si on veut sauvegarder les changements
-    // précédents
-    let prochaineFactureÀModifier = undefined
-    // cette variable correspond à la facture qu'on est en train de modifier, ou `undefined`
-    // dans le cas où on rempli le formulaire pour créer une nouvelle facture
     let factureEnModification = undefined
 
     let factureSent = undefined;
@@ -50,30 +37,21 @@
      * dans le dépôt. Elle passe ensuite à la facture à éditer ensuite si elle existe, sinon
      * elle vide juste le formulaire.
      */
-    function créerFacture(){
-        if (factureEnModification) {
-            factureSent = màjEnvoiFactureÀClient({
-                identifiantOpération: factureEnModification.identifiantOpération,
-                compteClient,
-                identifiantFacture,
-                dateFacture,
-                montantHT,
-                montantTVA,
-                compteProduit,
-            })
-        } else {
-            factureSent = créerEnvoiFactureÀClient({compteClient, identifiantFacture, dateFacture, montantHT, montantTVA, compteProduit})
-        }
+    function sauvegarderFacture(){
+        factureSent = sauvegarderEnvoiFactureÀClient({
+            identifiantOpération: factureEnModification.identifiantOpération,
+            compteClient,
+            identifiantFacture,
+            dateFacture,
+            montantHT,
+            montantTVA,
+            compteProduit,
+        })
 
         factureSent.then(() => {
             factureSent = undefined
-            factureEnModification = prochaineFactureÀModifier
-            prochaineFactureÀModifier = undefined
-            màjFormulaire()
+            factureEnModification = undefined
         })
-
-        // au cas où elle était ouverte parce qu'on avait des changements non sauvegardés juste avant
-        questionSauvegarde.close()
     }
 
     function isPromise(x){
@@ -83,6 +61,10 @@
     function displayDate(date){
         if(differenceInDays(date, new Date()) === 0){
             return `Aujourd'hui`
+        }
+
+        if (differenceInDays(date, new Date()) > 0) {
+            return `dans ${formatDistanceToNow(date, {locale: fr})}`
         }
         
         if(differenceInMonths(date, new Date()) > -3){
@@ -96,152 +78,141 @@
         supprimerEnvoiFactureÀClient(facture)
     }
 
-    function marquerCommeModifié() {
-        changementsNonSauvegardés = true
-    }
-
     /**
      * @param {EnvoiFactureClient} facture
      */
     function commencerModification(facture) {
-        if (changementsNonSauvegardés) {
-            prochaineFactureÀModifier = facture
-            questionSauvegarde.showModal()
-        } else {
-            factureEnModification = facture
-            màjFormulaire()
-        }
+        factureEnModification = facture
+        màjFormulaire()
     }
 
+    /**
+     * Les données de la facture et le formulaire n'étant pas construits exactement de la même façon
+     * on ne peut pas facilement utiliser le data binding de Svelte, donc on fait la mise à jour à
+     * la main quand on en a besoin avec cette fonction.
+     */
     function màjFormulaire() {
-        if (factureEnModification) {
-            compteClient = factureEnModification.compteClient
-            identifiantFacture = factureEnModification.numéroFacture
-            dateFacture = format(factureEnModification.date, 'yyyy-MM-dd')
+        compteClient = factureEnModification.compteClient
+        identifiantFacture = factureEnModification.numéroFacture
+        dateFacture = format(factureEnModification.date, 'yyyy-MM-dd')
 
-            const sommeMontants = (total, op) => total + op.montant
-            montantHT = factureEnModification.opérations.filter(o => o.compte !== '44566').reduce(sommeMontants, 0)
-            montantTVA = factureEnModification.opérations.filter(o => o.compte === '44566').reduce(sommeMontants, 0)
-            compteProduit = factureEnModification.opérations.find(o => o.compte !== '44566').compte
-        } else {
-            compteClient = ''
-            identifiantFacture = ''
-            dateFacture = ''
-            montantHT = 0
-            montantTVA = 0
-            compteProduit = ''
-        }
-        changementsNonSauvegardés = false
+        const sommeMontants = (total, op) => total + op.montant
+        montantHT = factureEnModification.opérations.filter(o => o.compte !== '44566').reduce(sommeMontants, 0)
+        montantTVA = factureEnModification.opérations.filter(o => o.compte === '44566').reduce(sommeMontants, 0)
+        compteProduit = factureEnModification.opérations.find(o => o.compte !== '44566').compte
     }
 
     function annulerÉdition() {
         factureEnModification = undefined
-        màjFormulaire()
     }
 
-    function nePlusÉditer() {
-        prochaineFactureÀModifier = undefined
-        questionSauvegarde.close()
+    function nouvelleFacture() {
+        const f = créerEnvoiFactureÀClientVide()
+        commencerModification(f)
     }
 
-    function effacerEtÉditer() {
-        factureEnModification = prochaineFactureÀModifier
-        prochaineFactureÀModifier = undefined
-        màjFormulaire()
-        questionSauvegarde.close()
+    function tri(factures) {
+        return factures.sort((a, b) => b.date - a.date)
     }
 </script>
 
-<Skeleton {login} {logout}>
-    <h1>Voici les factures de l'organisation <code>{org}</code></h1>
+<Skeleton {login} {logout} fullwidth>
+    <div class="tableau-editable">
+        <header class="table-header">
+            <h1>
+                Voici la liste des factures pour 
+                <code>{org}</code>
+            </h1>
+            <button on:click={nouvelleFacture}>Nouvelle facture</button>
+        </header>
+        {#if envoiFactureàClients}
+        <main>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Client</th>
+                        <th>Montant total</th>
+                        <th>(dont montant HT)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {#each tri(envoiFactureàClients) as facture}
+                        <tr class:edition={factureEnModification === facture} on:click={_ => commencerModification(facture)}>
+                            <td title="{format(facture.date, 'd MMMM yyyy', {locale: fr})}">{displayDate(facture.date)}</td>
+                            <td>{facture.compteClient}</td>
+                            <td>{sum(facture.opérations.map(({montant}) => montant))}&nbsp;€</td>
+                            <td>{sum(facture.opérations.filter(({compte}) => compte !== '44566').map(({montant}) => montant))}&nbsp;€</td>
+                            <td>
+                                <button
+                                    disabled={factureEnModification !== undefined}
+                                    title={factureEnModification !== undefined ? 'Il faut enregistrer ou abandonner les modifications avant de pouvoir supprimer cette facture' : ''}
+                                    on:click={_ => supprimerFacture(facture)}
+                                >
+                                    Supprimer
+                                </button>
+                            </td>
+                        </tr>
+                    {/each}
+                </tbody>
+            </table>
+        </main>
+        {/if}
 
-    <h2>Liste des factures</h2>
-    {#if envoiFactureàClients}
-    <table>
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Client</th>
-                <th>Montant total</th>
-                <th>(dont montant HT)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {#each envoiFactureàClients as facture}
-                <tr class:edition={factureEnModification === facture}>
-                    <td title="{format(facture.date, 'd MMMM yyyy', {locale: fr})}">{displayDate(facture.date)}</td>
-                    <td>{facture.compteClient}</td>
-                    <td>{sum(facture.opérations.map(({montant}) => montant))}&nbsp;€</td>
-                    <td>{sum(facture.opérations.filter(({compte}) => compte !== '44566').map(({montant}) => montant))}&nbsp;€</td>
-                    <td><button on:click={_ => supprimerFacture(facture)}>Supprimer</button></td>
-                    <td><button on:click={_ => commencerModification(facture)}>Modifier</button></td>
-                </tr>
-            {/each}
-        </tbody>
-
-    </table>
-    {/if}
-
-
-    <h2>Saisir les données d'une facture</h2>
-
-    {#if factureEnModification}
-        <div class="info">
-            <p>
-                ℹ️ Tu es en train de modifier la facture <em>{factureEnModification.numéroFacture}</em>
+        
+        {#if factureEnModification}
+        <header class="form-header">
+            {#if identifiantFacture}
+                <h2>Facture «&nbsp;{identifiantFacture}&nbsp;»</h2>
+            {:else}
+                <h2>Facture (sans identifiant)</h2>
+            {/if}
+        </header>
+        <form on:submit|preventDefault={sauvegarderFacture}>
+            <fieldset disabled={isPromise(factureSent)}>
+                <label>
+                    <div>Client</div>
+                    <input bind:value={compteClient} placeholder="411xxxx">
+                </label>
+                <label>
+                    <div>Identifiant de facture</div>
+                    <input bind:value={identifiantFacture} type="text">
+                </label>
+                <label>
+                    <div>Date</div>
+                    <input bind:value={dateFacture} type="date">
+                </label>
+                <label>
+                    <div>Montant HT (€)</div>
+                    <input bind:value={montantHT} step="0.01" type="number">
+                </label>
+                <label>
+                    <div>Montant TVA (€)</div>
+                    <input bind:value={montantTVA} step="0.01" type="number">
+                </label>
+                <label>
+                    <div>Compte Produit</div>
+                    <input bind:value={compteProduit} placeholder="706xxx">
+                </label>
+    
+                <div class="button-with-loader">
+                    <button type="submit">Enregistrer</button>
+                    {#await factureSent}
+                        <Loader></Loader>
+                    {:catch err}
+                        Problème avec l'envoi de la facture {err}
+                    {/await}
+                </div>
+                <button on:click={annulerÉdition}>Abandonner les modifications</button>
+            </fieldset>
+        </form>
+        {:else}
+            <p class="etat-vide">
+                Sélectionne une facture dans la liste pour voir toutes ses informations ou les modifier.
             </p>
-            <button on:click={annulerÉdition}>Annuler l'édition</button>
-        </div>
-    {/if}
-
-    <form on:submit|preventDefault={créerFacture}>
-        <fieldset disabled={isPromise(factureSent)}>
-            <label>
-                <div>Client</div>
-                <input on:change={marquerCommeModifié} bind:value={compteClient} placeholder="411xxxx">
-            </label>
-            <label>
-                <div>Identifiant de facture</div>
-                <input on:change={marquerCommeModifié} bind:value={identifiantFacture} type="text">
-            </label>
-            <label>
-                <div>Date</div>
-                <input on:change={marquerCommeModifié} bind:value={dateFacture} type="date">
-            </label>
-            <label>
-                <div>Montant HT (€)</div>
-                <input on:change={marquerCommeModifié} bind:value={montantHT} step="0.01" type="number">
-            </label>
-            <label>
-                <div>Montant TVA (€)</div>
-                <input on:change={marquerCommeModifié} bind:value={montantTVA} step="0.01" type="number">
-            </label>
-            <label>
-                <div>Compte Produit</div>
-                <input on:change={marquerCommeModifié} bind:value={compteProduit} placeholder="706xxx">
-            </label>
-
-            <div class="button-with-loader">
-                {#if factureEnModification}
-                    <button type="submit">Modifier la facture</button>
-                {:else}
-                    <button type="submit">Créer la facture</button>
-                {/if}
-                {#await factureSent}
-                    <Loader></Loader>
-                {:catch err}
-                    Problème avec l'envoi de la facture {err}
-                {/await}
-            </div>
-        </fieldset>
-    </form>
-
-    <Modal bind:dialog={questionSauvegarde} on:close={nePlusÉditer}>
-        <p>Certaines informations entrées dans le formulaire n'ont pas encore été sauvegardées.<p>
-        <button on:click={effacerEtÉditer}>Les effacer et modifier l'autre facture</button>
-        <button on:click={créerFacture}>Les sauvegarder puis modifier l'autre facture</button>
-        <button on:click={nePlusÉditer}>Je ne veux plus modifier l'autre facture tout suite</button>
-    </Modal>
+        {/if}
+    </div>   
 </Skeleton>
 
 <style lang="scss">
@@ -258,18 +229,87 @@
     }
 
     .edition {
-        background: #71cbff;
+        background: white;
     }
 
-    .info {
-        background: #71cbff;
-        margin: 1em 0;
-        padding: 1em;
-        display: flex;
-        justify-content: space-between;
+    .tableau-editable {
+        display: grid;
+        grid-template: "table-title form-title" auto
+                       "table-body  form-body " auto
+                        / 2fr 1fr;
 
-        em {
-            font-weight: bold;
+        & > form {
+            background: white;
+            grid-area: form-body;
+            padding: 2rem;
         }
+
+        & > main {
+            grid-area: table-body;
+            overflow: auto;
+            height: 0; // je ne sais pas trop pourquoi mais ça fait ce que je veux avec ça??
+            // sans cette ligne, la taille n'est pas contrainte et le tableau dépasse juste
+            // complètement de la page.
+            margin-bottom: 0;
+
+            table {
+                width: 100%;
+            }
+
+            tbody tr {
+                cursor: pointer;
+
+                &:hover:not(.edition) {
+                    background: #f1f1f1;
+                }
+            }
+
+            thead {
+                position: sticky;
+                top: 0;
+                background: #e9e9e9;
+            }
+
+            td, th {
+                padding: 1rem;
+            }
+        }
+
+        & > header {
+            padding: 2rem;
+            background: transparent;
+            color: black;
+
+            h1 {
+                margin: 0;
+            }
+        }
+
+        .table-header {
+            grid-area: table-title;
+            display: flex;
+            justify-content: space-between;
+            padding-left: 0;
+        }
+
+        .form-header {
+            background: white;
+            grid-area: form-title;
+        }
+    }
+
+    .etat-vide {
+        grid-row-start: form-title;
+        grid-row-end: form-body;
+        display: flex;
+        height: 100%;
+        padding: 2rem;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: gray;
+        background: white;
     }
 </style>

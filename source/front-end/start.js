@@ -10,7 +10,7 @@ import Factures from "./composants/screens/Factures.svelte";
 import store, {getEnvoiFactureÀClients} from './store.js'
 import {
     logout, saveToken, initDance, getUserOrgChoices, selectOrgAndRepo,
-    créerEnvoiFactureÀClient, supprimerEnvoiFactureÀClient, màjEnvoiFactureÀClient,
+    créerEnvoiFactureÀClientVide, supprimerEnvoiFactureÀClient, sauvegarderEnvoiFactureÀClient,
 } from './actions.js'
 
 console.info('start')
@@ -144,9 +144,9 @@ page('/comptabilite/factures', ({ querystring }) => {
             logout: logoutAndRedirect,
             org,
             envoiFactureàClients : getEnvoiFactureÀClients(state),
-            créerEnvoiFactureÀClient,
+            créerEnvoiFactureÀClientVide,
             supprimerEnvoiFactureÀClient,
-            màjEnvoiFactureÀClient,
+            sauvegarderEnvoiFactureÀClient,
         }
     }
 
