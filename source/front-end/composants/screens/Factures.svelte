@@ -272,6 +272,7 @@
         grid-template: "table-title form-title" auto
                        "table-body  form-body " auto
                         / 2fr 1fr;
+        height: 100%;
 
         & > form {
             background: white;
@@ -282,9 +283,6 @@
         & > main {
             grid-area: table-body;
             overflow: auto;
-            height: 0; // je ne sais pas trop pourquoi mais ça fait ce que je veux avec ça??
-            // sans cette ligne, la taille n'est pas contrainte et le tableau dépasse juste
-            // complètement de la page.
             margin-bottom: 0;
 
             table {
