@@ -4,6 +4,7 @@ import Store from "baredux";
 
 import {rememberToken} from './localStorage.js';
 
+
 const store = Store({
     state: {
         // @ts-ignore
@@ -15,6 +16,8 @@ const store = Store({
         opérationsHautNiveauByYear: undefined
     },
     mutations: {
+        // Dans un store baredux, les mutations sont des fonctions qui modifient les données de manière synchrone
+
         setToken(state, githubToken){
             state.githubToken = githubToken
         },

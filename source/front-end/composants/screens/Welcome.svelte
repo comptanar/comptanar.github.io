@@ -1,4 +1,6 @@
 <script>
+    //@ts-check
+    
     import Skeleton from "../Skeleton.svelte";
     //export let href;
     export let login;

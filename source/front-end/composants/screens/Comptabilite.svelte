@@ -1,4 +1,5 @@
 <script>
+//@ts-check
 import Skeleton from '../Skeleton.svelte'
 export let login
 export let logout
