@@ -10,6 +10,7 @@
     import Loader from '../Loader.svelte'
 
     import '../../../format-données/types.js'
+    import { tick } from 'svelte';
 
     export let login
     export let logout
@@ -27,6 +28,8 @@
     let montantHT
     let montantTVA
     let compteProduit
+
+    let formStart
 
     let factureEnModification = undefined
 
@@ -81,9 +84,14 @@
     /**
      * @param {EnvoiFactureClient} facture
      */
-    function commencerModification(facture) {
+    async function commencerModification(facture) {
         factureEnModification = facture
         màjFormulaire()
+        await tick()
+        if (formStart) {
+            formStart.focus()
+        }
+        document.getElementsByClassName('edition')[0].scrollIntoView({ behavior: 'smooth', block: 'end' })
     }
 
     /**
@@ -114,7 +122,34 @@
     function tri(factures) {
         return factures.sort((a, b) => b.date - a.date)
     }
+
+    function raccourcisClavier(e) {
+        if (e.altKey && e.key === 'n') {
+            nouvelleFacture()
+        }
+
+        const down = e.key === 'ArrowDown'
+        const up = e.key === 'ArrowUp'
+        if (up || down) {
+            let indice = envoiFactureàClients.findIndex(x => factureEnModification && x.identifiantOpération === factureEnModification.identifiantOpération)
+            if (indice === undefined) { indice = -1; }
+            if (down) { indice++ }
+            if (up) { indice-- }
+
+            if (indice < 0) {
+                indice = 0
+            }
+            if (indice >= envoiFactureàClients.length) {
+                indice = envoiFactureàClients.length - 1
+            }
+
+            commencerModification(envoiFactureàClients[indice])
+        }
+
+    }
 </script>
+
+<svelte:window on:keydown={raccourcisClavier} />
 
 <Skeleton {login} {logout} fullwidth>
     <div class="tableau-editable">
@@ -123,7 +158,7 @@
                 Voici la liste des factures pour 
                 <code>{org}</code>
             </h1>
-            <button on:click={nouvelleFacture}>Nouvelle facture</button>
+            <button on:click={nouvelleFacture} title="Alt+N">Nouvelle facture</button>
         </header>
         {#if envoiFactureàClients}
         <main>
@@ -173,7 +208,7 @@
             <fieldset disabled={isPromise(factureSent)}>
                 <label>
                     <div>Client</div>
-                    <input bind:value={compteClient} placeholder="411xxxx">
+                    <input bind:this={formStart} bind:value={compteClient} placeholder="411xxxx">
                 </label>
                 <label>
                     <div>Identifiant de facture</div>
