@@ -99,8 +99,6 @@ export function créerEnvoiFactureÀClientVide(){
         ]
     }
 
-    store.mutations.addOpérationHautNiveau(year, envoiFactureÀClient)
-
     return envoiFactureÀClient
 }
 

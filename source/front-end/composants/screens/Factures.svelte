@@ -29,6 +29,7 @@
     let montantTVA
     let compteProduit
 
+    // élément <input> qui correspond toujours au premier champ du formulaire d'édition
     let formStart
 
     let factureEnModification = undefined
@@ -87,11 +88,17 @@
     async function commencerModification(facture) {
         factureEnModification = facture
         màjFormulaire()
+
+        // On attend que Svelte ai redessiné la vue
         await tick()
+        // puis on met le focus sur le premier champ du formulaire, comme ça on peut
+        // directement commencer à le remplir sans devoir cliquer dedans
         if (formStart) {
             formStart.focus()
         }
-        document.getElementsByClassName('edition')[0].scrollIntoView({ behavior: 'smooth', block: 'end' })
+        // on s'assure aussi que la facture qu'on est en train d'éditer est bien visible
+        // dans la liste
+        document.querySelector('.edition').scrollIntoView({ behavior: 'smooth', block: 'end' })
     }
 
     /**
@@ -126,6 +133,7 @@
     function raccourcisClavier(e) {
         if (e.altKey && e.key === 'n') {
             nouvelleFacture()
+            return
         }
 
         const down = e.key === 'ArrowDown'
