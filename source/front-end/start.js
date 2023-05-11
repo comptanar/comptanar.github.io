@@ -172,7 +172,8 @@ page('/comptabilite/fiches-de-paie', ({ querystring }) => {
             login: state.login,
             logout: logoutAndRedirect,
             org,
-            personnes: state.personnes.personnes,
+            personnes: state.personnes.data,
+            salarié_es: state.salarié_es.data,
         }
     }
 

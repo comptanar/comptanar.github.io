@@ -1,6 +1,6 @@
 // @ts-check
 
-import { parse, stringify } from 'yaml'
+import { stringify } from 'yaml'
 
 import { isPersonne } from './predicates'
 import { parseArray } from './utils'

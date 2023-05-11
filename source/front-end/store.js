@@ -13,8 +13,10 @@ const store = Store({
         org: undefined,
         repo: undefined,
         opérationsHautNiveauByYear: undefined,
-        /** @type {{ sha: string, personnes: Personne[] } | undefined} */
+        /** @type {{ sha: string, data: Personne[] } | undefined} */
         personnes: undefined,
+        /** @type {{ sha: string, data: Salarié_e[] } | undefined} */
+        salarié_es: undefined,
     },
     mutations: {
         // Dans un store baredux, les mutations sont des fonctions qui modifient les données de manière synchrone
@@ -88,6 +90,15 @@ const store = Store({
             personnes.push(personne)
             state.personnes = { sha, personnes }
         },
+
+        setSalarié_es(state, s) {
+            state.salarié_es = s
+        },
+        addSalarié_e(state, s) {
+            const { sha, salarié_es } = state.salarié_es
+            salarié_es.push(s)
+            state.salarié_es = { sha, salarié_es }
+        }
     }
 });
 

@@ -60,7 +60,10 @@ export function selectOrgAndRepo(org, repo){
     const personnesP = githubAsDatabase.getPersonnes()
         .then(store.mutations.setPersonnes)
 
-    return Promise.all([exercicesP, personnesP])
+    const salarié_esP = githubAsDatabase.getSalarié_es()
+        .then(store.mutations.setSalarié_es)
+
+    return Promise.all([exercicesP, personnesP, salarié_esP])
 }
 
 export function getUserOrgChoices(){

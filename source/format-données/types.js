@@ -58,23 +58,13 @@
 */
 
 /**
- * @typedef BasePersonne
- * @property {string} type
+ * @typedef Personne
  * @property {string} nom
+ * @property {string} identifiant
  */
 
 /**
- * @typedef {Object} SpécifiqueSalarié_e
- * @property {'Salarié.e'} type
+ * @typedef {Object} Salarié_e
  * @property {number} suffixeCompte
- * 
- * @typedef {SpécifiqueSalarié_e & BasePersonne} Salarié_e
- */
-
-/**
- * @typedef {BasePersonne} Client
- */
-
-/**
- * @typedef { Salarié_e | Client } Personne
- */
+ * @property {string} idPersonne
+*/

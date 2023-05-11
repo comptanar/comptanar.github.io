@@ -41,5 +41,16 @@ export function isOpérationHautNiveau(op){
  */
 export function isPersonne(p) {
     return Object(p) === p &&
-        typeof p.nom === 'string'
+        typeof p.nom === 'string' &&
+        typeof p.identifiant === 'string'
+}
+
+/**
+ * @param {any} s 
+ * @returns {s is Salarié_e}
+ */
+export function isSalarié_e(s) {
+    return Object(s) === s &&
+        typeof s.suffixeCompte === 'number' &&
+        typeof s.idPersonne === 'string'
 }
