@@ -84,6 +84,7 @@
                 line-height: 1.5em;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
+                background-color: #e9e9e9;
             }
 
             h1:first-child,
@@ -130,8 +131,16 @@
                 padding: 0 calc(max(5px, (100vw - 50em) / 2));
             }
 
+            body > main.fullwidth {
+                padding: 3rem;
+                margin: 0;
+                height: 100vh;
+                overflow: auto;
+            }
+
             main {
                 min-height: 60vh;
+                margin: 2rem 0;
             }
 
             header {
@@ -140,7 +149,6 @@
 
                 padding-top: 2rem;
                 padding-bottom: 2rem;
-                margin-bottom: 2rem;
             }
 
             footer {
@@ -149,7 +157,6 @@
 
                 padding-top: 1rem;
                 padding-bottom: 1rem;
-                margin-top: 2rem;
             }
 
             footer {

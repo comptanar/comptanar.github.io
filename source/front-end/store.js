@@ -40,30 +40,36 @@ const store = Store({
             console.log('opérationsHautNiveauByYear', opérationsHautNiveauByYear)
             state.opérationsHautNiveauByYear = opérationsHautNiveauByYear
         },
-        /**
-         * @param {any} state
-         * @param {number} year
-         * @param {OpérationHautNiveau} opérationHautNiveau
-         */
-        addOpérationHautNiveau(state, year, opérationHautNiveau){
-            const {sha, opérationsHautNiveau} = state.opérationsHautNiveauByYear.get(year)
-
-            opérationsHautNiveau.push(opérationHautNiveau)
-            // now, the content of opérationsHautNiveau and the sha are de-synchronized temporarily
-
-            state.opérationsHautNiveauByYear.set(year, {sha, opérationsHautNiveau})
-        },
         updateOpérationsHautNiveauSha(state, year, newSha){
             const {sha, opérationsHautNiveau} = state.opérationsHautNiveauByYear.get(year)
             state.opérationsHautNiveauByYear.set(year, {sha: newSha, opérationsHautNiveau})
             // hopefully the opérationsHautNiveau and sha are now sychronized
         },
         supprimerOpérationHautNiveau(state, year, idOpération) {
-            console.log(year, idOpération)
             const { sha, opérationsHautNiveau } = state.opérationsHautNiveauByYear.get(year)
             state.opérationsHautNiveauByYear.set(year,
                 { sha, opérationsHautNiveau: opérationsHautNiveau.filter(op => op.identifiantOpération != idOpération) }
             )
+        },
+        /**
+         * Met à jour une opération de haut niveau dans la liste.
+         * Elle est ajoutée à la liste si elle n'y était pas avant.
+         * 
+         * @param {any} state
+         * @param {number} year
+         * @param {OpérationHautNiveau} opérationHautNiveau
+         */
+        updateOpérationsHautNiveau(state, year, opérationHautNiveau) {
+            const { sha, opérationsHautNiveau } = state.opérationsHautNiveauByYear.get(year)
+            const index = opérationsHautNiveau.findIndex(o => o.identifiantOpération === opérationHautNiveau.identifiantOpération)
+
+            if (index === -1) {
+                opérationsHautNiveau.push(opérationHautNiveau)
+            } else {
+                opérationsHautNiveau[index] = opérationHautNiveau
+            }
+
+            state.opérationsHautNiveauByYear.set(year,{ sha, opérationsHautNiveau })
         }
     }
 });
