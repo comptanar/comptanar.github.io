@@ -1,28 +1,17 @@
 //@ts-check
 
-import { parse, stringify } from 'yaml'
+import { stringify } from 'yaml'
 
 import { isOpérationDeCompte } from './predicates.js';
+import { parseArray } from './utils.js';
 /**
  * @param {string} str
  * @returns {OpérationDeCompte[]}
  */
-export function parseOpérationsDeCompteYaml(str){
-    const parsed = parse(str);
-
-    if(Array.isArray(parsed) && parsed.every( isOpérationDeCompte )) 
-        return parsed
-    else{
-        throw new TypeError(
-            `Problème dans le format de fichier qui n'est pas reconnu (devrait être un liste d'opérations de compte). Début du fichier:\n\n---\n${str.slice(0, 100)}\n---`
-        )
-    }
-}
+export const parseOpérationsDeCompteYaml = (str) => parseArray(str, 'une liste d\'opérations de compte', isOpérationDeCompte)
 
 /**
- * @param {OpérationDeCompte[]} ops
- * @returns {string}
+ * @param {OpérationDeCompte[]} o
+ * @return {string}
  */
-export function stringifyOpérationsDeCompteYaml(ops){
-    return stringify(ops)
-}
+export const stringifyOpérationsDeCompteYaml = (o) => stringify(o)

@@ -3,32 +3,25 @@
 import { parse, stringify } from 'yaml'
 
 import { isOpérationHautNiveau } from './predicates.js';
+import { parseArray } from './utils.js';
 
 
 /**
  * @param {string} str
  * @returns {OpérationHautNiveau[]}
  */
-export function parseOpérationsHautNiveauYaml(str){
-    if(str.trim() === '')
-        return [];
-    
-    const parsed = parse(str, (key, value) => {
-        if(key === 'date' && typeof value === 'string'){
+export const parseOpérationsHautNiveauYaml = (str) => parseArray(
+    str,
+    'une liste d\'opérations de haut niveau',
+    isOpérationHautNiveau,
+    (key, value) => {
+        if (key === 'date' && typeof value === 'string'){
             return new Date(value)
         }
 
-        return value;
-    });
-
-    if(Array.isArray(parsed) && parsed.every( isOpérationHautNiveau )) 
-        return parsed
-    else{
-        throw new TypeError(
-            `Problème dans le format de fichier qui n'est pas reconnu (devrait être un liste d'opérations haut niveau). Début du fichier:\n\n---\n${str.slice(0, 100)}\n---`
-        )
-    }
-}
+        return value
+    },
+)
 
 /**
  * @param {OpérationHautNiveau[]} ops

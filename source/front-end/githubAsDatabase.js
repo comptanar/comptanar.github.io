@@ -126,29 +126,61 @@ export default {
     },
     /**
      * Renvoie la liste des personnes stockée sur GitHub
-     * @returns {Promise<{ sha: string, personnes: Personne[] }>}
+     * @type {() => Promise<WithSha<Personne[]>>}
      */
-    async getPersonnes() {
-        const { data: { encoding, content, sha } } = await theRequest(`/repos/{owner}/{repo}/contents/${personnesPath}`)
-
-        if (encoding === 'base64') {
-            return { sha, personnes: parsePersonnes(atob(content)) }
-        } else {
-            throw new TypeError(`Encodage du fichier ${personnesPath} incorrect : on attendait du base64, on a du ${encoding}`)
-        }
-    },
+    getPersonnes: fileReader(personnesPath, parsePersonnes),
     /**
      * Sauvegarde une liste de personnes dans le dépôt GitHub
-     * @param {string} sha 
+     * @param {string} sha
      * @param {Personne[]} personnes 
      * @param {string} message 
      */
-    writePersonnes(sha, personnes, message) {
-        return theRequest(`/repos/{owner}/{repo}/contents/${personnesPath}`, {
-            method: 'PUT',
-            message: message || 'Mise à jour des personnes',
-            sha,
-            content: btoa(stringifyPersonnesYaml(personnes))
-        })
-    },
+    writePersonnes: fileWriter(personnesPath, 'Mise à jour des personnes', stringifyPersonnesYaml),
+}
+
+// Quelques fonctions utilitaires :
+
+/**
+ * @template T
+ * @typedef {{ sha: string, data: T }} WithSha<T>
+ */
+
+/**
+ * Génère une fonction de lecture de données stockées dans un fichier unique
+ * @template T
+ * @param {string} path 
+ * @param {(data: string) => T} parser 
+ * @returns {() => Promise<{ sha: string, data: T}>}
+ */
+function fileReader(path, parser) {
+    return async () => {
+        const { data: { encoding, content, sha } } = await theRequest(`/repos/{owner}/{repo}/contents/${path}`)
+
+        if (typeof sha !== 'string') throw new TypeError()
+        if (typeof content !== 'string') throw new TypeError()
+
+        if (encoding === 'base64') {
+            return { sha, data: parser(atob(content)) }
+        } else {
+            throw new TypeError(`Encodage du fichier ${path} incorrect : on attendait du base64, on a du ${encoding}`)
+        }
+    }
+}
+
+/**
+ * Génère une fonction d'écriture de données dans un fichier unique
+ * 
+ * @template T
+ * @param {string} path 
+ * @param {string} defaultMessage 
+ * @param {(T) => string} formatter 
+ * @returns {(sha: string, data: T, message: string) => Promise<import("@octokit/types").OctokitResponse<any>>}
+ */
+function fileWriter(path, defaultMessage, formatter) {
+    return (sha, data, message) => theRequest(`/repos/{owner}/{repo}/contents/${path}`, {
+        method: 'PUT',
+        message: message || defaultMessage,
+        sha,
+        content: btoa(formatter(data))
+    })
 }

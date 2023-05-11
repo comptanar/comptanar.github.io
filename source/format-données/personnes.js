@@ -3,6 +3,7 @@
 import { parse, stringify } from 'yaml'
 
 import { isPersonne } from './predicates'
+import { parseArray } from './utils'
 
 /**
  * Une personne peut représenter une personne physique ou une personne morale
@@ -11,27 +12,12 @@ import { isPersonne } from './predicates'
 /**
  * Parse un fichier YAML contenant une liste de personnes
  * @param {string} str 
- * @returns 
+ * @returns {Personne[]}
  */
-export function parsePersonnes(str) {
-    if(str.trim() === '')
-        return [];
-
-    const parsed = parse(str);
-
-    if(Array.isArray(parsed) && parsed.every(isPersonne)) 
-        return parsed
-    else{
-        throw new TypeError(
-            `Problème dans le format de fichier qui n'est pas reconnu (devrait être une liste de personnes). Début du fichier:\n\n---\n${str.slice(0, 100)}\n---`
-        )
-    }
-}
+export const parsePersonnes = (str) => parseArray(str, 'une liste de personnes', isPersonne) 
 
 /**
- * @param {Personne[]} personnes 
+ * @param {Personne[]} personnes
  * @returns {string}
  */
-export function stringifyPersonnesYaml(personnes) {
-    return stringify(personnes)
-}
+export const stringifyPersonnesYaml = (personnes) => stringify(personnes)
