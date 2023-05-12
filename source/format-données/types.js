@@ -48,13 +48,23 @@
  * @typedef {BaseOpérationHautNiveau & SpécifiquePaiementFactureFournisseur} PaiementFactureFournisseur
  */
 
+/**
+ * @typedef {Object} SpécifiqueÉmissionFicheDePaie
+ * @property {'Fiche de paie'} type
+ * @property {Date} débutPériode
+ * @property {Date} finPériode
+ * 
+ * @typedef {BaseOpérationHautNiveau & SpécifiqueÉmissionFicheDePaie} ÉmissionFicheDePaie
+ */
+
 /** 
     @typedef {
         EnvoiFactureClient | 
         PaiementFactureClient |
         RéceptionFactureFournisseur |
-        PaiementFactureFournisseur
-    } OpérationHautNiveau 
+        PaiementFactureFournisseur |
+        ÉmissionFicheDePaie
+    } OpérationHautNiveau
 */
 
 /**

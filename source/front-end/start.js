@@ -8,10 +8,11 @@ import Comptabilite from "./composants/screens/Comptabilite.svelte";
 import Factures from "./composants/screens/Factures.svelte";
 import FichesDePaie from './composants/screens/FichesDePaie.svelte'
 
-import store, {getEnvoiFactureÀClients} from './store.js'
+import store, {getEnvoiFactureÀClients, getFichesDePaie} from './store.js'
 import {
     logout, saveToken, initDance, getUserOrgChoices, selectOrgAndRepo,
     créerEnvoiFactureÀClientVide, supprimerEnvoiFactureÀClient, sauvegarderEnvoiFactureÀClient,
+    créerFicheDePaieVide, envoyerFicheDePaie,
 } from './actions.js'
 
 console.info('start')
@@ -174,7 +175,9 @@ page('/comptabilite/fiches-de-paie', ({ querystring }) => {
             org,
             personnes: state.personnes?.data ?? [],
             salarié_es: state.salarié_es?.data ?? [],
-            créerFicheDePaieVide: () => {}
+            créerFicheDePaieVide,
+            envoyerFicheDePaie,
+            fichesDePaie: getFichesDePaie(state),
         }
     }
 

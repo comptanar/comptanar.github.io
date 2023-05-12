@@ -104,12 +104,15 @@ const store = Store({
 
 export default store;
 
-export function getEnvoiFactureÀClients(state){
+const getSpecificOp = opType => state => {
     const {opérationsHautNiveauByYear} = state
 
     return opérationsHautNiveauByYear ?
         [...opérationsHautNiveauByYear.values()]
-            .map(({opérationsHautNiveau}) => opérationsHautNiveau.filter(op => op.type === 'Envoi facture client'))
+            .map(({opérationsHautNiveau}) => opérationsHautNiveau.filter(op => op.type === opType))
             .flat(Infinity) :
         undefined;
 }
+
+export const getEnvoiFactureÀClients = getSpecificOp('Envoi facture client')
+export const getFichesDePaie = getSpecificOp('Fiche de paie')

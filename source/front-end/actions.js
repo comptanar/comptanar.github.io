@@ -8,6 +8,8 @@ import {rememberToken, forgetToken} from './localStorage.js'
 
 import store from './store.js'
 
+import { formatCompte } from './utils.js'
+
 /**
  * @param {string} token
  */
@@ -172,6 +174,80 @@ export function sauvegarderEnvoiFactureÀClient({
         yearSha,
         store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
         `Modification de la facture ${identifiantFacture} envoyée au client ${compteClient} le ${formattedDate}`
+    )
+    .then(({data: {content: {sha}}}) => {
+        return store.mutations.updateOpérationsHautNiveauSha(year, sha)
+    })
+}
+
+/** @returns {ÉmissionFicheDePaie} */
+export function créerFicheDePaieVide(){
+    const date = new Date()
+    const year = date.getFullYear()
+
+    return {
+        type: 'Fiche de paie',
+        date,
+        débutPériode: date,
+        finPériode: date,
+        identifiantOpération: Math.random().toString(32).slice(2),
+        opérations: []
+    }
+}
+
+export function envoyerFicheDePaie({
+    identifiantOpération,
+    nomSalarié_e,
+    compteSalarié_e,
+    rémunération,
+    sécu,
+    prélèvement,
+    dateÉmission,
+    débutPériodeStr,
+    finPériodeStr
+}) {
+    const date = new Date(dateÉmission)
+    const year = date.getFullYear()
+    const débutPériode = new Date(débutPériodeStr)
+    const finPériode = new Date(finPériodeStr)
+
+    /** @type {ÉmissionFicheDePaie} */
+    const fiche = {
+        identifiantOpération,
+        type: 'Fiche de paie',
+        date,
+        débutPériode,
+        finPériode,
+        opérations: [
+            {
+                compte: formatCompte(641, compteSalarié_e),
+                montant: rémunération,
+                sens: 'Crédit'
+            },
+            {
+                compte: formatCompte(645, compteSalarié_e),
+                montant: sécu,
+                sens: 'Crédit',
+            },
+            {
+                compte: formatCompte(4421, compteSalarié_e),
+                montant: prélèvement,
+                sens: 'Crédit'
+            },
+        ]
+    }
+
+    store.mutations.updateOpérationsHautNiveau(year, fiche)
+    const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
+
+    const formattedStart = format(débutPériode, 'd MMMM yyyy', {locale: fr})
+    const formattedEnd = format(finPériode, 'd MMMM yyyy', {locale: fr})
+
+    return githubAsDatabase.writeExercice(
+        year,
+        yearSha,
+        store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
+        `Modification de la fiche de paie de ${nomSalarié_e} pour la période du ${formattedStart} au ${formattedEnd}`
     )
     .then(({data: {content: {sha}}}) => {
         return store.mutations.updateOpérationsHautNiveauSha(year, sha)

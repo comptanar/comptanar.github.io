@@ -15,7 +15,7 @@ export const parseOpérationsHautNiveauYaml = (str) => parseArray(
     'une liste d\'opérations de haut niveau',
     isOpérationHautNiveau,
     (key, value) => {
-        if (key === 'date' && typeof value === 'string'){
+        if ((key === 'date' || key === 'débutPériode' || key === 'finPériode') && typeof value === 'string'){
             return new Date(value)
         }
 

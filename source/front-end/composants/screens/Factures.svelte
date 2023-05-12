@@ -1,17 +1,16 @@
 <script>
     //@ts-check
     
-    import {differenceInDays, differenceInMonths, formatDistanceToNow, format} from 'date-fns';
+    import { format } from 'date-fns';
     import { fr } from 'date-fns/locale'
-    import { sum } from 'd3-array'
-
+    import { tick } from 'svelte';
 
     import Skeleton from '../Skeleton.svelte'
     import Loader from '../Loader.svelte'
 
     import '../../../format-données/types.js'
-    import { tick } from 'svelte';
     import Tableau from '../Tableau.svelte';
+    import { isPromise, displayDate, sommeFactures } from '../../utils'
 
     export let login
     export let logout
@@ -42,7 +41,6 @@
     let table
     let tableConfig
 
-    const sommeFactures = ops => ops.reduce((total, { montant }) => total + montant, 0).toFixed(2)
     $: tableConfig = {
         placeholder: 'Sélectionne une facture dans la liste pour voir toutes ses informations ou les modifier.',
         globalActions: [
@@ -83,26 +81,6 @@
             // Nécessaire pour que la facture soit bien marquée comme sélectionnée dans le tableau
             table.edit(envoiFactureàClients.findIndex(f => f.identifiantOpération === factureEnModification.identifiantOpération))
         })
-    }
-
-    function isPromise(x){
-        return x === Object(x) && typeof x.then === 'function'
-    }
-
-    function displayDate(date){
-        if(differenceInDays(date, new Date()) === 0){
-            return `Aujourd'hui`
-        }
-
-        if (differenceInDays(date, new Date()) > 0) {
-            return `dans ${formatDistanceToNow(date, {locale: fr})}`
-        }
-        
-        if(differenceInMonths(date, new Date()) > -3){
-            return `il y a ${formatDistanceToNow(date, {locale: fr})}`
-        }
-        
-        return format(date, 'd MMMM yyyy', {locale: fr})
     }
 
     /**
@@ -206,12 +184,6 @@
             flex-direction: row;
             align-items: flex-start;
         }
-    }
-
-    form {
-        background-color: white;
-        grid-area: form-body;
-        padding: 2rem;
     }
 
     h1 {

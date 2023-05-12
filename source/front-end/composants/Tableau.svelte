@@ -3,6 +3,7 @@
 
     import Keybinding from 'keybinding'
     import { createEventDispatcher, tick } from 'svelte';
+    import Loader from './Loader.svelte';
 
     /**
      * Une action correspondra à un bouton (et un éventuel raccourci clavier) dans l'interface
@@ -121,39 +122,47 @@
         </div>
     </header>
     <main>
-        <table>
-            <thead>
-                <tr>
-                    {#each columns as col}
-                        <th>{col}</th>
-                    {/each}
-                    {#each itemActions as _}
-                        <th></th>
-                    {/each}
-                </tr>
-            </thead>
-            <tbody>
-                {#each data as row, i}
-                    <tr class:edition={editing === i} on:click={_ => edit(i)}>
-                        {#each row as content}
-                            <td title={content.title}>{content.content}</td>
+        {#if data}
+            <table>
+                <thead>
+                    <tr>
+                        {#each columns as col}
+                            <th>{col}</th>
                         {/each}
-                        {#each itemActions as action}
-                            <td>
-                                <button disabled={editing !== undefined} on:click={() => action.run(i)} title={action.shortcut}>{action.name}</button>
-                            </td>
+                        {#each itemActions as _}
+                            <th></th>
                         {/each}
                     </tr>
-                {/each}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {#each data as row, i}
+                        <tr class:edition={editing === i} on:click={_ => edit(i)}>
+                            {#each row as content}
+                                <td title={content.title}>{content.content}</td>
+                            {/each}
+                            {#each itemActions as action}
+                                <td>
+                                    <button disabled={editing !== undefined} on:click={() => action.run(i)} title={action.shortcut}>{action.name}</button>
+                                </td>
+                            {/each}
+                        </tr>
+                    {/each}
+                </tbody>
+            </table>
+        {:else}
+            <div class="center">
+                <Loader />
+            </div>
+        {/if}
     </main>
     
     {#if editing !== undefined}
         <header class="form-header">
             <slot name="form-header"></slot>
         </header>
-        <slot></slot>
+        <div class="form-body">
+            <slot></slot>
+        </div>
     {:else}
         <p class="etat-vide">
             {placeholder}
@@ -165,6 +174,14 @@
 <style lang="scss">
     .edition {
         background-color: white;
+    }
+
+    .center {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .tableau-editable {
@@ -223,6 +240,12 @@
             background-color: white;
             grid-area: form-title;
         }
+    }
+
+    .form-body {
+        background-color: white;
+        grid-area: form-body;
+        padding: 2rem;
     }
 
     .etat-vide {
