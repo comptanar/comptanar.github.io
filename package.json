@@ -58,6 +58,7 @@
     "d3-dsv": "^3.0.1",
     "d3-fetch": "^3.0.1",
     "date-fns": "^2.30.0",
+    "keybinding": "^1.0.0-beta.4",
     "page": "^1.11.6",
     "remember": "github:DavidBruant/remember#v1.0.1",
     "yaml": "^2.2.2"
