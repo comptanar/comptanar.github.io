@@ -1,25 +1,38 @@
 <script>
-    import Skeleton from "../Skeleton.svelte";
+    // @ts-check
+
+    import Skeleton from "../Skeleton.svelte"
+    import Tableau from "../Tableau.svelte"
 
     export let login
     export let logout
     export let org
     /** @type Personne[] */
     export let personnes
-    /** @type Salarié_es[] */
+    /** @type Salarié_e[] */
     export let salarié_es
+    export let créerFicheDePaieVide
+
+    const tableConfig = {
+        placeholder: 'Sélectionne une fiche de paie pour en voir le détail et la modifier',
+        columns: [ 'Date d\'émission', 'Période', 'Salarié⋅e', 'Montant' ],
+        globalActions: [
+            { name: 'Nouvelle fiche', shortcut: 'Alt+N', run: créerFicheDePaieVide }
+        ],
+        itemActions: [],
+        data: [
+            [
+                { content: 'Il y a deux jours' },
+                { content: '5 mai 2023 - 16 mai 2023' },
+                { content: 'Alice' },
+                { content: '1€' },
+            ]
+        ]
+    }
 </script>
 
-<Skeleton {login} {logout}>
-    <h1>Fiches de paie pour {org}</h1>
-    <ul>
-        {#each personnes as p}
-            <li>{p.nom} @ {p.identifiant}</li>
-        {/each}
-    </ul>
-    <ul>
-        {#each salarié_es as s}
-            <li>{s.personnes}</li>
-        {/each}
-    </ul>
+<Skeleton {login} {logout} fullwidth>
+    <Tableau {...tableConfig}>
+        <h1 slot="header">Voici les fiches de paie pour <code>{org}</code></h1>
+    </Tableau>
 </Skeleton>
