@@ -15,8 +15,8 @@
     export let org
     /** @type Personne[] */
     export let personnes
-    /** @type Salarié_e[] */
-    export let salarié_es
+    /** @type Salarié·e[] */
+    export let salarié·es
     export let créerFicheDePaieVide
     /** @type ÉmissionFicheDePaie[] */
     export let fichesDePaie
@@ -29,7 +29,7 @@
     let formStart
 
     // Données du formulaire
-    let salarié_e
+    let salarié·e
     let rémunération
     let sécu
     let prélèvement
@@ -41,24 +41,24 @@
      * @param {ÉmissionFicheDePaie} fiche
      * @returns {string}
      */
-    function salarié_eForFiche(fiche) {
+    function salarié·eForFiche(fiche) {
         const compteRémunéré = fiche.opérations.find(f => f.compte.startsWith('641'))
         if (compteRémunéré === undefined) {
             return ''
         }
         const suffixe = Number.parseInt(compteRémunéré.compte.slice(3))
-        const salarié_e = salarié_es.find(s => s.suffixeCompte === suffixe)
-        const personne = personnes.find(p => p.identifiant === salarié_e.idPersonne)
+        const salarié·e = salarié·es.find(s => s.suffixeCompte === suffixe)
+        const personne = personnes.find(p => p.identifiant === salarié·e.idPersonne)
         return personne.nom
     }
 
     function sauvegarderFiche() {
-        const personne = personnes.find(p => p.nom === salarié_e)
-        const compte = salarié_es.find(s => s.idPersonne === personne.identifiant).suffixeCompte
+        const personne = personnes.find(p => p.nom === salarié·e)
+        const compte = salarié·es.find(s => s.idPersonne === personne.identifiant).suffixeCompte
         editPromise = envoyerFicheDePaie({
             identifiantOpération: ficheEnModification.identifiantOpération,
-            compteSalarié_e: compte,
-            nomSalarié_e: salarié_e,
+            compteSalarié·e: compte,
+            nomSalarié·e: salarié·e,
             rémunération,
             sécu,
             prélèvement,
@@ -83,7 +83,7 @@
             const suffixe = extraireSuffixe(ficheEnModification.opérations[0]?.compte)
             const montantPour = (préfixe) => ficheEnModification.opérations.find(x => x.compte === formatCompte(préfixe, suffixe)).montant
 
-            salarié_e = salarié_eForFiche(ficheEnModification)
+            salarié·e = salarié·eForFiche(ficheEnModification)
             rémunération = montantPour(641)
             sécu = montantPour(645)
             prélèvement = montantPour(4421)
@@ -112,7 +112,7 @@
                 content: `${displayDate(fiche.débutPériode)} 🠒 ${displayDate(fiche.finPériode)}`,
                 title: `${format(fiche.débutPériode, 'd MMMM yyyy', {locale: fr})} 🠒 ${format(fiche.finPériode, 'd MMMM yyyy', {locale: fr})}`
             },
-            { content: salarié_eForFiche(fiche) },
+            { content: salarié·eForFiche(fiche) },
             { content: afficherSommeOpérations(fiche.opérations) },
         ])
     }
@@ -125,10 +125,10 @@
 
         {#if ficheEnModification}
             <form on:submit|preventDefault={sauvegarderFiche}>
-                <fieldset disabled={editPromise instanceof Promise}>
+                <fieldset disabled={editPromise && editPromise[Symbol.toStringTag] === 'Promise'}>
                     <label>
                         <div>Salarié⋅e</div>
-                        <input bind:this={formStart} bind:value={salarié_e} type="text">
+                        <input bind:this={formStart} bind:value={salarié·e} type="text">
                     </label>
                     <label>
                         <div>Rémunération (€)</div>

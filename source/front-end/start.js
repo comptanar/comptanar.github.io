@@ -175,7 +175,7 @@ page('/comptabilite/fiches-de-paie', ({ querystring }) => {
             logout: logoutAndRedirect,
             org,
             personnes: state.personnes?.data ?? [],
-            salarié_es: state.salarié_es?.data ?? [],
+            salarié·es: state.salarié·es?.data ?? [],
             créerFicheDePaieVide,
             envoyerFicheDePaie,
             fichesDePaie: getFichesDePaie(state),

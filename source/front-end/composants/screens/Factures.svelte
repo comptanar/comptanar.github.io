@@ -132,7 +132,7 @@
 
         {#if factureEnModification}
             <form on:submit|preventDefault={sauvegarderFacture}>
-                <fieldset disabled={factureSent instanceof Promise}>
+                <fieldset disabled={factureSent && factureSent[Symbol.toStringTag] === 'Promise'}>
                     <label>
                         <div>Client</div>
                         <input bind:this={formStart} bind:value={compteClient} placeholder="411xxxx">

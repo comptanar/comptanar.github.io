@@ -47,9 +47,9 @@ export function estPersonne(p) {
 
 /**
  * @param {any} s 
- * @returns {s is Salarié_e}
+ * @returns {s is Salarié·e}
  */
-export function estSalarié_e(s) {
+export function estSalarié·e(s) {
     return Object(s) === s &&
         typeof s.suffixeCompte === 'number' &&
         typeof s.idPersonne === 'string'

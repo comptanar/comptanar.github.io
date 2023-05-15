@@ -62,10 +62,10 @@ export function selectOrgAndRepo(org, repo){
     const personnesP = githubAsDatabase.getPersonnes()
         .then(store.mutations.setPersonnes)
 
-    const salarié_esP = githubAsDatabase.getSalarié_es()
-        .then(store.mutations.setSalarié_es)
+    const salarié·esP = githubAsDatabase.getSalarié·es()
+        .then(store.mutations.setSalarié·es)
 
-    return Promise.all([exercicesP, personnesP, salarié_esP])
+    return Promise.all([exercicesP, personnesP, salarié·esP])
 }
 
 export function getUserOrgChoices(){
@@ -151,8 +151,8 @@ export function sauvegarderEnvoiFactureÀClient({
 }
 export function envoyerFicheDePaie({
     identifiantOpération,
-    nomSalarié_e,
-    compteSalarié_e,
+    nomSalarié·e,
+    compteSalarié·e,
     rémunération,
     sécu,
     prélèvement,
@@ -174,17 +174,17 @@ export function envoyerFicheDePaie({
         finPériode,
         opérations: [
             {
-                compte: formatCompte(641, compteSalarié_e),
+                compte: formatCompte(641, compteSalarié·e),
                 montant: rémunération,
                 sens: 'Crédit'
             },
             {
-                compte: formatCompte(645, compteSalarié_e),
+                compte: formatCompte(645, compteSalarié·e),
                 montant: sécu,
                 sens: 'Crédit',
             },
             {
-                compte: formatCompte(4421, compteSalarié_e),
+                compte: formatCompte(4421, compteSalarié·e),
                 montant: prélèvement,
                 sens: 'Crédit'
             },
@@ -201,7 +201,7 @@ export function envoyerFicheDePaie({
         year,
         yearSha,
         store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
-        `Modification de la fiche de paie de ${nomSalarié_e} pour la période du ${formattedStart} au ${formattedEnd}`
+        `Modification de la fiche de paie de ${nomSalarié·e} pour la période du ${formattedStart} au ${formattedEnd}`
     )
     .then(({data: {content: {sha}}}) => {
         return store.mutations.updateOpérationsHautNiveauSha(year, sha)

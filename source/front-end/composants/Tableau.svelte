@@ -114,7 +114,7 @@
 
 <script context="module">
     export function action(f, name, shortcut) {
-        Object.defineProperty(f, 'name', name)
+        Object.defineProperty(f, 'name', { value: name })
         f.shortcut = shortcut
         return f
     }

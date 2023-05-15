@@ -15,8 +15,8 @@ const store = Store({
         opérationsHautNiveauByYear: undefined,
         /** @type {import("./githubAsDatabase.js").WithSha<Personne[]> | undefined} */
         personnes: undefined,
-        /** @type {import("./githubAsDatabase.js").WithSha<Salarié_e[]> | undefined} */
-        salarié_es: undefined,
+        /** @type {import("./githubAsDatabase.js").WithSha<Salarié·e[]> | undefined} */
+        salarié·es: undefined,
     },
     mutations: {
         // Dans un store baredux, les mutations sont des fonctions qui modifient les données de manière synchrone
@@ -96,18 +96,18 @@ const store = Store({
             state.personnes.sha = newSha
         },
 
-        setSalarié_es(state, s) {
-            state.salarié_es = s
+        setSalarié·es(state, s) {
+            state.salarié·es = s
         },
-        addSalarié_e(state, s) {
-            const { sha, salarié_es } = state.salarié_es
-            salarié_es.push(s)
+        addSalarié·e(state, s) {
+            const { sha, salarié·es } = state.salarié·es
+            salarié·es.push(s)
             // Le SHA et le tableau sont temporairement désynchronisés, il faut penser à appeler
-            // updateSalarié_esSha avec le nouveau SHA ensuite
-            state.salarié_es = { sha, salarié_es }
+            // updateSalarié·esSha avec le nouveau SHA ensuite
+            state.salarié·es = { sha, salarié·es }
         },
-        updateSalarié_esSha(state, newSha) {
-            state.salarié_es.sha = newSha
+        updateSalarié·esSha(state, newSha) {
+            state.salarié·es.sha = newSha
         },
     }
 });
