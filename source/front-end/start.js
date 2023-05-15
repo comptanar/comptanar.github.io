@@ -11,9 +11,10 @@ import FichesDePaie from './composants/screens/FichesDePaie.svelte'
 import store, {getEnvoiFactureÀClients, getFichesDePaie} from './store.js'
 import {
     logout, saveToken, initDance, getUserOrgChoices, selectOrgAndRepo,
-    créerEnvoiFactureÀClientVide, supprimerEnvoiFactureÀClient, sauvegarderEnvoiFactureÀClient,
-    créerFicheDePaieVide, envoyerFicheDePaie,
+    supprimerEnvoiFactureÀClient, sauvegarderEnvoiFactureÀClient,
+    envoyerFicheDePaie,
 } from './actions.js'
+import { créerEnvoiFactureÀClientVide, créerFicheDePaieVide } from '../format-données/opérationsHautNiveau'
 
 console.info('start')
 

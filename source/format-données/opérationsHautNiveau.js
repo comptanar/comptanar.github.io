@@ -1,16 +1,16 @@
 //@ts-check
 
-import { parse, stringify } from 'yaml'
+import { stringify } from 'yaml'
 
 import { isOpérationHautNiveau } from './predicates.js';
-import { parseArray } from './utils.js';
+import { parseYamlArray } from './utils.js';
 
 
 /**
  * @param {string} str
  * @returns {OpérationHautNiveau[]}
  */
-export const parseOpérationsHautNiveauYaml = (str) => parseArray(
+export const parseOpérationsHautNiveauYaml = (str) => parseYamlArray(
     str,
     'une liste d\'opérations de haut niveau',
     isOpérationHautNiveau,
@@ -31,3 +31,42 @@ export function stringifyOpérationsHautNiveauYaml(ops){
     return stringify(ops)
 }
 
+/**
+ * @returns {EnvoiFactureClient}
+ */
+export function créerEnvoiFactureÀClientVide() {
+    return {
+        type: 'Envoi facture client',
+        numéroFacture: '',
+        date: new Date(),
+        compteClient: '',
+        identifiantOpération: Math.random().toString(32).slice(2),
+        opérations: [
+            {
+                compte: '',
+                montant: 0,
+                sens: 'Débit'
+            },
+            {
+                compte: '44566', // TVA
+                montant: 0,
+                sens: 'Débit'
+            }
+        ]
+    }
+}
+
+/**
+ * @returns {ÉmissionFicheDePaie}
+ */
+export function créerFicheDePaieVide(){
+    const date = new Date()
+    return {
+        type: 'Fiche de paie',
+        date,
+        débutPériode: date,
+        finPériode: date,
+        identifiantOpération: Math.random().toString(32).slice(2),
+        opérations: []
+    }
+}

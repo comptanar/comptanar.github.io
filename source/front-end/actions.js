@@ -8,7 +8,7 @@ import {rememberToken, forgetToken} from './localStorage.js'
 
 import store from './store.js'
 
-import { formatCompte } from './utils.js'
+import { formatCompte } from './stringifiers.js'
 
 /**
  * @param {string} token
@@ -80,36 +80,6 @@ export function getUserOrgChoices(){
     return orgsP
 }
 
-
-
-export function créerEnvoiFactureÀClientVide(){
-    const date = new Date()
-    const year = date.getFullYear()
-
-    /** @type {EnvoiFactureClient} */
-    const envoiFactureÀClient = {
-        type: 'Envoi facture client',
-        numéroFacture: '',
-        date,
-        compteClient: '',
-        identifiantOpération: Math.random().toString(32).slice(2),
-        opérations: [
-            {
-                compte: '',
-                montant: 0,
-                sens: 'Débit'
-            },
-            {
-                compte: '44566', // TVA
-                montant: 0,
-                sens: 'Débit'
-            }
-        ]
-    }
-
-    return envoiFactureÀClient
-}
-
 export function supprimerEnvoiFactureÀClient({ identifiantOpération, date, compteClient, numéroFacture }) {
     const year = date.getFullYear()
 
@@ -179,22 +149,6 @@ export function sauvegarderEnvoiFactureÀClient({
         return store.mutations.updateOpérationsHautNiveauSha(year, sha)
     })
 }
-
-/** @returns {ÉmissionFicheDePaie} */
-export function créerFicheDePaieVide(){
-    const date = new Date()
-    const year = date.getFullYear()
-
-    return {
-        type: 'Fiche de paie',
-        date,
-        débutPériode: date,
-        finPériode: date,
-        identifiantOpération: Math.random().toString(32).slice(2),
-        opérations: []
-    }
-}
-
 export function envoyerFicheDePaie({
     identifiantOpération,
     nomSalarié_e,

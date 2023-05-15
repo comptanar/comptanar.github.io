@@ -9,7 +9,7 @@
      * Une action correspondra à un bouton (et un éventuel raccourci clavier) dans l'interface
      * 
      * @template P
-     * @typedef {{ run: (data: P?) => void, shortcut?: string, name: string }} Action
+     * @typedef {((data: P?) => void) & { shortcut?: string }} Action
     */
 
     /**
@@ -81,14 +81,14 @@
     const keybinder = new Keybinding({ filterEditable: false })
     for (const action of globalActions) {
         if (action.shortcut) {
-            keybinder.on(action.shortcut, action.run)
+            keybinder.on(action.shortcut, action)
         }
     }
 
 
     for (const action of itemActions) {
         if (action.shortcut) {
-            keybinder.on(action.shortcut, () => action.run(editing))
+            keybinder.on(action.shortcut, () => action(editing))
         }
     }
 
@@ -112,12 +112,20 @@
     })
 </script>
 
+<script context="module">
+    export function action(f, name, shortcut) {
+        Object.defineProperty(f, 'name', name)
+        f.shortcut = shortcut
+        return f
+    }
+</script>
+
 <div class="tableau-editable">
     <header class="table-header">
         <slot name="header"></slot>
         <div class="action-group">
             {#each globalActions as action}
-                <button on:click={action.run} title={action.shortcut}>{action.name}</button>
+                <button on:click={action} title={action.shortcut}>{action.name}</button>
             {/each}
         </div>
     </header>
@@ -142,7 +150,7 @@
                             {/each}
                             {#each itemActions as action}
                                 <td>
-                                    <button disabled={editing !== undefined} on:click={() => action.run(i)} title={action.shortcut}>{action.name}</button>
+                                    <button disabled={editing !== undefined} on:click={() => action(i)} title={action.shortcut}>{action.name}</button>
                                 </td>
                             {/each}
                         </tr>

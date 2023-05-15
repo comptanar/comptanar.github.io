@@ -2,8 +2,8 @@
 
 import { stringify } from 'yaml'
 
-import { isPersonne } from './predicates'
-import { parseArray } from './utils'
+import { estPersonne } from './predicates'
+import { parseYamlArray } from './utils'
 
 /**
  * Une personne peut représenter une personne physique ou une personne morale
@@ -14,7 +14,7 @@ import { parseArray } from './utils'
  * @param {string} str 
  * @returns {Personne[]}
  */
-export const parsePersonnes = (str) => parseArray(str, 'une liste de personnes', isPersonne) 
+export const parsePersonnes = (str) => parseYamlArray(str, 'une liste de personnes', estPersonne) 
 
 /**
  * @param {Personne[]} personnes

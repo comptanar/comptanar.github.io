@@ -9,8 +9,8 @@
     import Loader from '../Loader.svelte'
 
     import '../../../format-données/types.js'
-    import Tableau from '../Tableau.svelte';
-    import { isPromise, displayDate, sommeFactures } from '../../utils'
+    import Tableau, { action } from '../Tableau.svelte';
+    import { displayDate, afficherSommeOpérations } from '../../stringifiers'
 
     export let login
     export let logout
@@ -44,10 +44,10 @@
     $: tableConfig = {
         placeholder: 'Sélectionne une facture dans la liste pour voir toutes ses informations ou les modifier.',
         globalActions: [
-            { name: 'Nouvelle facture', shortcut: 'Alt+N', run: () => table.edit(-1) }
+            action(() => table.edit(-1), 'Nouvelle facture', 'Alt+N')
         ],
         itemActions: [
-            { name: 'Supprimer', run: supprimerEnvoiFactureÀClient }
+            action(supprimerEnvoiFactureÀClient, 'Supprimer'),
         ],
         columns: [ 'Date', 'Client', 'Montant total', '(dont montant HT)' ],
         data: envoiFactureàClients === undefined
@@ -55,8 +55,8 @@
             : envoiFactureàClients.sort((a, b) => b.date - a.date).map(facture => [
                 { content: displayDate(facture.date), title: format(facture.date, 'd MMMM yyyy', {locale: fr}) },
                 { content: facture.compteClient },
-                { content: `${sommeFactures(facture.opérations)} €` },
-                { content: `${sommeFactures(facture.opérations.filter(({ compte }) => compte !== '44566'))} €` },
+                { content: `${afficherSommeOpérations(facture.opérations)} €` },
+                { content: `${afficherSommeOpérations(facture.opérations.filter(({ compte }) => compte !== '44566'))} €` },
             ])
     }
 
@@ -132,7 +132,7 @@
 
         {#if factureEnModification}
             <form on:submit|preventDefault={sauvegarderFacture}>
-                <fieldset disabled={isPromise(factureSent)}>
+                <fieldset disabled={factureSent instanceof Promise}>
                     <label>
                         <div>Client</div>
                         <input bind:this={formStart} bind:value={compteClient} placeholder="411xxxx">

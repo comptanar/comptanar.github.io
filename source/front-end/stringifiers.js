@@ -1,11 +1,8 @@
 // @ts-check
 
+import { sum } from 'd3-array'
 import { differenceInDays, differenceInMonths, formatDistanceToNow, format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-
-export function isPromise(x){
-    return x === Object(x) && typeof x.then === 'function'
-}
 
 export function displayDate(date){
     if(differenceInDays(date, new Date()) === 0){
@@ -23,7 +20,10 @@ export function displayDate(date){
     return format(date, 'd MMMM yyyy', {locale: fr})
 }
 
-/** @type {(ops: OpérationDeCompte[]) => string} */
-export const sommeFactures = ops => ops.reduce((total, { montant }) => total + montant, 0).toFixed(2)
+/** @type {(ops: OpérationDeCompte[]) => number} */
+const sommeOpérations = ops => sum(ops.map(({ montant }) => montant))
+
+const euroFormat = Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' })
+export const afficherSommeOpérations = ops => euroFormat.format(sommeOpérations(ops))
 
 export const formatCompte = (préfixe, suffixe) => (préfixe * Math.pow(10, 6 - préfixe.toString().length) + suffixe).toString()

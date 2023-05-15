@@ -13,9 +13,9 @@ const store = Store({
         org: undefined,
         repo: undefined,
         opérationsHautNiveauByYear: undefined,
-        /** @type {{ sha: string, data: Personne[] } | undefined} */
+        /** @type {import("./githubAsDatabase.js").WithSha<Personne[]> | undefined} */
         personnes: undefined,
-        /** @type {{ sha: string, data: Salarié_e[] } | undefined} */
+        /** @type {import("./githubAsDatabase.js").WithSha<Salarié_e[]> | undefined} */
         salarié_es: undefined,
     },
     mutations: {
@@ -76,7 +76,7 @@ const store = Store({
         },
         /**
          * @param {*} state 
-         * @param {{ sha: string, personnes: Personne[] }} personnes 
+         * @param {import("./githubAsDatabase.js").WithSha<Personne[]>} personnes 
          */
         setPersonnes(state, personnes) {
             state.personnes = personnes
@@ -88,7 +88,12 @@ const store = Store({
         addPersonne(state, personne) {
             const { sha, personnes } = state.personnes
             personnes.push(personne)
+            // Le SHA et le tableau sont temporairement désynchronisés, il faut penser à appeler
+            // updatePersonnesSha avec le nouveau SHA ensuite
             state.personnes = { sha, personnes }
+        },
+        updatePersonnesSha(state, newSha) {
+            state.personnes.sha = newSha
         },
 
         setSalarié_es(state, s) {
@@ -97,8 +102,13 @@ const store = Store({
         addSalarié_e(state, s) {
             const { sha, salarié_es } = state.salarié_es
             salarié_es.push(s)
+            // Le SHA et le tableau sont temporairement désynchronisés, il faut penser à appeler
+            // updateSalarié_esSha avec le nouveau SHA ensuite
             state.salarié_es = { sha, salarié_es }
-        }
+        },
+        updateSalarié_esSha(state, newSha) {
+            state.salarié_es.sha = newSha
+        },
     }
 });
 

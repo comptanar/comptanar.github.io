@@ -6,9 +6,9 @@
     import { tick } from "svelte";
 
     import Skeleton from "../Skeleton.svelte"
-    import Tableau from "../Tableau.svelte"
+    import Tableau, { action } from "../Tableau.svelte"
     import Loader from "../Loader.svelte";
-    import { isPromise, displayDate, sommeFactures, formatCompte } from '../../utils'
+    import { displayDate, afficherSommeOpérations, formatCompte } from '../../stringifiers'
 
     export let login
     export let logout
@@ -103,7 +103,7 @@
         placeholder: 'Sélectionne une fiche de paie pour en voir le détail et la modifier',
         columns: [ 'Date d\'émission', 'Période', 'Salarié⋅e', 'Montant' ],
         globalActions: [
-            { name: 'Nouvelle fiche', shortcut: 'Alt+N', run: () => table.edit(-1) }
+            action(() => table.edit(-1), 'Nouvelle fiche', 'Alt+N'),
         ],
         itemActions: [],
         data: fichesDePaie?.map(fiche => [
@@ -113,7 +113,7 @@
                 title: `${format(fiche.débutPériode, 'd MMMM yyyy', {locale: fr})} 🠒 ${format(fiche.finPériode, 'd MMMM yyyy', {locale: fr})}`
             },
             { content: salarié_eForFiche(fiche) },
-            { content: sommeFactures(fiche.opérations) },
+            { content: afficherSommeOpérations(fiche.opérations) },
         ])
     }
 </script>
@@ -125,7 +125,7 @@
 
         {#if ficheEnModification}
             <form on:submit|preventDefault={sauvegarderFiche}>
-                <fieldset disabled={isPromise(editPromise)}>
+                <fieldset disabled={editPromise instanceof Promise}>
                     <label>
                         <div>Salarié⋅e</div>
                         <input bind:this={formStart} bind:value={salarié_e} type="text">

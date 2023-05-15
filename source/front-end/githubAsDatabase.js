@@ -178,7 +178,7 @@ function fileReader(path, parser) {
  * @param {string} path 
  * @param {string} defaultMessage 
  * @param {(T) => string} formatter 
- * @returns {(sha: string, data: T, message: string) => Promise<import("@octokit/types").OctokitResponse<any>>}
+ * @returns {(sha: string, data: T, message?: string) => Promise<import("@octokit/types").OctokitResponse<any>>}
  */
 function fileWriter(path, defaultMessage, formatter) {
     return (sha, data, message) => theRequest(`/repos/{owner}/{repo}/contents/${path}`, {
