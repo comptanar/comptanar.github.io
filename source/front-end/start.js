@@ -8,6 +8,7 @@ import Comptabilite from "./composants/screens/Comptabilite.svelte";
 import Factures from "./composants/screens/Factures.svelte";
 import FichesDePaie from './composants/screens/FichesDePaie.svelte'
 import Personnes from './composants/screens/Personnes.svelte'
+import Salarié·es from './composants/screens/Salarié·es.svelte'
 
 import store, {getEnvoiFactureÀClients, getFichesDePaie} from './store.js'
 import {
@@ -15,6 +16,7 @@ import {
     supprimerEnvoiFactureÀClient, sauvegarderEnvoiFactureÀClient,
     envoyerFicheDePaie,
     supprimerPersonne, envoyerPersonne,
+    envoyerSalarié·e, supprimerSalarié·e,
 } from './actions.js'
 import { créerEnvoiFactureÀClientVide, créerFicheDePaieVide } from '../format-données/opérationsHautNiveau'
 
@@ -211,6 +213,33 @@ page('/comptabilite/personnes', ({ querystring }) => {
     }
 
     const factures = new Personnes({
+        target: svelteTarget,
+        props: mapStateToProps(store.state),
+    });
+
+    replaceComponent(factures, mapStateToProps);
+})
+
+page('/comptabilite/salarié·es', ({ querystring }) => {
+    const params = new URLSearchParams(querystring)
+
+    const org = params.get('org');
+    const repo = params.get('repo');
+
+    selectOrgAndRepo(org, repo)
+
+    function mapStateToProps(state){
+        return {
+            login: state.login,
+            logout: logoutAndRedirect,
+            personnes: state.personnes?.data ?? [],
+            salarié·es: state.salarié·es?.data ?? [],
+            envoyerSalarié·e,
+            supprimerSalarié·e,
+        }
+    }
+
+    const factures = new Salarié·es({
         target: svelteTarget,
         props: mapStateToProps(store.state),
     });

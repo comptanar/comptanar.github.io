@@ -14,6 +14,10 @@ export let repo
       <h2>Personnes</h2>
     </a>
 
+    <a href="/comptabilite/salarié·es?org={org}&repo={repo}">
+      <h2>Salarié·es</h2>
+    </a>
+
     <a href="/comptabilite/factures?org={org}&repo={repo}">
       <h2>Factures</h2>
     </a>

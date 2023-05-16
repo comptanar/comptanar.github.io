@@ -122,7 +122,6 @@ const store = Store({
         supprimerPersonne(state, personne) {
             if (state.personnes) {
                 const { sha, data: personnes } = state.personnes
-                console.log(personne.identifiant)
                 state.personnes = { sha, data: personnes.filter(p => p.identifiant !== personne.identifiant) }
             }
         },
@@ -130,16 +129,37 @@ const store = Store({
         setSalarié·es(state, s) {
             state.salarié·es = s
         },
-        addSalarié·e(state, s) {
-            const { sha, salarié·es } = state.salarié·es
-            salarié·es.push(s)
-            // Le SHA et le tableau sont temporairement désynchronisés, il faut penser à appeler
-            // updateSalarié·esSha avec le nouveau SHA ensuite
-            state.salarié·es = { sha, salarié·es }
+        /**
+         * 
+         * @param {State} state 
+         * @param {Salarié·e} salarié·e
+         */
+        updateSalarié·e(state, salarié·e) {
+            if (state.salarié·es) {
+                const { sha, data: salarié·es } = state.salarié·es
+                const index = salarié·es.findIndex(s => s.identifiant === salarié·e.identifiant)
+
+                if (index === -1) {
+                    salarié·es.push(salarié·e)
+                } else {
+                    salarié·es[index] = salarié·e
+                }
+
+                // Le SHA et le tableau sont temporairement désynchronisés, il faut penser à appeler
+                // updateSalarié·esSha avec le nouveau SHA ensuite
+                state.salarié·es = { sha, data: salarié·es }
+            }
         },
         updateSalarié·esSha(state, newSha) {
             state.salarié·es.sha = newSha
         },
+        supprimerSalarié·e(state, salarié·e) {
+            if (state.salarié·es) {
+                state.salarié·es.data = state.salarié·es.data.filter(
+                    s => s.identifiant !== salarié·e.identifiant
+                )
+            }
+        }
     }
 });
 

@@ -235,3 +235,34 @@ export function supprimerPersonne(personne) {
         return store.mutations.updatePersonnesSha(sha)
     })
 }
+
+
+export function envoyerSalarié·e({ identifiant, personne, suffixe }) {
+    store.mutations.updateSalarié·e({
+        identifiant,
+        idPersonne: personne.identifiant,
+        suffixeCompte: suffixe,
+    })
+    const sha = store.state.salarié·es.sha
+
+    return githubAsDatabase.writeSalarié·es(
+        sha,
+        store.state.salarié·es.data,
+    )
+    .then(({ data: { content: { sha }}}) => {
+        return store.mutations.updateSalarié·esSha(sha)
+    })
+}
+
+export function supprimerSalarié·e(salarié·e) {
+    store.mutations.supprimerSalarié·e(salarié·e)
+    const sha = store.state.salarié·es.sha
+
+    return githubAsDatabase.writeSalarié·es(
+        sha,
+        store.state.salarié·e.data,
+    )
+    .then(({ data: { content: { sha }}}) => {
+        return store.mutations.updateSalarié·esSha(sha)
+    })
+}
