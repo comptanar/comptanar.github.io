@@ -1,34 +1,27 @@
 //@ts-check
 
-import { parse, stringify } from 'yaml'
+import { stringify } from 'yaml'
 
 import { isOpérationHautNiveau } from './predicates.js';
+import { parseYamlArray } from './utils.js';
 
 
 /**
  * @param {string} str
  * @returns {OpérationHautNiveau[]}
  */
-export function parseOpérationsHautNiveauYaml(str){
-    if(str.trim() === '')
-        return [];
-    
-    const parsed = parse(str, (key, value) => {
-        if(key === 'date' && typeof value === 'string'){
+export const parseOpérationsHautNiveauYaml = (str) => parseYamlArray(
+    str,
+    'une liste d\'opérations de haut niveau',
+    isOpérationHautNiveau,
+    (key, value) => {
+        if ((key === 'date' || key === 'débutPériode' || key === 'finPériode') && typeof value === 'string'){
             return new Date(value)
         }
 
-        return value;
-    });
-
-    if(Array.isArray(parsed) && parsed.every( isOpérationHautNiveau )) 
-        return parsed
-    else{
-        throw new TypeError(
-            `Problème dans le format de fichier qui n'est pas reconnu (devrait être un liste d'opérations haut niveau). Début du fichier:\n\n---\n${str.slice(0, 100)}\n---`
-        )
-    }
-}
+        return value
+    },
+)
 
 /**
  * @param {OpérationHautNiveau[]} ops
@@ -38,3 +31,42 @@ export function stringifyOpérationsHautNiveauYaml(ops){
     return stringify(ops)
 }
 
+/**
+ * @returns {EnvoiFactureClient}
+ */
+export function créerEnvoiFactureÀClientVide() {
+    return {
+        type: 'Envoi facture client',
+        numéroFacture: '',
+        date: new Date(),
+        compteClient: '',
+        identifiantOpération: Math.random().toString(32).slice(2),
+        opérations: [
+            {
+                compte: '',
+                montant: 0,
+                sens: 'Débit'
+            },
+            {
+                compte: '44566', // TVA
+                montant: 0,
+                sens: 'Débit'
+            }
+        ]
+    }
+}
+
+/**
+ * @returns {ÉmissionFicheDePaie}
+ */
+export function créerFicheDePaieVide(){
+    const date = new Date()
+    return {
+        type: 'Fiche de paie',
+        date,
+        débutPériode: date,
+        finPériode: date,
+        identifiantOpération: Math.random().toString(32).slice(2),
+        opérations: []
+    }
+}

@@ -4,7 +4,6 @@ import Store from "baredux";
 
 import {rememberToken} from './localStorage.js';
 
-
 const store = Store({
     state: {
         // @ts-ignore
@@ -13,7 +12,11 @@ const store = Store({
         userOrgs: undefined,
         org: undefined,
         repo: undefined,
-        opérationsHautNiveauByYear: undefined
+        opérationsHautNiveauByYear: undefined,
+        /** @type {import("./githubAsDatabase.js").WithSha<Personne[]> | undefined} */
+        personnes: undefined,
+        /** @type {import("./githubAsDatabase.js").WithSha<Salarié·e[]> | undefined} */
+        salarié·es: undefined,
     },
     mutations: {
         // Dans un store baredux, les mutations sont des fonctions qui modifient les données de manière synchrone
@@ -70,18 +73,56 @@ const store = Store({
             }
 
             state.opérationsHautNiveauByYear.set(year,{ sha, opérationsHautNiveau })
-        }
+        },
+        /**
+         * @param {*} state 
+         * @param {import("./githubAsDatabase.js").WithSha<Personne[]>} personnes 
+         */
+        setPersonnes(state, personnes) {
+            state.personnes = personnes
+        },
+        /**
+         * @param {*} state 
+         * @param {Personne} personne 
+         */
+        addPersonne(state, personne) {
+            const { sha, personnes } = state.personnes
+            personnes.push(personne)
+            // Le SHA et le tableau sont temporairement désynchronisés, il faut penser à appeler
+            // updatePersonnesSha avec le nouveau SHA ensuite
+            state.personnes = { sha, personnes }
+        },
+        updatePersonnesSha(state, newSha) {
+            state.personnes.sha = newSha
+        },
+
+        setSalarié·es(state, s) {
+            state.salarié·es = s
+        },
+        addSalarié·e(state, s) {
+            const { sha, salarié·es } = state.salarié·es
+            salarié·es.push(s)
+            // Le SHA et le tableau sont temporairement désynchronisés, il faut penser à appeler
+            // updateSalarié·esSha avec le nouveau SHA ensuite
+            state.salarié·es = { sha, salarié·es }
+        },
+        updateSalarié·esSha(state, newSha) {
+            state.salarié·es.sha = newSha
+        },
     }
 });
 
 export default store;
 
-export function getEnvoiFactureÀClients(state){
+const getSpecificOp = opType => state => {
     const {opérationsHautNiveauByYear} = state
 
     return opérationsHautNiveauByYear ?
         [...opérationsHautNiveauByYear.values()]
-            .map(({opérationsHautNiveau}) => opérationsHautNiveau.filter(op => op.type === 'Envoi facture client'))
+            .map(({opérationsHautNiveau}) => opérationsHautNiveau.filter(op => op.type === opType))
             .flat(Infinity) :
         undefined;
 }
+
+export const getEnvoiFactureÀClients = getSpecificOp('Envoi facture client')
+export const getFichesDePaie = getSpecificOp('Fiche de paie')

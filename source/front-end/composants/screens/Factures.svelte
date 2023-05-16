@@ -1,16 +1,16 @@
 <script>
     //@ts-check
     
-    import {differenceInDays, differenceInMonths, formatDistanceToNow, format} from 'date-fns';
+    import { format } from 'date-fns';
     import { fr } from 'date-fns/locale'
-    import { sum } from 'd3-array'
-
+    import { tick } from 'svelte';
 
     import Skeleton from '../Skeleton.svelte'
     import Loader from '../Loader.svelte'
 
     import '../../../format-données/types.js'
-    import { tick } from 'svelte';
+    import Tableau, { action } from '../Tableau.svelte';
+    import { displayDate, afficherSommeOpérations } from '../../stringifiers'
 
     export let login
     export let logout
@@ -18,6 +18,7 @@
     export let envoiFactureàClients
     export let supprimerEnvoiFactureÀClient
     export let sauvegarderEnvoiFactureÀClient
+    /** @type {() => EnvoiFactureClient} */
     export let créerEnvoiFactureÀClientVide
 
     // infos du formulaire
@@ -35,6 +36,29 @@
     let factureEnModification = undefined
 
     let factureSent = undefined;
+
+    /** @type Tableau */
+    let table
+    let tableConfig
+
+    $: tableConfig = {
+        placeholder: 'Sélectionne une facture dans la liste pour voir toutes ses informations ou les modifier.',
+        globalActions: [
+            action(() => table.edit(-1), 'Nouvelle facture', 'Alt+N')
+        ],
+        itemActions: [
+            action(supprimerEnvoiFactureÀClient, 'Supprimer'),
+        ],
+        columns: [ 'Date', 'Client', 'Montant total', '(dont montant HT)' ],
+        data: envoiFactureàClients === undefined
+            ? []
+            : envoiFactureàClients.sort((a, b) => b.date - a.date).map(facture => [
+                { content: displayDate(facture.date), title: format(facture.date, 'd MMMM yyyy', {locale: fr}) },
+                { content: facture.compteClient },
+                { content: `${afficherSommeOpérations(facture.opérations)} €` },
+                { content: `${afficherSommeOpérations(facture.opérations.filter(({ compte }) => compte !== '44566'))} €` },
+            ])
+    }
 
     /**
      * Cette fonction enregistre (ou enregistre les modifications apportées à) une facture
@@ -54,59 +78,20 @@
 
         factureSent.then(() => {
             factureSent = undefined
-            factureEnModification = undefined
+            // Nécessaire pour que la facture soit bien marquée comme sélectionnée dans le tableau
+            table.edit(envoiFactureàClients.findIndex(f => f.identifiantOpération === factureEnModification.identifiantOpération))
         })
-    }
-
-    function isPromise(x){
-        return x === Object(x) && typeof x.then === 'function'
-    }
-
-    function displayDate(date){
-        if(differenceInDays(date, new Date()) === 0){
-            return `Aujourd'hui`
-        }
-
-        if (differenceInDays(date, new Date()) > 0) {
-            return `dans ${formatDistanceToNow(date, {locale: fr})}`
-        }
-        
-        if(differenceInMonths(date, new Date()) > -3){
-            return `il y a ${formatDistanceToNow(date, {locale: fr})}`
-        }
-        
-        return format(date, 'd MMMM yyyy', {locale: fr})
-    }
-
-    function supprimerFacture(facture) {
-        supprimerEnvoiFactureÀClient(facture)
-    }
-
-    /**
-     * @param {EnvoiFactureClient} facture
-     */
-    async function commencerModification(facture) {
-        factureEnModification = facture
-        màjFormulaire()
-
-        // On attend que Svelte ai redessiné la vue
-        await tick()
-        // puis on met le focus sur le premier champ du formulaire, comme ça on peut
-        // directement commencer à le remplir sans devoir cliquer dedans
-        if (formStart) {
-            formStart.focus()
-        }
-        // on s'assure aussi que la facture qu'on est en train d'éditer est bien visible
-        // dans la liste
-        document.querySelector('.edition').scrollIntoView({ behavior: 'smooth', block: 'end' })
     }
 
     /**
      * Les données de la facture et le formulaire n'étant pas construits exactement de la même façon
      * on ne peut pas facilement utiliser le data binding de Svelte, donc on fait la mise à jour à
      * la main quand on en a besoin avec cette fonction.
+     * 
+     * @param {EnvoiFactureClient} f
      */
-    function màjFormulaire() {
+    async function màjFormulaire(f) {
+        factureEnModification = f === undefined ? créerEnvoiFactureÀClientVide() : f
         compteClient = factureEnModification.compteClient
         identifiantFacture = factureEnModification.numéroFacture
         dateFacture = format(factureEnModification.date, 'yyyy-MM-dd')
@@ -115,147 +100,77 @@
         montantHT = factureEnModification.opérations.filter(o => o.compte !== '44566').reduce(sommeMontants, 0)
         montantTVA = factureEnModification.opérations.filter(o => o.compte === '44566').reduce(sommeMontants, 0)
         compteProduit = factureEnModification.opérations.find(o => o.compte !== '44566').compte
+
+        // On attend que Svelte ai redessiné la vue
+        await tick()
+        // puis on met le focus sur le premier champ du formulaire, comme ça on peut
+        // directement commencer à le remplir sans devoir cliquer dedans
+        if (formStart) {
+            formStart.focus()
+        }
     }
 
     function annulerÉdition() {
-        factureEnModification = undefined
-    }
-
-    function nouvelleFacture() {
-        const f = créerEnvoiFactureÀClientVide()
-        commencerModification(f)
-    }
-
-    function tri(factures) {
-        return factures.sort((a, b) => b.date - a.date)
-    }
-
-    function raccourcisClavier(e) {
-        if (e.altKey && e.key === 'n') {
-            nouvelleFacture()
-            return
-        }
-
-        const down = e.key === 'ArrowDown'
-        const up = e.key === 'ArrowUp'
-        if (up || down) {
-            let indice = envoiFactureàClients.findIndex(x => factureEnModification && x.identifiantOpération === factureEnModification.identifiantOpération)
-            if (indice === undefined) { indice = -1; }
-            if (down) { indice++ }
-            if (up) { indice-- }
-
-            if (indice < 0) {
-                indice = 0
-            }
-            if (indice >= envoiFactureàClients.length) {
-                indice = envoiFactureàClients.length - 1
-            }
-
-            commencerModification(envoiFactureàClients[indice])
-        }
-
+        table.edit(undefined)
     }
 </script>
 
-<svelte:window on:keydown={raccourcisClavier} />
-
 <Skeleton {login} {logout} fullwidth>
-    <div class="tableau-editable">
-        <header class="table-header">
-            <h1>
-                Voici la liste des factures pour 
-                <code>{org}</code>
-            </h1>
-            <button on:click={nouvelleFacture} title="Alt+N">Nouvelle facture</button>
-        </header>
-        {#if envoiFactureàClients}
-        <main>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Client</th>
-                        <th>Montant total</th>
-                        <th>(dont montant HT)</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {#each tri(envoiFactureàClients) as facture}
-                        <tr class:edition={factureEnModification === facture} on:click={_ => commencerModification(facture)}>
-                            <td title="{format(facture.date, 'd MMMM yyyy', {locale: fr})}">{displayDate(facture.date)}</td>
-                            <td>{facture.compteClient}</td>
-                            <td>{sum(facture.opérations.map(({montant}) => montant))}&nbsp;€</td>
-                            <td>{sum(facture.opérations.filter(({compte}) => compte !== '44566').map(({montant}) => montant))}&nbsp;€</td>
-                            <td>
-                                <button
-                                    disabled={factureEnModification !== undefined}
-                                    title={factureEnModification !== undefined ? 'Il faut enregistrer ou abandonner les modifications avant de pouvoir supprimer cette facture' : ''}
-                                    on:click={_ => supprimerFacture(facture)}
-                                >
-                                    Supprimer
-                                </button>
-                            </td>
-                        </tr>
-                    {/each}
-                </tbody>
-            </table>
-        </main>
-        {/if}
+    <Tableau bind:this={table} on:edit={(e) => { màjFormulaire(envoiFactureàClients[e.detail]) }} {...tableConfig}>
+        <h1 slot="header">
+            Voici la liste des factures pour 
+            <code>{org}</code>
+        </h1>
 
-        
-        {#if factureEnModification}
-        <header class="form-header">
+        <svelte:fragment slot="form-header">
             {#if identifiantFacture}
                 <h2>Facture «&nbsp;{identifiantFacture}&nbsp;»</h2>
             {:else}
                 <h2>Facture (sans identifiant)</h2>
             {/if}
-        </header>
-        <form on:submit|preventDefault={sauvegarderFacture}>
-            <fieldset disabled={isPromise(factureSent)}>
-                <label>
-                    <div>Client</div>
-                    <input bind:this={formStart} bind:value={compteClient} placeholder="411xxxx">
-                </label>
-                <label>
-                    <div>Identifiant de facture</div>
-                    <input bind:value={identifiantFacture} type="text">
-                </label>
-                <label>
-                    <div>Date</div>
-                    <input bind:value={dateFacture} type="date">
-                </label>
-                <label>
-                    <div>Montant HT (€)</div>
-                    <input bind:value={montantHT} step="0.01" type="number">
-                </label>
-                <label>
-                    <div>Montant TVA (€)</div>
-                    <input bind:value={montantTVA} step="0.01" type="number">
-                </label>
-                <label>
-                    <div>Compte Produit</div>
-                    <input bind:value={compteProduit} placeholder="706xxx">
-                </label>
-    
-                <div class="button-with-loader">
-                    <button type="submit">Enregistrer</button>
-                    {#await factureSent}
-                        <Loader></Loader>
-                    {:catch err}
-                        Problème avec l'envoi de la facture {err}
-                    {/await}
-                </div>
-                <button on:click={annulerÉdition}>Abandonner les modifications</button>
-            </fieldset>
-        </form>
-        {:else}
-            <p class="etat-vide">
-                Sélectionne une facture dans la liste pour voir toutes ses informations ou les modifier.
-            </p>
+        </svelte:fragment>
+
+        {#if factureEnModification}
+            <form on:submit|preventDefault={sauvegarderFacture}>
+                <fieldset disabled={factureSent && factureSent[Symbol.toStringTag] === 'Promise'}>
+                    <label>
+                        <div>Client</div>
+                        <input bind:this={formStart} bind:value={compteClient} placeholder="411xxxx">
+                    </label>
+                    <label>
+                        <div>Identifiant de facture</div>
+                        <input bind:value={identifiantFacture} type="text">
+                    </label>
+                    <label>
+                        <div>Date</div>
+                        <input bind:value={dateFacture} type="date">
+                    </label>
+                    <label>
+                        <div>Montant HT (€)</div>
+                        <input bind:value={montantHT} step="0.01" type="number">
+                    </label>
+                    <label>
+                        <div>Montant TVA (€)</div>
+                        <input bind:value={montantTVA} step="0.01" type="number">
+                    </label>
+                    <label>
+                        <div>Compte Produit</div>
+                        <input bind:value={compteProduit} placeholder="706xxx">
+                    </label>
+
+                    <div class="button-with-loader">
+                        <button type="submit">Enregistrer</button>
+                        {#await factureSent}
+                            <Loader></Loader>
+                        {:catch err}
+                            Problème avec l'envoi de la facture {err}
+                        {/await}
+                    </div>
+                    <button on:click={annulerÉdition}>Abandonner les modifications</button>
+                </fieldset>
+            </form>
         {/if}
-    </div>   
+    </Tableau>
 </Skeleton>
 
 <style lang="scss">
@@ -271,97 +186,7 @@
         }
     }
 
-    .edition {
-        background-color: white;
-    }
-
-    .tableau-editable {
-        display: grid;
-        grid-template: "table-title form-title" auto
-                       "table-body  form-body " auto
-                        / 2fr 1fr;
-        height: 100%;
-
-        & > form {
-            background-color: white;
-            grid-area: form-body;
-            padding: 2rem;
-        }
-
-        & > main {
-            grid-area: table-body;
-            overflow: auto;
-            margin-bottom: 0;
-
-            table {
-                width: 100%;
-            }
-
-            tbody tr {
-                cursor: pointer;
-
-                &:hover:not(.edition) {
-                    background-color: #f1f1f1;
-                }
-            }
-
-            thead {
-                position: sticky;
-                top: 0;
-                background-color: #e9e9e9;
-            }
-
-            td, th {
-                padding: 1rem;
-            }
-        }
-
-        & > header {
-            padding: 2rem;
-            background: transparent;
-            color: black;
-
-            h1 {
-                margin: 0;
-            }
-        }
-
-        .table-header {
-            grid-area: table-title;
-            display: flex;
-            justify-content: space-between;
-            padding-left: 0;
-        }
-
-        .form-header {
-            background-color: white;
-            grid-area: form-title;
-        }
-    }
-
-    .etat-vide {
-        grid-row-start: form-title;
-        grid-row-end: form-body;
-        display: flex;
-        height: 100%;
-        padding: 2rem;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        font-size: 1.3rem;
-        font-weight: bold;
-        color: gray;
-        background-color: white;
-    }
-
-    // sur les petits écrans, on affiche le formulaire en dessous de la liste
-    @media (max-width: 1200px) {
-        .tableau-editable {
-            grid-template: "table-title" auto
-                           "table-body" auto
-                           "form-title" auto
-                           "form-body" auto
-                           / 1fr;
-        }
+    h1 {
+        margin: 0;
     }
 </style>

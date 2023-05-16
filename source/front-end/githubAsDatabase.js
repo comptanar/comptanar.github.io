@@ -3,6 +3,8 @@
 import { request } from "@octokit/request";
 
 import { parseOpérationsHautNiveauYaml, stringifyOpérationsHautNiveauYaml } from '../format-données/opérationsHautNiveau.js'
+import { parsePersonnes, stringifyPersonnesYaml } from "../format-données/personnes.js";
+import { parseSalarié·es, stringifySalarié·esYaml } from "../format-données/salariees.js";
 
 const initialRequestDefaults = {
     headers: {
@@ -15,6 +17,9 @@ let theRequest = request.defaults(initialRequestDefaults)
 function opérationsHautNiveauPath(year){
     return `exercices/${year}/operationsHautNiveau.yml`
 }
+
+const personnesPath = 'personnes.yml'
+const salarié·esPath = 'salarié-es.yml'
 
 export default {
     reset(){
@@ -120,5 +125,66 @@ export default {
             sha,
             content: btoa(stringifyOpérationsHautNiveauYaml(opérationsHautNiveau))
         })
+    },
+    /**
+     * Renvoie la liste des personnes stockée sur GitHub
+     * @type {() => Promise<WithSha<Personne[]>>}
+     */
+    getPersonnes: fileReader(personnesPath, parsePersonnes),
+    /**
+     * Sauvegarde une liste de personnes dans le dépôt GitHub
+     * @param {string} sha
+     * @param {Personne[]} personnes 
+     * @param {string} message 
+     */
+    writePersonnes: fileWriter(personnesPath, 'Mise à jour des personnes', stringifyPersonnesYaml),
+    getSalarié·es: fileReader(salarié·esPath, parseSalarié·es),
+    writeSalarié·es: fileWriter(salarié·esPath, 'Mise à jour des salarié⋅es', stringifySalarié·esYaml),
+}
+
+// Quelques fonctions utilitaires :
+
+/**
+ * @template T
+ * @typedef {{ sha: string, data: T }} WithSha<T>
+ */
+
+/**
+ * Génère une fonction de lecture de données stockées dans un fichier unique
+ * @template T
+ * @param {string} path 
+ * @param {(data: string) => T} parser 
+ * @returns {() => Promise<{ sha: string, data: T}>}
+ */
+function fileReader(path, parser) {
+    return async () => {
+        const { data: { encoding, content, sha } } = await theRequest(`/repos/{owner}/{repo}/contents/${path}`)
+
+        if (typeof sha !== 'string') throw new TypeError()
+        if (typeof content !== 'string') throw new TypeError()
+
+        if (encoding === 'base64') {
+            return { sha, data: parser(atob(content)) }
+        } else {
+            throw new TypeError(`Encodage du fichier ${path} incorrect : on attendait du base64, on a du ${encoding}`)
+        }
     }
+}
+
+/**
+ * Génère une fonction d'écriture de données dans un fichier unique
+ * 
+ * @template T
+ * @param {string} path 
+ * @param {string} defaultMessage 
+ * @param {(T) => string} formatter 
+ * @returns {(sha: string, data: T, message?: string) => Promise<import("@octokit/types").OctokitResponse<any>>}
+ */
+function fileWriter(path, defaultMessage, formatter) {
+    return (sha, data, message) => theRequest(`/repos/{owner}/{repo}/contents/${path}`, {
+        method: 'PUT',
+        message: message || defaultMessage,
+        sha,
+        content: btoa(formatter(data))
+    })
 }

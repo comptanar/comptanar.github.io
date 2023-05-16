@@ -34,3 +34,23 @@ function isBaseOpérationHautNiveau(op){
 export function isOpérationHautNiveau(op){
     return isBaseOpérationHautNiveau(op) // faux ; PPP à raffiner plus tard
 }
+
+/**
+ * @param {any} p 
+ * @returns {p is Personne}
+ */
+export function estPersonne(p) {
+    return Object(p) === p &&
+        typeof p.nom === 'string' &&
+        typeof p.identifiant === 'string'
+}
+
+/**
+ * @param {any} s 
+ * @returns {s is Salarié·e}
+ */
+export function estSalarié·e(s) {
+    return Object(s) === s &&
+        typeof s.suffixeCompte === 'number' &&
+        typeof s.idPersonne === 'string'
+}

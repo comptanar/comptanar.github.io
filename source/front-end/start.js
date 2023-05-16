@@ -6,12 +6,15 @@ import Welcome from './composants/screens/Welcome.svelte'
 import ChooseOrganisation from './composants/screens/ChooseOrganisation.svelte'
 import Comptabilite from "./composants/screens/Comptabilite.svelte";
 import Factures from "./composants/screens/Factures.svelte";
+import FichesDePaie from './composants/screens/FichesDePaie.svelte'
 
-import store, {getEnvoiFactureÀClients} from './store.js'
+import store, {getEnvoiFactureÀClients, getFichesDePaie} from './store.js'
 import {
     logout, saveToken, initDance, getUserOrgChoices, selectOrgAndRepo,
-    créerEnvoiFactureÀClientVide, supprimerEnvoiFactureÀClient, sauvegarderEnvoiFactureÀClient,
+    supprimerEnvoiFactureÀClient, sauvegarderEnvoiFactureÀClient,
+    envoyerFicheDePaie,
 } from './actions.js'
+import { créerEnvoiFactureÀClientVide, créerFicheDePaieVide } from '../format-données/opérationsHautNiveau'
 
 console.info('start')
 
@@ -151,6 +154,35 @@ page('/comptabilite/factures', ({ querystring }) => {
     }
 
     const factures = new Factures({
+        target: svelteTarget,
+        props: mapStateToProps(store.state),
+    });
+
+    replaceComponent(factures, mapStateToProps);
+})
+
+page('/comptabilite/fiches-de-paie', ({ querystring }) => {
+    const params = new URLSearchParams(querystring)
+
+    const org = params.get('org');
+    const repo = params.get('repo');
+
+    selectOrgAndRepo(org, repo)
+
+    function mapStateToProps(state){
+        return {
+            login: state.login,
+            logout: logoutAndRedirect,
+            org,
+            personnes: state.personnes?.data ?? [],
+            salarié·es: state.salarié·es?.data ?? [],
+            créerFicheDePaieVide,
+            envoyerFicheDePaie,
+            fichesDePaie: getFichesDePaie(state),
+        }
+    }
+
+    const factures = new FichesDePaie({
         target: svelteTarget,
         props: mapStateToProps(store.state),
     });
