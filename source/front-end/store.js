@@ -4,6 +4,19 @@ import Store from "baredux";
 
 import {rememberToken} from './localStorage.js';
 
+/**
+ * @typedef {{
+ *      githubToken: string,
+ *      login: Promise<string> | string,
+ *      userOrgs: any,
+ *      org: string,
+ *      repo: string,
+ *      opérationsHautNiveauByYear: Map<number, OpérationHautNiveau[]> | undefined,
+ *      personnes: import("./githubAsDatabase.js").WithSha<Personne[]> | undefined,
+ *      salarié·es: import("./githubAsDatabase.js").WithSha<Salarié·e[]> | undefined,
+ * }} State
+ */
+
 const store = Store({
     state: {
         // @ts-ignore
@@ -13,9 +26,7 @@ const store = Store({
         org: undefined,
         repo: undefined,
         opérationsHautNiveauByYear: undefined,
-        /** @type {import("./githubAsDatabase.js").WithSha<Personne[]> | undefined} */
         personnes: undefined,
-        /** @type {import("./githubAsDatabase.js").WithSha<Salarié·e[]> | undefined} */
         salarié·es: undefined,
     },
     mutations: {
@@ -75,25 +86,45 @@ const store = Store({
             state.opérationsHautNiveauByYear.set(year,{ sha, opérationsHautNiveau })
         },
         /**
-         * @param {*} state 
+         * @param {State} state 
          * @param {import("./githubAsDatabase.js").WithSha<Personne[]>} personnes 
          */
         setPersonnes(state, personnes) {
             state.personnes = personnes
         },
         /**
-         * @param {*} state 
+         * @param {State} state 
          * @param {Personne} personne 
          */
-        addPersonne(state, personne) {
-            const { sha, personnes } = state.personnes
-            personnes.push(personne)
-            // Le SHA et le tableau sont temporairement désynchronisés, il faut penser à appeler
-            // updatePersonnesSha avec le nouveau SHA ensuite
-            state.personnes = { sha, personnes }
+        updatePersonne(state, personne) {
+            if (state.personnes) {
+                const { sha, data: personnes } = state.personnes
+                const index = personnes.findIndex(p => p.identifiant === personne.identifiant)
+    
+                if (index === -1) {
+                    personnes.push(personne)
+                } else {
+                    personnes[index] = personne
+                }
+    
+                // Le SHA et le tableau sont temporairement désynchronisés, il faut penser à appeler
+                // updatePersonnesSha avec le nouveau SHA ensuite
+                state.personnes = { sha, data: personnes }
+            }
         },
         updatePersonnesSha(state, newSha) {
             state.personnes.sha = newSha
+        },
+        /**
+         * @param {State} state 
+         * @param {Personne} personne 
+         */
+        supprimerPersonne(state, personne) {
+            if (state.personnes) {
+                const { sha, data: personnes } = state.personnes
+                console.log(personne.identifiant)
+                state.personnes = { sha, data: personnes.filter(p => p.identifiant !== personne.identifiant) }
+            }
         },
 
         setSalarié·es(state, s) {

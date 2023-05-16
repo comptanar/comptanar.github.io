@@ -207,3 +207,31 @@ export function envoyerFicheDePaie({
         return store.mutations.updateOpérationsHautNiveauSha(year, sha)
     })
 }
+
+export function envoyerPersonne(personne) {
+    store.mutations.updatePersonne(personne)
+    const sha = store.state.personnes.sha
+
+    return githubAsDatabase.writePersonnes(
+        sha,
+        store.state.personnes.data,
+        `Modification de ${personne.nom}`
+    )
+    .then(({ data: { content: { sha }}}) => {
+        return store.mutations.updatePersonnesSha(sha)
+    })
+}
+
+export function supprimerPersonne(personne) {
+    store.mutations.supprimerPersonne(personne)
+    const sha = store.state.personnes.sha
+
+    return githubAsDatabase.writePersonnes(
+        sha,
+        store.state.personnes.data,
+        `Suppression de ${personne.nom}`
+    )
+    .then(({ data: { content: { sha }}}) => {
+        return store.mutations.updatePersonnesSha(sha)
+    })
+}
