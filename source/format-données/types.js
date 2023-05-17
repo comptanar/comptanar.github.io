@@ -77,4 +77,5 @@
  * @typedef {Object} Salarié·e
  * @property {number} suffixeCompte
  * @property {string} idPersonne
+ * @property {string} identifiant
 */

@@ -21,3 +21,10 @@ export const parsePersonnes = (str) => parseYamlArray(str, 'une liste de personn
  * @returns {string}
  */
 export const stringifyPersonnesYaml = (personnes) => stringify(personnes)
+
+export function créerPersonneVide() {
+    return {
+        identifiant: Math.random().toString(32).slice(2),
+        nom: '',
+    }
+}
