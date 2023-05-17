@@ -10,6 +10,8 @@ import store from './store.js'
 
 import { formatCompte } from './stringifiers.js'
 
+export class ConflictError extends Error {}
+
 /**
  * @param {string} token
  */
@@ -80,7 +82,7 @@ export function getUserOrgChoices(){
     return orgsP
 }
 
-export function supprimerEnvoiFactureÀClient({ identifiantOpération, date, compteClient, numéroFacture }) {
+export function supprimerEnvoiFactureÀClient({ identifiantOpération, date, compteClient, numéroFacture }, retry = true) {
     const year = date.getFullYear()
 
     store.mutations.supprimerOpérationHautNiveau(year, identifiantOpération)
@@ -99,6 +101,17 @@ export function supprimerEnvoiFactureÀClient({ identifiantOpération, date, com
         // sha is the new modified content sha
         return store.mutations.updateOpérationsHautNiveauSha(year, sha)
     })
+    .catch(e => {
+        if (e.response?.status === 409) {
+            if (retry) {
+                githubAsDatabase.getExercices()
+                    .then(store.mutations.setOpérationsHautNiveauByYear)
+                    .then(() => supprimerEnvoiFactureÀClient({ identifiantOpération, date, compteClient, numéroFacture }, false))
+            }
+        } else {
+            throw e
+        }
+    })
 }
 
 export function sauvegarderEnvoiFactureÀClient({
@@ -109,7 +122,7 @@ export function sauvegarderEnvoiFactureÀClient({
     montantHT,
     montantTVA,
     compteProduit,
-}) {
+}, retry = true) {
     const date = new Date(dateFacture)
     const year = date.getFullYear()
 
@@ -134,7 +147,7 @@ export function sauvegarderEnvoiFactureÀClient({
         ]
     }
 
-    store.mutations.updateOpérationsHautNiveau(year, envoiFactureÀClient)
+    const creation = store.mutations.updateOpérationsHautNiveau(year, envoiFactureÀClient)
     const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
 
     const formattedDate = format(date, 'd MMMM yyyy', {locale: fr})
@@ -148,6 +161,31 @@ export function sauvegarderEnvoiFactureÀClient({
     .then(({data: {content: {sha}}}) => {
         return store.mutations.updateOpérationsHautNiveauSha(year, sha)
     })
+    .catch(e => {
+        if (e.response.status === 409) {
+            if (retry) {
+                if (creation) {
+                    githubAsDatabase.getExercices()
+                        .then(store.mutations.setOpérationsHautNiveauByYear)
+                        .then(() => 
+                            sauvegarderEnvoiFactureÀClient({
+                                identifiantOpération,
+                                compteClient,
+                                identifiantFacture,
+                                dateFacture,
+                                montantHT,
+                                montantTVA,
+                                compteProduit,
+                            }, false)
+                        )
+                } else {
+                    throw new ConflictError()
+                }
+            }
+        } else {
+            throw e
+        }
+    })
 }
 export function envoyerFicheDePaie({
     identifiantOpération,
@@ -159,7 +197,7 @@ export function envoyerFicheDePaie({
     dateÉmission,
     débutPériodeStr,
     finPériodeStr
-}) {
+}, retry = true) {
     const date = new Date(dateÉmission)
     const year = date.getFullYear()
     const débutPériode = new Date(débutPériodeStr)
@@ -191,7 +229,7 @@ export function envoyerFicheDePaie({
         ]
     }
 
-    store.mutations.updateOpérationsHautNiveau(year, fiche)
+    const creation = store.mutations.updateOpérationsHautNiveau(year, fiche)
     const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
 
     const formattedStart = format(débutPériode, 'd MMMM yyyy', {locale: fr})
@@ -206,10 +244,37 @@ export function envoyerFicheDePaie({
     .then(({data: {content: {sha}}}) => {
         return store.mutations.updateOpérationsHautNiveauSha(year, sha)
     })
+    .catch(e => {
+        if (e.response.status === 409) {
+            if (retry) {
+                if (creation) {
+                    githubAsDatabase.getExercices()
+                        .then(store.mutations.setOpérationsHautNiveauByYear)
+                        .then(() =>
+                            envoyerFicheDePaie({
+                                identifiantOpération,
+                                nomSalarié·e,
+                                compteSalarié·e,
+                                rémunération,
+                                sécu,
+                                prélèvement,
+                                dateÉmission,
+                                débutPériodeStr,
+                                finPériodeStr
+                            }, false)
+                        )
+                } else {
+                    throw new ConflictError()
+                }
+            }
+        } else {
+            throw e
+        }
+    })
 }
 
-export function envoyerPersonne(personne) {
-    store.mutations.updatePersonne(personne)
+export function envoyerPersonne(personne, retry = true) {
+    const creation = store.mutations.updatePersonne(personne)
     const sha = store.state.personnes.sha
 
     return githubAsDatabase.writePersonnes(
@@ -220,9 +285,24 @@ export function envoyerPersonne(personne) {
     .then(({ data: { content: { sha }}}) => {
         return store.mutations.updatePersonnesSha(sha)
     })
+    .catch(e => {
+        if (e.response?.status === 409) {
+            if (retry) {
+                if (creation) {
+                    githubAsDatabase.getPersonnes()
+                        .then(store.mutations.setPersonnes)
+                        .then(() => envoyerPersonne(personne, false))
+                } else {
+                    throw new ConflictError()
+                }
+            }
+        } else {
+            throw e
+        }
+    })
 }
 
-export function supprimerPersonne(personne) {
+export function supprimerPersonne(personne, retry = true) {
     store.mutations.supprimerPersonne(personne)
     const sha = store.state.personnes.sha
 
@@ -234,11 +314,22 @@ export function supprimerPersonne(personne) {
     .then(({ data: { content: { sha }}}) => {
         return store.mutations.updatePersonnesSha(sha)
     })
+    .catch(e => {
+        if (e.response?.status === 409) {
+            if (retry) {
+                return githubAsDatabase.getPersonnes()
+                    .then(store.mutations.setPersonnes)
+                    .then(() => supprimerPersonne(personne, false))
+            }
+        } else {
+            throw e
+        }
+    })
 }
 
 
-export function envoyerSalarié·e({ identifiant, personne, suffixe }) {
-    store.mutations.updateSalarié·e({
+export function envoyerSalarié·e({ identifiant, personne, suffixe }, retry = true) {
+    const creation = store.mutations.updateSalarié·e({
         identifiant,
         idPersonne: personne.identifiant,
         suffixeCompte: suffixe,
@@ -252,9 +343,24 @@ export function envoyerSalarié·e({ identifiant, personne, suffixe }) {
     .then(({ data: { content: { sha }}}) => {
         return store.mutations.updateSalarié·esSha(sha)
     })
+    .catch(e => {
+        if (e.response?.status === 409) {
+            if (retry) {
+                if (creation) {
+                    githubAsDatabase.getSalarié·es()
+                        .then(store.mutations.setSalarié·es)
+                        .then(() => envoyerSalarié·e({ identifiant, personne, suffixe }, false))
+                } else {
+                    throw new ConflictError()
+                }
+            }
+        } else {
+            throw e
+        }
+    })
 }
 
-export function supprimerSalarié·e(salarié·e) {
+export function supprimerSalarié·e(salarié·e, retry = true) {
     store.mutations.supprimerSalarié·e(salarié·e)
     const sha = store.state.salarié·es.sha
 
@@ -264,5 +370,16 @@ export function supprimerSalarié·e(salarié·e) {
     )
     .then(({ data: { content: { sha }}}) => {
         return store.mutations.updateSalarié·esSha(sha)
+    })
+    .catch(e => {
+        if (e.response?.status === 409) {
+            if (retry) {
+                githubAsDatabase.getSalarié·es()
+                    .then(store.mutations.setSalarié·es)
+                    .then(() => supprimerSalarié·e(salarié·e, false))
+            }
+        } else {
+            throw e
+        }
     })
 }

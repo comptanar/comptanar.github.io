@@ -80,7 +80,7 @@
             <fieldset disabled={editPromise && editPromise[Symbol.toStringTag] === 'Promise'}>
                 <label>
                     <div>Personne</div>
-                    <select bind:value={personne}>
+                    <select bind:value={personne} bind:this={formStart}>
                         {#each personnes as p}
                             <option value={p}>{p.nom}</option>
                         {/each}
