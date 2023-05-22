@@ -6,7 +6,7 @@
     import { tick } from 'svelte';
 
     import Skeleton from '../Skeleton.svelte'
-    import Loader from '../Loader.svelte'
+    import SaveButton from '../SaveButton.svelte'
 
     import '../../../format-données/types.js'
     import Tableau, { action } from '../Tableau.svelte';
@@ -158,14 +158,7 @@
                         <input bind:value={compteProduit} placeholder="706xxx">
                     </label>
 
-                    <div class="button-with-loader">
-                        <button type="submit">Enregistrer</button>
-                        {#await factureSent}
-                            <Loader></Loader>
-                        {:catch err}
-                            Problème avec l'envoi de la facture {err}
-                        {/await}
-                    </div>
+                    <SaveButton bind:promise={factureSent} />
                     <button on:click={annulerÉdition}>Abandonner les modifications</button>
                 </fieldset>
             </form>
@@ -177,12 +170,6 @@
     form {
         label input{
             margin-left: 1rem;
-        }
-
-        .button-with-loader{
-            display: flex;
-            flex-direction: row;
-            align-items: flex-start;
         }
     }
 

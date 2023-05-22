@@ -5,7 +5,7 @@
 
     import Skeleton from '../Skeleton.svelte'
     import Tableau, { action } from '../Tableau.svelte'
-    import Loader from '../Loader.svelte'
+    import SaveButton from '../SaveButton.svelte'
     import { créerPersonneVide } from '../../../format-données/personnes'
 
     export let login
@@ -72,14 +72,7 @@
                         <input bind:this={formStart} bind:value={nom} type="text">
                     </label>
 
-                    <div class="button-with-loader">
-                        <button type="submit">Enregistrer</button>
-                        {#await editPromise}
-                            <Loader></Loader>
-                        {:catch err}
-                            Problème avec la sauvegarde de la personne {err}
-                        {/await}
-                    </div>
+                    <SaveButton bind:promise={editPromise} />
                     <button on:click={() => table.edit(undefined)}>Abandonner les modifications</button>
                 </fieldset>
             </form>

@@ -7,7 +7,7 @@
 
     import Skeleton from "../Skeleton.svelte"
     import Tableau, { action } from "../Tableau.svelte"
-    import Loader from "../Loader.svelte";
+    import SaveButton from "../SaveButton.svelte"
     import { displayDate, afficherSommeOpérations, formatCompte } from '../../stringifiers'
 
     export let login
@@ -155,14 +155,7 @@
                         <input bind:value={finPériode} type="date">
                     </label>
 
-                    <div class="button-with-loader">
-                        <button type="submit">Enregistrer</button>
-                        {#await editPromise}
-                            <Loader></Loader>
-                        {:catch err}
-                            Problème avec l'envoi de la fiche de paie {err}
-                        {/await}
-                    </div>
+                    <SaveButton bind:promise={editPromise} />
                     <button on:click={() => table.edit(undefined)}>Abandonner les modifications</button>
                 </fieldset>
             </form>

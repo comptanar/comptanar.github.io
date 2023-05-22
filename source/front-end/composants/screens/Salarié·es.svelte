@@ -1,9 +1,9 @@
 <script>
     // @ts-check
 
-    import Loader from "../Loader.svelte"
     import Skeleton from "../Skeleton.svelte"
     import Tableau, { action } from "../Tableau.svelte"
+    import SaveButton from "../SaveButton.svelte"
     import { créerSalarié·eVide } from '../../../format-données/salariees'
     import { tick } from "svelte";
 
@@ -91,14 +91,7 @@
                     <input type="number" bind:value={suffixe}>
                 </label>
 
-                <div class="button-with-loader">
-                    <button type="submit">Enregistrer</button>
-                    {#await editPromise}
-                        <Loader></Loader>
-                    {:catch err}
-                        Problème avec la sauvegarde: {err}
-                    {/await}
-                </div>
+                <SaveButton bind:promise={editPromise} />
                 <button on:click={() => table.edit(undefined)}>Abandonner les modifications</button>
             </fieldset>
         </form>
