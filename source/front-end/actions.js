@@ -147,7 +147,8 @@ export function sauvegarderEnvoiFactureÀClient({
         ]
     }
 
-    const creation = store.mutations.updateOpérationsHautNiveau(year, envoiFactureÀClient)
+    const creation = store.state.opérationsHautNiveau.opérationsHautNiveau.some(o => o.identifiant === identifiantOpération)
+    store.mutations.updateOpérationsHautNiveau(year, envoiFactureÀClient)
     const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
 
     const formattedDate = format(date, 'd MMMM yyyy', {locale: fr})
@@ -229,7 +230,8 @@ export function envoyerFicheDePaie({
         ]
     }
 
-    const creation = store.mutations.updateOpérationsHautNiveau(year, fiche)
+    const creation = store.state.opérationsHautNiveau.opérationsHautNiveau.some(o => o.identifiant === identifiantOpération)
+    store.mutations.updateOpérationsHautNiveau(year, fiche)
     const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
 
     const formattedStart = format(débutPériode, 'd MMMM yyyy', {locale: fr})
@@ -274,7 +276,8 @@ export function envoyerFicheDePaie({
 }
 
 export function envoyerPersonne(personne, retry = true) {
-    const creation = store.mutations.updatePersonne(personne)
+    const creation = !store.state.personnes.data.some(p => p.identifiant === personne.identifiant)
+    store.mutations.updatePersonne(personne)
     const sha = store.state.personnes.sha
 
     return githubAsDatabase.writePersonnes(
@@ -329,7 +332,8 @@ export function supprimerPersonne(personne, retry = true) {
 
 
 export function envoyerSalarié·e({ identifiant, personne, suffixe }, retry = true) {
-    const creation = store.mutations.updateSalarié·e({
+    const creation = !store.state.salarié·es.data.some(s => s.identifiant === identifiant)
+    store.mutations.updateSalarié·e({
         identifiant,
         idPersonne: personne.identifiant,
         suffixeCompte: suffixe,

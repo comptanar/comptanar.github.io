@@ -84,7 +84,6 @@ const store = Store({
             }
 
             state.opérationsHautNiveauByYear.set(year,{ sha, opérationsHautNiveau })
-            return index === -1
         },
         /**
          * @param {State} state 
@@ -111,7 +110,6 @@ const store = Store({
                 // Le SHA et le tableau sont temporairement désynchronisés, il faut penser à appeler
                 // updatePersonnesSha avec le nouveau SHA ensuite
                 state.personnes = { sha, data: personnes }
-                return index === -1
             }
         },
         updatePersonnesSha(state, newSha) {
@@ -150,7 +148,6 @@ const store = Store({
                 // Le SHA et le tableau sont temporairement désynchronisés, il faut penser à appeler
                 // updateSalarié·esSha avec le nouveau SHA ensuite
                 state.salarié·es = { sha, data: salarié·es }
-                return index === -1
             }
         },
         updateSalarié·esSha(state, newSha) {
