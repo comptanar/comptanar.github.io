@@ -5,6 +5,8 @@
  * @property {string} compte
  * @property {number} montant
  * @property {'Crédit' | 'Débit'} sens
+ * @property {string} opérationHautNiveauCorrespondante // identifiant OpérationHautNiveau
+ * @property {any} [détails]
  */
 
 /**

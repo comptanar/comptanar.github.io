@@ -1,6 +1,6 @@
 //@ts-check
 
-import './types.js'
+import './types/types.js'
 
 /**
  * @param {any} op

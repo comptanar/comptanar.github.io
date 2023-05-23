@@ -8,7 +8,7 @@
     import Skeleton from '../Skeleton.svelte'
     import SaveButton from '../SaveButton.svelte'
 
-    import '../../../format-données/types.js'
+    import '../../../format-données/types/types.js'
     import Tableau, { action } from '../Tableau.svelte';
     import { displayDate, afficherSommeOpérations } from '../../stringifiers'
     import { supprimerOpérationHautNiveau } from '../../actions'
@@ -52,8 +52,8 @@
             : envoiFactureàClients.sort((a, b) => b.date - a.date).map(facture => [
                 { content: displayDate(facture.date), title: format(facture.date, 'd MMMM yyyy', {locale: fr}) },
                 { content: facture.compteClient },
-                { content: `${afficherSommeOpérations(facture.opérations)} €` },
-                { content: `${afficherSommeOpérations(facture.opérations.filter(({ compte }) => compte !== '44566'))} €` },
+                { content: `${afficherSommeOpérations(facture.opérations)}` },
+                { content: `${afficherSommeOpérations(facture.opérations.filter(({ compte }) => compte !== '44566'))}` },
             ])
     }
 
