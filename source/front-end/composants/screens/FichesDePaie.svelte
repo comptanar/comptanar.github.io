@@ -131,15 +131,15 @@
                         <input bind:this={formStart} bind:value={salarié·e} type="text">
                     </label>
                     <label>
-                        <div>Rémunération (€)</div>
+                        <div>Net payé (€)</div>
                         <input bind:value={rémunération} step="0.01" type="number">
                     </label>
                     <label>
-                        <div>Charges de sécurité sociale & de prévoyance (€)</div>
+                        <div>Total des cotisations et contributions (À déduire) (€)</div>
                         <input bind:value={sécu} step="0.01" type="number">
                     </label>
                     <label>
-                        <div>Prélèvement à la source (€)</div>
+                        <div>Impôt sur le revenu prélevé à la source (€)</div>
                         <input bind:value={prélèvement} step="0.01" type="number">
                     </label>
                     <label>
