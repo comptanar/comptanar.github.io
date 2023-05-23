@@ -20,6 +20,14 @@
     export let sauvegarderEnvoiFactureÀClient
     /** @type {() => EnvoiFactureClient} */
     export let créerEnvoiFactureÀClientVide
+    
+    // https://www.economie.gouv.fr/cedef/taux-tva-france-et-union-europeenne
+    const tauxTVAPossibles = [
+        {value: 20, text: "20%", selected: true},
+        {value: 10, text: "10%"},
+        {value: 5.5, text: "5,5%"},
+    ]
+
 
     // infos du formulaire
     let compteClient
@@ -27,7 +35,10 @@
     let dateFacture
 
     let montantHT
-    let montantTVA
+    let tauxTVA
+    let montantTVA;
+    $: montantTVA = montantHT*tauxTVA/100
+
     let compteProduit
 
     // élément <input> qui correspond toujours au premier champ du formulaire d'édition
@@ -140,7 +151,7 @@
                         <input bind:this={formStart} bind:value={compteClient} placeholder="411xxxx">
                     </label>
                     <label>
-                        <div>Identifiant de facture</div>
+                        <div>Numéro de facture</div>
                         <input bind:value={identifiantFacture} type="text">
                     </label>
                     <label>
@@ -152,8 +163,16 @@
                         <input bind:value={montantHT} step="0.01" type="number">
                     </label>
                     <label>
+                        <div>Taux TVA</div>
+                        <select bind:value={tauxTVA}>
+                            {#each tauxTVAPossibles as {value, text, selected}}
+                                <option value={value} selected={selected}>{text}</option>
+                            {/each}
+                        </select>
+                    </label>
+                    <label>
                         <div>Montant TVA (€)</div>
-                        <input bind:value={montantTVA} step="0.01" type="number">
+                        <output>{montantTVA}</output>
                     </label>
                     <label>
                         <div>Compte Produit</div>
@@ -171,8 +190,16 @@
 
 <style lang="scss">
     form {
-        label input{
-            margin-left: 1rem;
+        label {
+            & > div:first-child{
+                font-weight: bold;
+                min-width: 7rem;
+            }
+
+            input, select, output{
+                margin-left: 1rem;
+                width: 8rem;
+            }
         }
     }
 
