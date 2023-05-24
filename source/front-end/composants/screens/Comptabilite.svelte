@@ -26,6 +26,10 @@ export let repo
       <h2>Fiches de paie</h2>
     </a>
 
+    <a href="/comptabilite/achats?org={org}&repo={repo}">
+      <h2>Achats</h2>
+    </a>
+
     <h2>Compte de résultat et bilan comptable</h2>
 
   </section>

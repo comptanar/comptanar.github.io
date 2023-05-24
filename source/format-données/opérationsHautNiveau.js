@@ -70,3 +70,24 @@ export function créerFicheDePaieVide(){
         opérations: []
     }
 }
+
+/**
+ * 
+ * @returns {Achat}
+ */
+export function créerAchatVide() {
+    const date = new Date()
+    return {
+        type: 'Achat',
+        motif: '',
+        date,
+        opérations: [
+            {
+                compte: '',
+                montant: 0,
+                sens: 'Crédit'
+            },
+        ],
+        identifiantOpération: Math.random().toString(32).slice(2),
+    }
+}
