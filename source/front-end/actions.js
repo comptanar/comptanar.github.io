@@ -10,6 +10,8 @@ import store from './store.js'
 
 import { formatCompte } from './stringifiers.js'
 
+export class ConflictError extends Error {}
+
 /**
  * @param {string} token
  */
@@ -50,20 +52,49 @@ export async function initDance(){
 
 }
 
+const syncExercices = () => githubAsDatabase.getExercices().then(store.mutations.setOpérationsHautNiveauByYear)
+const syncPersonnes = () => githubAsDatabase.getPersonnes().then(store.mutations.setPersonnes)
+const syncSalarié·es = () => githubAsDatabase.getSalarié·es().then(store.mutations.setSalarié·es)
+
+/**
+ * Crée une fonction qui tente de faire une action un première fois,
+ * et si GitHub signale un conflit, met à jour les données puis retente
+ * une fois.
+ * 
+ * @param {() => Promise<any>} sync
+ */
+function ajouterRéessai(f, sync = syncExercices) {
+    return async (...args) => {
+        try {
+            return await f(...args)
+        } catch (e) {
+            if (e.response?.status === 409) {
+                await sync()
+                return await f(...args)
+            } else {
+                throw e
+            }
+        }
+    }
+}
+
+function makeConflictError(err) {
+    if (err.response?.status === 409) {
+        throw new ConflictError()
+    } else {
+        throw err
+    }
+}
+
 export function selectOrgAndRepo(org, repo){
     store.mutations.setOrgAndRepo(org, repo)
 
     githubAsDatabase.owner = org;
     githubAsDatabase.repo = repo;
 
-    const exercicesP = githubAsDatabase.getExercices()
-        .then(opérationsHautNiveauByYear => store.mutations.setOpérationsHautNiveauByYear(opérationsHautNiveauByYear))
-
-    const personnesP = githubAsDatabase.getPersonnes()
-        .then(store.mutations.setPersonnes)
-
-    const salarié·esP = githubAsDatabase.getSalarié·es()
-        .then(store.mutations.setSalarié·es)
+    const exercicesP = syncExercices()
+    const personnesP = syncPersonnes()
+    const salarié·esP = syncSalarié·es()
 
     return Promise.all([exercicesP, personnesP, salarié·esP])
 }
@@ -80,7 +111,7 @@ export function getUserOrgChoices(){
     return orgsP
 }
 
-export function supprimerEnvoiFactureÀClient({ identifiantOpération, date, compteClient, numéroFacture }) {
+export const supprimerEnvoiFactureÀClient = ajouterRéessai(({ identifiantOpération, date, compteClient, numéroFacture }) => {
     const year = date.getFullYear()
 
     store.mutations.supprimerOpérationHautNiveau(year, identifiantOpération)
@@ -99,7 +130,7 @@ export function supprimerEnvoiFactureÀClient({ identifiantOpération, date, com
         // sha is the new modified content sha
         return store.mutations.updateOpérationsHautNiveauSha(year, sha)
     })
-}
+})
 
 export function sauvegarderEnvoiFactureÀClient({
     identifiantOpération,
@@ -111,6 +142,7 @@ export function sauvegarderEnvoiFactureÀClient({
     compteProduit,
 }) {
     const date = new Date(dateFacture)
+    const formattedDate = format(date, 'd MMMM yyyy', {locale: fr})
     const year = date.getFullYear()
 
     /** @type {EnvoiFactureClient} */
@@ -134,21 +166,37 @@ export function sauvegarderEnvoiFactureÀClient({
         ]
     }
 
-    store.mutations.updateOpérationsHautNiveau(year, envoiFactureÀClient)
-    const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
+    const creation = store.state.opérationsHautNiveau.opérationsHautNiveau.some(o => o.identifiant === identifiantOpération)
+    let writePromise
+    if (creation) {
+        const action = ajouterRéessai(() => {
+            store.mutations.addOpérationHautNiveau(year, envoiFactureÀClient)
+            const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
+            return githubAsDatabase.writeExercice(
+                year,
+                yearSha,
+                store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
+                `Création de la facture ${identifiantFacture} envoyée au client ${compteClient} le ${formattedDate}`
+            )
+        })
 
-    const formattedDate = format(date, 'd MMMM yyyy', {locale: fr})
+        writePromise = action()        
+    } else {
+        store.mutations.updateOpérationHautNiveau(year, envoiFactureÀClient)
+        const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
+        writePromise = githubAsDatabase.writeExercice(
+            year,
+            yearSha,
+            store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
+            `Modification de la facture ${identifiantFacture} envoyée au client ${compteClient} le ${formattedDate}`
+        ).catch(makeConflictError)
+    }
 
-    return githubAsDatabase.writeExercice(
-        year,
-        yearSha,
-        store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
-        `Modification de la facture ${identifiantFacture} envoyée au client ${compteClient} le ${formattedDate}`
-    )
-    .then(({data: {content: {sha}}}) => {
+    return writePromise.then(({data: {content: {sha}}}) => {
         return store.mutations.updateOpérationsHautNiveauSha(year, sha)
     })
 }
+
 export function envoyerFicheDePaie({
     identifiantOpération,
     nomSalarié·e,
@@ -164,6 +212,8 @@ export function envoyerFicheDePaie({
     const year = date.getFullYear()
     const débutPériode = new Date(débutPériodeStr)
     const finPériode = new Date(finPériodeStr)
+    const formattedStart = format(débutPériode, 'd MMMM yyyy', {locale: fr})
+    const formattedEnd = format(finPériode, 'd MMMM yyyy', {locale: fr})
 
     /** @type {ÉmissionFicheDePaie} */
     const fiche = {
@@ -191,38 +241,69 @@ export function envoyerFicheDePaie({
         ]
     }
 
-    store.mutations.updateOpérationsHautNiveau(year, fiche)
-    const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
+    const creation = store.state.opérationsHautNiveau.opérationsHautNiveau.some(o => o.identifiant === identifiantOpération)
+    let writePromise
+    if (creation) {
+        const action = ajouterRéessai(() => {
+            store.mutations.addOpérationHautNiveau(year, fiche)
+            const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
+            return githubAsDatabase.writeExercice(
+                year,
+                yearSha,
+                store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
+                `Création de la fiche de paie de ${nomSalarié·e} pour la période du ${formattedStart} au ${formattedEnd}`
+            )
+        })
 
-    const formattedStart = format(débutPériode, 'd MMMM yyyy', {locale: fr})
-    const formattedEnd = format(finPériode, 'd MMMM yyyy', {locale: fr})
+        writePromise = action()
+    } else {
+        store.mutations.updateOpérationHautNiveau(year, fiche)
+        const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
 
-    return githubAsDatabase.writeExercice(
-        year,
-        yearSha,
-        store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
-        `Modification de la fiche de paie de ${nomSalarié·e} pour la période du ${formattedStart} au ${formattedEnd}`
-    )
-    .then(({data: {content: {sha}}}) => {
+        writePromise = githubAsDatabase.writeExercice(
+            year,
+            yearSha,
+            store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
+            `Modification de la fiche de paie de ${nomSalarié·e} pour la période du ${formattedStart} au ${formattedEnd}`
+        ).catch(makeConflictError)
+    }
+    
+    return writePromise.then(({data: {content: {sha}}}) => {
         return store.mutations.updateOpérationsHautNiveauSha(year, sha)
     })
 }
 
 export function envoyerPersonne(personne) {
-    store.mutations.updatePersonne(personne)
-    const sha = store.state.personnes.sha
+    const creation = !store.state.personnes.data.some(p => p.identifiant === personne.identifiant)
+    let writePromise
+    if (creation) {
+        const action = ajouterRéessai(() => {
+            store.mutations.addPersonne(personne)
+            const sha = store.state.personnes.sha
+            writePromise =  githubAsDatabase.writePersonnes(
+                sha,
+                store.state.personnes.data,
+                `Ajout de ${personne.nom}`
+            )
+        }, syncPersonnes)
 
-    return githubAsDatabase.writePersonnes(
-        sha,
-        store.state.personnes.data,
-        `Modification de ${personne.nom}`
-    )
-    .then(({ data: { content: { sha }}}) => {
+        writePromise = action()
+    } else {
+        store.mutations.updatePersonne(personne)
+        const sha = store.state.personnes.sha
+        writePromise = githubAsDatabase.writePersonnes(
+            sha,
+            store.state.personnes.data,
+            `Modification de ${personne.nom}`
+        ).catch(makeConflictError)
+    }
+    
+    return writePromise.then(({ data: { content: { sha }}}) => {
         return store.mutations.updatePersonnesSha(sha)
     })
 }
 
-export function supprimerPersonne(personne) {
+export const supprimerPersonne = ajouterRéessai(personne => {
     store.mutations.supprimerPersonne(personne)
     const sha = store.state.personnes.sha
 
@@ -234,27 +315,45 @@ export function supprimerPersonne(personne) {
     .then(({ data: { content: { sha }}}) => {
         return store.mutations.updatePersonnesSha(sha)
     })
-}
+}, syncPersonnes)
 
+export function envoyerSalarié·e({ identifiant, personne, suffixe }, retry = true) {
+    const creation = !store.state.salarié·es.data.some(s => s.identifiant === identifiant)
+    let writePromise
+    if (creation) {
+        const action = ajouterRéessai(() => {
+            store.mutations.addSalarié·e({
+                identifiant,
+                idPersonne: personne.identifiant,
+                suffixeCompte: suffixe,
+            })
+            const sha = store.state.salarié·es.sha
+            writePromise = githubAsDatabase.writeSalarié·es(
+                sha,
+                store.state.salarié·es.data,
+            )
+        }, syncPersonnes)
 
-export function envoyerSalarié·e({ identifiant, personne, suffixe }) {
-    store.mutations.updateSalarié·e({
-        identifiant,
-        idPersonne: personne.identifiant,
-        suffixeCompte: suffixe,
-    })
-    const sha = store.state.salarié·es.sha
-
-    return githubAsDatabase.writeSalarié·es(
-        sha,
-        store.state.salarié·es.data,
-    )
-    .then(({ data: { content: { sha }}}) => {
+        writePromise = action()
+    } else {
+        store.mutations.updateSalarié·e({
+            identifiant,
+            idPersonne: personne.identifiant,
+            suffixeCompte: suffixe,
+        })
+        const sha = store.state.salarié·es.sha
+        writePromise = githubAsDatabase.writeSalarié·es(
+            sha,
+            store.state.salarié·es.data,
+        ).catch(makeConflictError)
+    }
+    
+    return writePromise.then(({ data: { content: { sha }}}) => {
         return store.mutations.updateSalarié·esSha(sha)
     })
 }
 
-export function supprimerSalarié·e(salarié·e) {
+export const supprimerSalarié·e = ajouterRéessai((salarié·e) => {
     store.mutations.supprimerSalarié·e(salarié·e)
     const sha = store.state.salarié·es.sha
 
@@ -265,4 +364,4 @@ export function supprimerSalarié·e(salarié·e) {
     .then(({ data: { content: { sha }}}) => {
         return store.mutations.updateSalarié·esSha(sha)
     })
-}
+}, syncSalarié·es)
