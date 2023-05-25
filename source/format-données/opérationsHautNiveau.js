@@ -73,13 +73,13 @@ export function créerFicheDePaieVide(){
 
 /**
  * 
- * @returns {Achat}
+ * @returns {RéceptionFactureFournisseur}
  */
 export function créerAchatVide() {
     const date = new Date()
     return {
-        type: 'Achat',
-        motif: '',
+        type: 'Réception facture fournisseur',
+        compteFournisseur: '',
         date,
         opérations: [
             {

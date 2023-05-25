@@ -111,6 +111,19 @@ export function getUserOrgChoices(){
     return orgsP
 }
 
+/**
+ * Enregistre une opération de haut niveau dans la base de donnée.
+ * 
+ * En cas de conflit, on retentera la création d'une nouvelle opération,
+ * mais pas l'édition d'une opération déjà existante (une `ConflictError`
+ * sera alors lancée).
+ * 
+ * @param {number} year 
+ * @param {OpérationHautNiveau} op 
+ * @param {string} messageCréation 
+ * @param {string} messageÉdition 
+ * @returns 
+ */
 function envoyerOpérationHautNiveau(year, op, messageCréation, messageÉdition) {
     const creation = !store.state
         .opérationsHautNiveauByYear.get(year)
@@ -260,16 +273,16 @@ export function envoyerFicheDePaie({
 export function envoyerAchat({
     identifiantOpération,
     compte,
-    motif,
     date,
     montant,
 }) {
     const parsedDate = new Date(date)
+    /** @type {RéceptionFactureFournisseur} */
     const achat = {
         identifiantOpération,
-        type: 'Achat',
+        type: 'Réception facture fournisseur',
         date: parsedDate,
-        motif,
+        compteFournisseur: compte,
         opérations: [
             {
                 compte,
@@ -282,8 +295,8 @@ export function envoyerAchat({
     return envoyerOpérationHautNiveau(
         parsedDate.getFullYear(),
         achat,
-        `Création de l'achat « ${motif} » du ${format(parsedDate, 'd MMMM yyyy', {locale: fr})}`,
-        `Modification de l'achat « ${motif} » du ${format(parsedDate, 'd MMMM yyyy', {locale: fr})}`
+        `Création de l'achat du ${format(parsedDate, 'd MMMM yyyy', {locale: fr})}`,
+        `Modification de l'achat du ${format(parsedDate, 'd MMMM yyyy', {locale: fr})}`
     )
 }
 

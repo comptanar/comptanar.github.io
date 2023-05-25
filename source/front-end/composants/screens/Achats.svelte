@@ -15,18 +15,17 @@
 
     export let login
     export let logout
-    /** @type {Achat[]} */
+    /** @type {RéceptionFactureFournisseur[]} */
     export let achats
     export let org
 
     let formStart
     let table
     let editPromise
-    /** @type {Achat} */
+    /** @type {RéceptionFactureFournisseur} */
     let achatEnÉdition
 
     let compte
-    let motif
     let date
     let montant
 
@@ -34,7 +33,6 @@
         editPromise = envoyerAchat({
             identifiantOpération: achatEnÉdition.identifiantOpération,
             compte,
-            motif,
             date,
             montant,
         })
@@ -48,10 +46,9 @@
     async function màjFormulaire(achat) {
         achatEnÉdition = achat ?? créerAchatVide()
 
-        compte = achatEnÉdition.opérations[0].compte
-        motif = achatEnÉdition.motif
+        compte = achatEnÉdition.compteFournisseur
         date = format(achatEnÉdition.date, 'yyyy-MM-dd')
-        montant = achatEnÉdition.opérations[0].montant
+        montant = achatEnÉdition.opérations.find(o => o.compte === compte)?.montant ?? 0
 
         await tick()
         formStart?.focus()
@@ -62,10 +59,9 @@
         globalActions: [ action(() => table.edit(-1), 'Nouvel achat', 'Alt+N') ],
         itemActions: [ action(i => supprimerOpérationHautNiveau(achats[i]), 'Supprimer') ],
         placeholder: 'Sélectionne un achat dans la liste pour en voir le détail ou le modifier',
-        columns: ['Date', 'Motif', 'Montant'],
+        columns: ['Date', 'Montant'],
         data: achats.map(a => [
             { content: displayDate(a.date), title: format(a.date, 'd MMMM yyyy', {locale: fr}) },
-            { content: a.motif ?? 'Inconnu' },
             { content: afficherSommeOpérations(a.opérations) },
         ])
     }
@@ -77,24 +73,13 @@
             Achats réalisés par {org}
         </h1>
 
-        <svelte:fragment slot="form-header">
-            {#if achatEnÉdition?.motif}
-                <h2>Achat «&nbsp;{achatEnÉdition.motif}&nbsp;»</h2>
-            {:else}
-                <h2>Achat</h2>
-            {/if}
-        </svelte:fragment>
+        <h2 slot="form-header">Achat</h2>
 
         <form on:submit|preventDefault={sauvegarderAchat}>
             <fieldset disabled={editPromise && editPromise[Symbol.toStringTag] === 'Promise'}>
                 <label>
                     <div>Numéro de compte</div>
                     <input bind:this={formStart} bind:value={compte}>
-                </label>
-
-                <label>
-                    <div>Motif</div>
-                    <input bind:value={motif}>
                 </label>
 
                 <label>
