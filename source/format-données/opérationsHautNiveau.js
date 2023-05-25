@@ -70,3 +70,24 @@ export function créerFicheDePaieVide(){
         opérations: []
     }
 }
+
+/**
+ * 
+ * @returns {RéceptionFactureFournisseur}
+ */
+export function créerAchatVide() {
+    const date = new Date()
+    return {
+        type: 'Réception facture fournisseur',
+        compteFournisseur: '',
+        date,
+        opérations: [
+            {
+                compte: '',
+                montant: 0,
+                sens: 'Crédit'
+            },
+        ],
+        identifiantOpération: Math.random().toString(32).slice(2),
+    }
+}

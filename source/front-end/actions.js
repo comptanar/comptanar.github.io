@@ -1,6 +1,6 @@
 //@ts-check
 
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { fr } from 'date-fns/locale'
 
 import githubAsDatabase from './githubAsDatabase.js'
@@ -111,20 +111,66 @@ export function getUserOrgChoices(){
     return orgsP
 }
 
-export const supprimerEnvoiFactureÀClient = ajouterRéessai(({ identifiantOpération, date, compteClient, numéroFacture }) => {
-    const year = date.getFullYear()
+/**
+ * Enregistre une opération de haut niveau dans la base de donnée.
+ * 
+ * En cas de conflit, on retentera la création d'une nouvelle opération,
+ * mais pas l'édition d'une opération déjà existante (une `ConflictError`
+ * sera alors lancée).
+ * 
+ * @param {number} year 
+ * @param {OpérationHautNiveau} op 
+ * @param {string} messageCréation 
+ * @param {string} messageÉdition 
+ * @returns 
+ */
+function envoyerOpérationHautNiveau(year, op, messageCréation, messageÉdition) {
+    const creation = !store.state
+        .opérationsHautNiveauByYear.get(year)
+        .opérationsHautNiveau.some(o => o.identifiantOpération === op.identifiantOpération)
+    let writePromise
+    if (creation) {
+        const action = ajouterRéessai(() => {
+            store.mutations.addOpérationHautNiveau(year, op)
+            const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
+            return githubAsDatabase.writeExercice(
+                year,
+                yearSha,
+                store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
+                messageCréation
+            )
+        })
 
-    store.mutations.supprimerOpérationHautNiveau(year, identifiantOpération)
+        writePromise = action()
+    } else {
+        store.mutations.updateOpérationHautNiveau(year, op)
+        const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
+
+        writePromise = githubAsDatabase.writeExercice(
+            year,
+            yearSha,
+            store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
+            messageÉdition
+        ).catch(makeConflictError)
+    }
     
-    const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
+    return writePromise.then(({data: {content: {sha}}}) => {
+        return store.mutations.updateOpérationsHautNiveauSha(year, sha)
+    })
+}
 
+export const supprimerOpérationHautNiveau = ajouterRéessai(({ identifiantOpération, date }) => {
+    const year = date.getFullYear()
     const formattedDate = format(date, 'd MMMM yyyy', {locale: fr})
+
+    store.mutations.supprimerOpérationHautNiveau(year, identifiantOpération)    
+    const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
 
     return githubAsDatabase.writeExercice(
         year,
         yearSha,
         store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
-        `Suppression de la facture ${numéroFacture} envoyée au client ${compteClient} le ${formattedDate}`
+        `Suppression de l'opération du ${formattedDate}`
     )
     .then(({data: {content: {sha}}}) => {
         // sha is the new modified content sha
@@ -143,7 +189,6 @@ export function sauvegarderEnvoiFactureÀClient({
 }) {
     const date = new Date(dateFacture)
     const formattedDate = format(date, 'd MMMM yyyy', {locale: fr})
-    const year = date.getFullYear()
 
     /** @type {EnvoiFactureClient} */
     const envoiFactureÀClient = {
@@ -166,35 +211,12 @@ export function sauvegarderEnvoiFactureÀClient({
         ]
     }
 
-    const creation = store.state.opérationsHautNiveau.opérationsHautNiveau.some(o => o.identifiant === identifiantOpération)
-    let writePromise
-    if (creation) {
-        const action = ajouterRéessai(() => {
-            store.mutations.addOpérationHautNiveau(year, envoiFactureÀClient)
-            const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
-            return githubAsDatabase.writeExercice(
-                year,
-                yearSha,
-                store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
-                `Création de la facture ${identifiantFacture} envoyée au client ${compteClient} le ${formattedDate}`
-            )
-        })
-
-        writePromise = action()        
-    } else {
-        store.mutations.updateOpérationHautNiveau(year, envoiFactureÀClient)
-        const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
-        writePromise = githubAsDatabase.writeExercice(
-            year,
-            yearSha,
-            store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
-            `Modification de la facture ${identifiantFacture} envoyée au client ${compteClient} le ${formattedDate}`
-        ).catch(makeConflictError)
-    }
-
-    return writePromise.then(({data: {content: {sha}}}) => {
-        return store.mutations.updateOpérationsHautNiveauSha(year, sha)
-    })
+    return envoyerOpérationHautNiveau(
+        date.getFullYear(),
+        envoiFactureÀClient,
+        `Création de la facture ${identifiantFacture} envoyée au client ${compteClient} le ${formattedDate}`,
+        `Modification de la facture ${identifiantFacture} envoyée au client ${compteClient} le ${formattedDate}`,
+    )
 }
 
 export function envoyerFicheDePaie({
@@ -209,7 +231,6 @@ export function envoyerFicheDePaie({
     finPériodeStr
 }) {
     const date = new Date(dateÉmission)
-    const year = date.getFullYear()
     const débutPériode = new Date(débutPériodeStr)
     const finPériode = new Date(finPériodeStr)
     const formattedStart = format(débutPériode, 'd MMMM yyyy', {locale: fr})
@@ -241,36 +262,42 @@ export function envoyerFicheDePaie({
         ]
     }
 
-    const creation = store.state.opérationsHautNiveau.opérationsHautNiveau.some(o => o.identifiant === identifiantOpération)
-    let writePromise
-    if (creation) {
-        const action = ajouterRéessai(() => {
-            store.mutations.addOpérationHautNiveau(year, fiche)
-            const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
-            return githubAsDatabase.writeExercice(
-                year,
-                yearSha,
-                store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
-                `Création de la fiche de paie de ${nomSalarié·e} pour la période du ${formattedStart} au ${formattedEnd}`
-            )
-        })
+    return envoyerOpérationHautNiveau(
+        date.getFullYear(),
+        fiche,
+        `Création de la fiche de paie de ${nomSalarié·e} pour la période du ${formattedStart} au ${formattedEnd}`,
+        `Modification de la fiche de paie de ${nomSalarié·e} pour la période du ${formattedStart} au ${formattedEnd}`,
+    )
+}
 
-        writePromise = action()
-    } else {
-        store.mutations.updateOpérationHautNiveau(year, fiche)
-        const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
-
-        writePromise = githubAsDatabase.writeExercice(
-            year,
-            yearSha,
-            store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
-            `Modification de la fiche de paie de ${nomSalarié·e} pour la période du ${formattedStart} au ${formattedEnd}`
-        ).catch(makeConflictError)
+export function envoyerAchat({
+    identifiantOpération,
+    compte,
+    date,
+    montant,
+}) {
+    const parsedDate = new Date(date)
+    /** @type {RéceptionFactureFournisseur} */
+    const achat = {
+        identifiantOpération,
+        type: 'Réception facture fournisseur',
+        date: parsedDate,
+        compteFournisseur: compte,
+        opérations: [
+            {
+                compte,
+                montant,
+                sens: 'Crédit'
+            },
+        ]
     }
-    
-    return writePromise.then(({data: {content: {sha}}}) => {
-        return store.mutations.updateOpérationsHautNiveauSha(year, sha)
-    })
+
+    return envoyerOpérationHautNiveau(
+        parsedDate.getFullYear(),
+        achat,
+        `Création de l'achat du ${format(parsedDate, 'd MMMM yyyy', {locale: fr})}`,
+        `Modification de l'achat du ${format(parsedDate, 'd MMMM yyyy', {locale: fr})}`
+    )
 }
 
 export function envoyerPersonne(personne) {

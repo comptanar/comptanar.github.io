@@ -11,12 +11,12 @@
     import '../../../format-données/types.js'
     import Tableau, { action } from '../Tableau.svelte';
     import { displayDate, afficherSommeOpérations } from '../../stringifiers'
+    import { supprimerOpérationHautNiveau } from '../../actions'
 
     export let login
     export let logout
     export let org
     export let envoiFactureàClients
-    export let supprimerEnvoiFactureÀClient
     export let sauvegarderEnvoiFactureÀClient
     /** @type {() => EnvoiFactureClient} */
     export let créerEnvoiFactureÀClientVide
@@ -47,7 +47,7 @@
             action(() => table.edit(-1), 'Nouvelle facture', 'Alt+N')
         ],
         itemActions: [
-            action(supprimerEnvoiFactureÀClient, 'Supprimer'),
+            action(supprimerOpérationHautNiveau, 'Supprimer'),
         ],
         columns: [ 'Date', 'Client', 'Montant total', '(dont montant HT)' ],
         data: envoiFactureàClients === undefined
