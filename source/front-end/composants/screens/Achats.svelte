@@ -54,10 +54,14 @@
         formStart?.focus()
     }
 
+    function supprimer() {
+        supprimerOpérationHautNiveau(achatEnÉdition)
+        table.edit(undefined)
+    }
+
     let tableConfig
     $: tableConfig = {
         globalActions: [ action(() => table.edit(-1), 'Nouvel achat', 'Alt+N') ],
-        itemActions: [ action(i => supprimerOpérationHautNiveau(achats[i]), 'Supprimer') ],
         placeholder: 'Sélectionne un achat dans la liste pour en voir le détail ou le modifier',
         columns: ['Date', 'Montant'],
         data: achats.map(a => [
@@ -93,7 +97,8 @@
                 </label>
 
                 <SaveButton bind:promise={editPromise} />
-                <button on:click={_ => table.edit(undefined)}>Abandonner les modifications</button>
+                <button on:click|preventDefault={_ => table.edit(undefined)}>Abandonner les modifications</button>
+                <button on:click|preventDefault={supprimer}>Supprimer</button>
             </fieldset>
         </form>
     </Tableau>

@@ -26,15 +26,6 @@
     export let columns
 
     /**
-     * Les actions disponibles sur un item en particulier.
-     * 
-     * L'indice de l'item est passé en paramètre du callback.
-     * 
-     * @type Action<number>[]
-     */
-    export let itemActions
-
-    /**
      * Les données dans le tableau
      * 
      * @type any[][]
@@ -85,13 +76,6 @@
         }
     }
 
-
-    for (const action of itemActions) {
-        if (action.shortcut) {
-            keybinder.on(action.shortcut, () => action(editing))
-        }
-    }
-
     keybinder.on('down', () => {
         let item = (editing ?? -1) + 1
         console.log(item, data.length)
@@ -137,9 +121,6 @@
                         {#each columns as col}
                             <th>{col}</th>
                         {/each}
-                        {#each itemActions as _}
-                            <th></th>
-                        {/each}
                     </tr>
                 </thead>
                 <tbody>
@@ -147,11 +128,6 @@
                         <tr class:edition={editing === i} on:click={_ => edit(i)}>
                             {#each row as content}
                                 <td title={content.title}>{content.content}</td>
-                            {/each}
-                            {#each itemActions as action}
-                                <td>
-                                    <button disabled={editing !== undefined} on:click={() => action(i)} title={action.shortcut}>{action.name}</button>
-                                </td>
                             {/each}
                         </tr>
                     {/each}

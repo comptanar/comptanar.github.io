@@ -44,12 +44,14 @@
         formStart?.focus()
     }
 
+    function supprimer() {
+        supprimerPersonne(personneEnModification)
+        table.edit(undefined)
+    }
+
     $: tableConfig = {
         globalActions: [
             action(() => table.edit(-1), "Nouvelle personne", "Alt+N"),
-        ],
-        itemActions: [
-            action(p => supprimerPersonne(p), "Supprimer"),
         ],
         columns: [ 'Nom' ],
         data: personnes.map(p => [
@@ -74,6 +76,7 @@
 
                     <SaveButton bind:promise={editPromise} />
                     <button on:click={() => table.edit(undefined)}>Abandonner les modifications</button>
+                    <button on:click|preventDefault={supprimer}>Supprimer</button>
                 </fieldset>
             </form>
         {/if}
