@@ -7,6 +7,7 @@
 
     import Skeleton from '../Skeleton.svelte'
     import SaveButton from '../SaveButton.svelte'
+    import Loader from '../Loader.svelte'
 
     import '../../../format-données/types/types.js'
     import Tableau, { action } from '../Tableau.svelte';
@@ -28,18 +29,30 @@
         {value: 5.5, text: "5,5%"},
     ]
 
+    function calculTVA({montantHT, tauxTVA}){
+        return montantHT*tauxTVA/100
+    }
+    function calculTTC(lignesFacture){
+        return lignesFacture.montantHT + calculTVA(lignesFacture)
+    }
 
     // infos du formulaire
     let compteClient
     let identifiantFacture
     let dateFacture
 
-    let montantHT
-    let tauxTVA
-    let montantTVA;
-    $: montantTVA = montantHT*tauxTVA/100
+    let lignesFacture = new Set([
+        {montantHT: undefined, tauxTVA: undefined, compteProduit: undefined}
+    ])
 
-    let compteProduit
+    function supprimerLigneFacture(ligne){
+        lignesFacture.delete(ligne)
+    }
+    function ajouterLigneFacture(){
+        lignesFacture = lignesFacture.add({montantHT: undefined, tauxTVA: undefined, compteProduit: undefined})
+    }
+
+
 
     // élément <input> qui correspond toujours au premier champ du formulaire d'édition
     let formStart
@@ -105,9 +118,9 @@
         dateFacture = format(factureEnModification.date, 'yyyy-MM-dd')
 
         const sommeMontants = (total, op) => total + op.montant
-        montantHT = factureEnModification.opérations.filter(o => o.compte !== '44566').reduce(sommeMontants, 0)
+        /*montantHT = factureEnModification.opérations.filter(o => o.compte !== '44566').reduce(sommeMontants, 0)
         montantTVA = factureEnModification.opérations.filter(o => o.compte === '44566').reduce(sommeMontants, 0)
-        compteProduit = factureEnModification.opérations.find(o => o.compte !== '44566').compte
+        compteProduit = factureEnModification.opérations.find(o => o.compte !== '44566').compte*/
 
         // On attend que Svelte ai redessiné la vue
         await tick()
@@ -158,28 +171,46 @@
                         <div>Date</div>
                         <input bind:value={dateFacture} type="date">
                     </label>
-                    <label>
-                        <div>Montant HT (€)</div>
-                        <input bind:value={montantHT} step="0.01" type="number">
-                    </label>
-                    <label>
-                        <div>Taux TVA</div>
-                        <select bind:value={tauxTVA}>
-                            {#each tauxTVAPossibles as {value, text, selected}}
-                                <option value={value} selected={selected}>{text}</option>
-                            {/each}
-                        </select>
-                    </label>
-                    <label>
-                        <div>Montant TVA (€)</div>
-                        <output>{montantTVA}</output>
-                    </label>
-                    <label>
-                        <div>Compte Produit</div>
-                        <input bind:value={compteProduit} placeholder="706xxx">
-                    </label>
 
-                    <SaveButton bind:promise={factureSent} />
+                    {#each [...lignesFacture] as ligneFacture, i}
+                        <fieldset class="ligne-facture">
+                            <label>
+                                <div>Compte Produit</div>
+                                <input bind:value={ligneFacture.compteProduit} placeholder="706xxx">
+                            </label>
+                            <label>
+                                <div>Montant HT (€)</div>
+                                <input bind:value={ligneFacture.montantHT} step="0.01" type="number">
+                            </label>
+                            <label>
+                                <div>Taux TVA</div>
+                                <select bind:value={ligneFacture.tauxTVA}>
+                                    {#each tauxTVAPossibles as {value, text, selected}}
+                                        <option value={value} selected={selected}>{text}</option>
+                                    {/each}
+                                </select>
+                            </label>
+                            <label>
+                                <div>Montant TVA (€)</div>
+                                <output>{calculTVA(ligneFacture)}</output>
+                            </label>
+                            <label>
+                                <div>Montant TTC (€)</div>
+                                <output>{calculTTC(ligneFacture)}</output>
+                            </label>
+                            <button type="button" on:click={e => supprimerLigneFacture(ligneFacture)}>Supprimer ligne</button>
+                        </fieldset>
+                    {/each}
+                    <button type="button" on:click={e => ajouterLigneFacture()}>Ajouter ligne</button>
+                    <div class="button-with-loader">
+                        <SaveButton bind:promise={factureSent} />
+                        {#await factureSent}
+                            <Loader></Loader>
+                        {:catch err}
+                            Problème avec l'envoi de la facture {err}
+                        {/await}
+                    </div>
+                    
                     <button type="button" on:click={annulerÉdition}>Abandonner les modifications</button>
                     <button type="button" on:click={supprimer}>Supprimer cette facture</button>
                 </fieldset>
@@ -200,6 +231,17 @@
                 margin-left: 1rem;
                 width: 8rem;
             }
+        }
+
+        fieldset.ligne-facture{
+            border: 1px solid #333;
+            padding: 0.5rem;
+        }
+
+        .button-with-loader{
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
         }
     }
 
