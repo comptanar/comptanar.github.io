@@ -78,7 +78,6 @@
 
     keybinder.on('down', () => {
         let item = (editing ?? -1) + 1
-        console.log(item, data.length)
         if (item >= data.length) {
             item = data.length - 1
         }

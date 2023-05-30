@@ -97,8 +97,8 @@
                 </label>
 
                 <SaveButton bind:promise={editPromise} />
-                <button on:click|preventDefault={_ => table.edit(undefined)}>Abandonner les modifications</button>
-                <button on:click|preventDefault={supprimer}>Supprimer</button>
+                <button type="button" on:click={_ => table.edit(undefined)}>Abandonner les modifications</button>
+                <button type="button" on:click={supprimer}>Supprimer</button>
             </fieldset>
         </form>
     </Tableau>

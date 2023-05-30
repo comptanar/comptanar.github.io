@@ -161,8 +161,8 @@
                     </label>
 
                     <SaveButton bind:promise={factureSent} />
-                    <button on:click|preventDefault={annulerÉdition}>Abandonner les modifications</button>
-                    <button on:click|preventDefault={supprimer}>Supprimer cette facture</button>
+                    <button type="button" on:click={annulerÉdition}>Abandonner les modifications</button>
+                    <button type="button" on:click={supprimer}>Supprimer cette facture</button>
                 </fieldset>
             </form>
         {/if}
