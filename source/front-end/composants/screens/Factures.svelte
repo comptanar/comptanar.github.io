@@ -46,9 +46,6 @@
         globalActions: [
             action(() => table.edit(-1), 'Nouvelle facture', 'Alt+N')
         ],
-        itemActions: [
-            action(supprimerOpérationHautNiveau, 'Supprimer'),
-        ],
         columns: [ 'Date', 'Client', 'Montant total', '(dont montant HT)' ],
         data: envoiFactureàClients === undefined
             ? []
@@ -113,6 +110,11 @@
     function annulerÉdition() {
         table.edit(undefined)
     }
+
+    function supprimer() {
+        supprimerOpérationHautNiveau(factureEnModification)
+        table.edit(undefined)
+    }
 </script>
 
 <Skeleton {login} {logout} fullwidth>
@@ -159,7 +161,8 @@
                     </label>
 
                     <SaveButton bind:promise={factureSent} />
-                    <button on:click={annulerÉdition}>Abandonner les modifications</button>
+                    <button type="button" on:click={annulerÉdition}>Abandonner les modifications</button>
+                    <button type="button" on:click={supprimer}>Supprimer cette facture</button>
                 </fieldset>
             </form>
         {/if}

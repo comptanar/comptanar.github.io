@@ -9,6 +9,7 @@
     import Tableau, { action } from "../Tableau.svelte"
     import SaveButton from "../SaveButton.svelte"
     import { displayDate, afficherSommeOpérations, formatCompte } from '../../stringifiers'
+    import { supprimerOpérationHautNiveau } from "../../actions";
 
     export let login
     export let logout
@@ -98,6 +99,11 @@
         formStart?.focus()
     }
 
+    function supprimer() {
+        supprimerOpérationHautNiveau(ficheEnModification)
+        table.edit(undefined)
+    }
+
     let tableConfig
     $: tableConfig = {
         placeholder: 'Sélectionne une fiche de paie pour en voir le détail et la modifier',
@@ -105,7 +111,6 @@
         globalActions: [
             action(() => table.edit(-1), 'Nouvelle fiche', 'Alt+N'),
         ],
-        itemActions: [],
         data: fichesDePaie?.map(fiche => [
             { content: displayDate(fiche.date), title: format(fiche.date, 'd MMMM yyyy', {locale: fr}) },
             {
@@ -156,8 +161,9 @@
                     </label>
 
                     <SaveButton bind:promise={editPromise} />
-                    <button on:click={() => table.edit(undefined)}>Abandonner les modifications</button>
-                </fieldset>
+                    <button type="button" on:click={() => table.edit(undefined)}>Abandonner les modifications</button>
+                    <button type="button" on:click={supprimer}>Supprimer</button>
+            </fieldset>
             </form>
         {/if}
     </Tableau>

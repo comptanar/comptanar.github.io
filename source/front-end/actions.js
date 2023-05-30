@@ -307,7 +307,7 @@ export function envoyerPersonne(personne) {
         const action = ajouterRéessai(() => {
             store.mutations.addPersonne(personne)
             const sha = store.state.personnes.sha
-            writePromise =  githubAsDatabase.writePersonnes(
+            return githubAsDatabase.writePersonnes(
                 sha,
                 store.state.personnes.data,
                 `Ajout de ${personne.nom}`
@@ -355,7 +355,7 @@ export function envoyerSalarié·e({ identifiant, personne, suffixe }, retry = t
                 suffixeCompte: suffixe,
             })
             const sha = store.state.salarié·es.sha
-            writePromise = githubAsDatabase.writeSalarié·es(
+            return githubAsDatabase.writeSalarié·es(
                 sha,
                 store.state.salarié·es.data,
             )
@@ -386,7 +386,7 @@ export const supprimerSalarié·e = ajouterRéessai((salarié·e) => {
 
     return githubAsDatabase.writeSalarié·es(
         sha,
-        store.state.salarié·e.data,
+        store.state.salarié·es.data,
     )
     .then(({ data: { content: { sha }}}) => {
         return store.mutations.updateSalarié·esSha(sha)
