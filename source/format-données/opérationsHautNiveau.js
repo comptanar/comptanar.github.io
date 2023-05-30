@@ -41,12 +41,14 @@ export function créerEnvoiFactureÀClientVide() {
         date: new Date(),
         compteClient: '',
         identifiantOpération: Math.random().toString(32).slice(2),
-        opérations: [
+        lignes: [
             {
-                compte: '',
-                montant: 0,
-                sens: 'Débit'
-            },
+                compteProduit: '',
+                montantHT: 0,
+                tauxTVA: 0
+            }
+        ],
+        opérations: [
             {
                 compte: '44566', // TVA
                 montant: 0,

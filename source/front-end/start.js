@@ -14,7 +14,6 @@ import Achats from './composants/screens/Achats.svelte'
 import store, {getAchats, getEnvoiFactureÀClients, getFichesDePaie} from './store.js'
 import {
     logout, saveToken, initDance, getUserOrgChoices, selectOrgAndRepo,
-    sauvegarderEnvoiFactureÀClient,
     envoyerFicheDePaie,
     supprimerPersonne, envoyerPersonne,
     envoyerSalarié·e, supprimerSalarié·e,
@@ -151,9 +150,7 @@ page('/comptabilite/factures', ({ querystring }) => {
             login: state.login,
             logout: logoutAndRedirect,
             org,
-            envoiFactureàClients : getEnvoiFactureÀClients(state),
-            créerEnvoiFactureÀClientVide,
-            sauvegarderEnvoiFactureÀClient,
+            envoiFactureàClients : getEnvoiFactureÀClients(state)
         }
     }
 

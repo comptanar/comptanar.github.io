@@ -12,15 +12,13 @@
     import '../../../format-données/types/types.js'
     import Tableau, { action } from '../Tableau.svelte';
     import { displayDate, afficherSommeOpérations } from '../../stringifiers'
-    import { supprimerOpérationHautNiveau } from '../../actions'
+    import { supprimerOpérationHautNiveau, sauvegarderEnvoiFactureÀClient } from '../../actions'
+    import { créerEnvoiFactureÀClientVide } from '../../../format-données/opérationsHautNiveau';
 
     export let login
     export let logout
     export let org
     export let envoiFactureàClients
-    export let sauvegarderEnvoiFactureÀClient
-    /** @type {() => EnvoiFactureClient} */
-    export let créerEnvoiFactureÀClientVide
     
     // https://www.economie.gouv.fr/cedef/taux-tva-france-et-union-europeenne
     const tauxTVAPossibles = [
@@ -36,28 +34,31 @@
         return lignesFacture.montantHT + calculTVA(lignesFacture)
     }
 
-    // infos du formulaire
-    let compteClient
-    let identifiantFacture
-    let dateFacture
-
-    let lignesFacture = new Set([
-        {montantHT: undefined, tauxTVA: undefined, compteProduit: undefined}
-    ])
-
-    function supprimerLigneFacture(ligne){
-        lignesFacture.delete(ligne)
-    }
-    function ajouterLigneFacture(){
-        lignesFacture = lignesFacture.add({montantHT: undefined, tauxTVA: undefined, compteProduit: undefined})
-    }
-
-
-
     // élément <input> qui correspond toujours au premier champ du formulaire d'édition
     let formStart
 
-    let factureEnModification = undefined
+
+
+    /** @type {EnvoiFactureClient} */
+    let factureEnModification = créerEnvoiFactureÀClientVide()
+
+    // svelte gère mal le bind sur un input@type=date, donc gestion manuelle
+    let dateFacture 
+    $: factureEnModification.date = new Date(dateFacture)
+
+    /**
+     * 
+     * @param {LigneFacture} ligne
+     */
+    function supprimerLigneFacture(ligne){
+        const index = factureEnModification.lignes.indexOf(ligne);
+        if (index >= 0) { 
+            factureEnModification.lignes.splice(index, 1);
+        }
+    }
+    function ajouterLigneFacture(){
+        factureEnModification.lignes.push({montantHT: undefined, tauxTVA: undefined, compteProduit: undefined})
+    }
 
     let factureSent = undefined;
 
@@ -87,15 +88,7 @@
      * elle vide juste le formulaire.
      */
     function sauvegarderFacture(){
-        factureSent = sauvegarderEnvoiFactureÀClient({
-            identifiantOpération: factureEnModification.identifiantOpération,
-            compteClient,
-            identifiantFacture,
-            dateFacture,
-            montantHT,
-            montantTVA,
-            compteProduit,
-        })
+        factureSent = sauvegarderEnvoiFactureÀClient(factureEnModification)
 
         factureSent.then(() => {
             factureSent = undefined
@@ -113,9 +106,9 @@
      */
     async function màjFormulaire(f) {
         factureEnModification = f === undefined ? créerEnvoiFactureÀClientVide() : f
-        compteClient = factureEnModification.compteClient
-        identifiantFacture = factureEnModification.numéroFacture
-        dateFacture = format(factureEnModification.date, 'yyyy-MM-dd')
+        //compteClient = factureEnModification.compteClient
+        //identifiantFacture = factureEnModification.numéroFacture
+        //dateFacture = format(factureEnModification.date, 'yyyy-MM-dd')
 
         const sommeMontants = (total, op) => total + op.montant
         /*montantHT = factureEnModification.opérations.filter(o => o.compte !== '44566').reduce(sommeMontants, 0)
@@ -149,8 +142,8 @@
         </h1>
 
         <svelte:fragment slot="form-header">
-            {#if identifiantFacture}
-                <h2>Facture «&nbsp;{identifiantFacture}&nbsp;»</h2>
+            {#if factureEnModification && factureEnModification.numéroFacture}
+                <h2>Facture «&nbsp;{factureEnModification.numéroFacture}&nbsp;»</h2>
             {:else}
                 <h2>Facture (sans identifiant)</h2>
             {/if}
@@ -161,30 +154,30 @@
                 <fieldset disabled={factureSent && factureSent[Symbol.toStringTag] === 'Promise'}>
                     <label>
                         <div>Client</div>
-                        <input bind:this={formStart} bind:value={compteClient} placeholder="411xxxx">
+                        <input bind:this={formStart} bind:value={factureEnModification.compteClient} placeholder="411xxxx">
                     </label>
                     <label>
                         <div>Numéro de facture</div>
-                        <input bind:value={identifiantFacture} type="text">
+                        <input bind:value={factureEnModification.numéroFacture} type="text">
                     </label>
                     <label>
                         <div>Date</div>
                         <input bind:value={dateFacture} type="date">
                     </label>
 
-                    {#each [...lignesFacture] as ligneFacture, i}
+                    {#each factureEnModification.lignes as ligne, i}
                         <fieldset class="ligne-facture">
                             <label>
                                 <div>Compte Produit</div>
-                                <input bind:value={ligneFacture.compteProduit} placeholder="706xxx">
+                                <input bind:value={ligne.compteProduit} placeholder="706xxx">
                             </label>
                             <label>
                                 <div>Montant HT (€)</div>
-                                <input bind:value={ligneFacture.montantHT} step="0.01" type="number">
+                                <input bind:value={ligne.montantHT} step="0.01" type="number">
                             </label>
                             <label>
                                 <div>Taux TVA</div>
-                                <select bind:value={ligneFacture.tauxTVA}>
+                                <select bind:value={ligne.tauxTVA}>
                                     {#each tauxTVAPossibles as {value, text, selected}}
                                         <option value={value} selected={selected}>{text}</option>
                                     {/each}
@@ -192,13 +185,13 @@
                             </label>
                             <label>
                                 <div>Montant TVA (€)</div>
-                                <output>{calculTVA(ligneFacture)}</output>
+                                <output>{calculTVA(ligne)}</output>
                             </label>
                             <label>
                                 <div>Montant TTC (€)</div>
-                                <output>{calculTTC(ligneFacture)}</output>
+                                <output>{calculTTC(ligne)}</output>
                             </label>
-                            <button type="button" on:click={e => supprimerLigneFacture(ligneFacture)}>Supprimer ligne</button>
+                            <button type="button" on:click={e => supprimerLigneFacture(ligne)}>Supprimer ligne</button>
                         </fieldset>
                     {/each}
                     <button type="button" on:click={e => ajouterLigneFacture()}>Ajouter ligne</button>

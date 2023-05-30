@@ -5,7 +5,7 @@
  * @property {string} compte
  * @property {number} montant
  * @property {'Crédit' | 'Débit'} sens
- * @property {string} opérationHautNiveauCorrespondante // identifiant OpérationHautNiveau
+ * @property {string} [opérationHautNiveauCorrespondante] // identifiant OpérationHautNiveau
  * @property {any} [détails]
  */
 
@@ -18,10 +18,18 @@
  */
 
 /**
+ * @typedef {Object} LigneFacture
+ * @property {string} compteProduit
+ * @property {number} montantHT
+ * @property {number} tauxTVA
+ */
+
+/**
  * @typedef {Object} SpécifiqueEnvoiFactureClient
  * @property {'Envoi facture client'} type
  * @property {string} numéroFacture
  * @property {string} compteClient
+ * @property {LigneFacture[]} lignes
  * 
  * @typedef {BaseOpérationHautNiveau & SpécifiqueEnvoiFactureClient} EnvoiFactureClient
  */

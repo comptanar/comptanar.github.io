@@ -178,44 +178,21 @@ export const supprimerOpérationHautNiveau = ajouterRéessai(({ identifiantOpér
     })
 })
 
-export function sauvegarderEnvoiFactureÀClient({
-    identifiantOpération,
-    compteClient,
-    identifiantFacture,
-    dateFacture,
-    montantHT,
-    montantTVA,
-    compteProduit,
-}) {
-    const date = new Date(dateFacture)
+/**
+ * 
+ * @param {EnvoiFactureClient} envoiFactureÀClient 
+ * @returns {Promise<any>} // Résout quand l'opération a bien été sauvegardée
+ */
+export function sauvegarderEnvoiFactureÀClient(envoiFactureÀClient) {
+    const date = envoiFactureÀClient.date
+    console.log('date', date)
     const formattedDate = format(date, 'd MMMM yyyy', {locale: fr})
-
-    /** @type {EnvoiFactureClient} */
-    const envoiFactureÀClient = {
-        type: 'Envoi facture client',
-        numéroFacture: identifiantFacture,
-        date,
-        compteClient,
-        identifiantOpération,
-        opérations: [
-            {
-                compte: compteProduit,
-                montant: montantHT,
-                sens: 'Débit'
-            },
-            {
-                compte: '44566', // TVA
-                montant: montantTVA,
-                sens: 'Débit'
-            }
-        ]
-    }
 
     return envoyerOpérationHautNiveau(
         date.getFullYear(),
         envoiFactureÀClient,
-        `Création de la facture ${identifiantFacture} envoyée au client ${compteClient} le ${formattedDate}`,
-        `Modification de la facture ${identifiantFacture} envoyée au client ${compteClient} le ${formattedDate}`,
+        `Création de la facture ${envoiFactureÀClient.numéroFacture} envoyée au client ${envoiFactureÀClient.compteClient} le ${formattedDate}`,
+        `Modification de la facture ${envoiFactureÀClient.numéroFacture} envoyée au client ${envoiFactureÀClient.compteClient} le ${formattedDate}`,
     )
 }
 
