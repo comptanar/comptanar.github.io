@@ -9,6 +9,7 @@
  * @property {any} [détails]
  */
 
+
 /**
  * @typedef {Object} BaseOpérationHautNiveau
  * @property {string} identifiantOpération
@@ -89,3 +90,9 @@
  * @property {string} idPersonne
  * @property {string} identifiant
 */
+
+
+/**
+ * @template T
+ * @typedef {{ sha: string | undefined, data: T }} WithSha<T>
+ */

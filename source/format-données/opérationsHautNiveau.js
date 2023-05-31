@@ -5,6 +5,7 @@ import { stringify } from 'yaml'
 import { isOpérationHautNiveau } from './predicates.js';
 import { parseYamlArray } from './utils.js';
 
+import './types/main.js'
 
 /**
  * @param {string} str

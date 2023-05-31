@@ -24,6 +24,8 @@ export function displayDate(date){
 const sommeOpérations = ops => sum(ops.map(({ montant }) => montant))
 
 const euroFormat = Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' })
-export const afficherSommeOpérations = ops => euroFormat.format(sommeOpérations(ops))
+export const formatMontant = montant => euroFormat.format(montant)
+
+export const afficherSommeOpérations = ops => formatMontant(sommeOpérations(ops))
 
 export const formatCompte = (préfixe, suffixe) => (préfixe * Math.pow(10, 6 - préfixe.toString().length) + suffixe).toString()

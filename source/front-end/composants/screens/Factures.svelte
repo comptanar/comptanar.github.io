@@ -1,6 +1,7 @@
 <script>
     //@ts-check
     
+    import { sum } from 'd3-array'
     import { format } from 'date-fns';
     import { fr } from 'date-fns/locale'
     import { tick } from 'svelte';
@@ -9,15 +10,17 @@
     import SaveButton from '../SaveButton.svelte'
     import Loader from '../Loader.svelte'
 
-    import '../../../format-données/types/types.js'
     import Tableau, { action } from '../Tableau.svelte';
-    import { displayDate, afficherSommeOpérations } from '../../stringifiers'
+    import { displayDate, formatMontant } from '../../stringifiers'
     import { supprimerOpérationHautNiveau, sauvegarderEnvoiFactureÀClient } from '../../actions'
     import { créerEnvoiFactureÀClientVide } from '../../../format-données/opérationsHautNiveau';
 
+    import '../../../format-données/types/main.js'
+    
     export let login
     export let logout
     export let org
+    /** @type {EnvoiFactureClient[]} */
     export let envoiFactureàClients
     
     // https://www.economie.gouv.fr/cedef/taux-tva-france-et-union-europeenne
@@ -30,9 +33,26 @@
     function calculTVA({montantHT, tauxTVA}){
         return montantHT*tauxTVA/100
     }
-    function calculTTC(lignesFacture){
-        return lignesFacture.montantHT + calculTVA(lignesFacture)
+    function calculTTC(ligneFacture){
+        return ligneFacture.montantHT + calculTVA(ligneFacture)
     }
+
+    /**
+     * @param {EnvoiFactureClient} _
+     * @returns {number}
+     */
+    function calculMontantTTCFacture({lignes}){
+        return sum(lignes.map(calculTTC))
+    }    
+    
+    /**
+     * @param {EnvoiFactureClient} _
+     * @returns {number}
+     */
+    function calculMontantHTFacture({lignes}){
+        return sum(lignes.map(({montantHT}) => montantHT))
+    }
+
 
     // élément <input> qui correspond toujours au premier champ du formulaire d'édition
     let formStart
@@ -43,7 +63,8 @@
     let factureEnModification = créerEnvoiFactureÀClientVide()
 
     // svelte gère mal le bind sur un input@type=date, donc gestion manuelle
-    let dateFacture 
+    let dateFacture = format(factureEnModification.date, 'yyyy-MM-dd')
+
     $: factureEnModification.date = new Date(dateFacture)
 
     /**
@@ -74,11 +95,11 @@
         columns: [ 'Date', 'Client', 'Montant total', '(dont montant HT)' ],
         data: envoiFactureàClients === undefined
             ? []
-            : envoiFactureàClients.sort((a, b) => b.date - a.date).map(facture => [
+            : envoiFactureàClients.sort((a, b) => b.date.getTime() - a.date.getTime()).map(facture => [
                 { content: displayDate(facture.date), title: format(facture.date, 'd MMMM yyyy', {locale: fr}) },
                 { content: facture.compteClient },
-                { content: `${afficherSommeOpérations(facture.opérations)}` },
-                { content: `${afficherSommeOpérations(facture.opérations.filter(({ compte }) => compte !== '44566'))}` },
+                { content: formatMontant(calculMontantTTCFacture(facture)) },
+                { content: formatMontant(calculMontantHTFacture(facture)) },
             ])
     }
 
@@ -106,15 +127,8 @@
      */
     async function màjFormulaire(f) {
         factureEnModification = f === undefined ? créerEnvoiFactureÀClientVide() : f
-        //compteClient = factureEnModification.compteClient
-        //identifiantFacture = factureEnModification.numéroFacture
-        //dateFacture = format(factureEnModification.date, 'yyyy-MM-dd')
-
-        const sommeMontants = (total, op) => total + op.montant
-        /*montantHT = factureEnModification.opérations.filter(o => o.compte !== '44566').reduce(sommeMontants, 0)
-        montantTVA = factureEnModification.opérations.filter(o => o.compte === '44566').reduce(sommeMontants, 0)
-        compteProduit = factureEnModification.opérations.find(o => o.compte !== '44566').compte*/
-
+        dateFacture = format(factureEnModification.date, 'yyyy-MM-dd')
+        
         // On attend que Svelte ai redessiné la vue
         await tick()
         // puis on met le focus sur le premier champ du formulaire, comme ça on peut
