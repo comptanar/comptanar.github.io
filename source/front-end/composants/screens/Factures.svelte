@@ -73,12 +73,15 @@
      */
     function supprimerLigneFacture(ligne){
         const index = factureEnModification.lignes.indexOf(ligne);
+
         if (index >= 0) { 
             factureEnModification.lignes.splice(index, 1);
+            factureEnModification = factureEnModification; // re-render component
         }
     }
     function ajouterLigneFacture(){
         factureEnModification.lignes.push({montantHT: undefined, tauxTVA: undefined, compteProduit: undefined})
+        factureEnModification = factureEnModification; // re-render component
     }
 
     let factureSent = undefined;

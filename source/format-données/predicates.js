@@ -22,7 +22,7 @@ function isBaseOpérationHautNiveau(op){
         typeof op.identifiantOpération === 'string' &&
         typeof op.type === 'string' &&
         op.date instanceof Date && // maybe weak, but it's complicated to find a better test for now
-        Array.isArray(op.opérations) && op.opérations.every( isOpérationDeCompte )
+        !op.opérations || (Array.isArray(op.opérations) && op.opérations.every( isOpérationDeCompte ))
 }
 
 

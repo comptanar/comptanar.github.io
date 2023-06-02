@@ -15,7 +15,7 @@
  * @property {string} identifiantOpération
  * @property {string} type
  * @property {Date} date
- * @property {OpérationDeCompte[]} opérations
+ * @property {OpérationDeCompte[]} [opérations]
  */
 
 /**

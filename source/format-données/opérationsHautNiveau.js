@@ -48,13 +48,6 @@ export function créerEnvoiFactureÀClientVide() {
                 montantHT: 0,
                 tauxTVA: 0
             }
-        ],
-        opérations: [
-            {
-                compte: '44566', // TVA
-                montant: 0,
-                sens: 'Débit'
-            }
         ]
     }
 }
