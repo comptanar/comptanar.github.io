@@ -13,7 +13,11 @@
         afficherSommeOpérations,
         formatCompte,
     } from "../../stringifiers";
-    import { supprimerOpérationHautNiveau } from "../../actions";
+    import {
+        envoyerFicheDePaie,
+        supprimerOpérationHautNiveau,
+    } from "../../actions";
+    import { créerFicheDePaieVide } from "../../../format-données/opérationsHautNiveau";
 
     export let login;
     export let logout;
@@ -21,12 +25,8 @@
     export let repo;
     /** @type Personne[] */
     export let personnes;
-    /** @type Salarié·e[] */
-    export let salarié·es;
-    export let créerFicheDePaieVide;
     /** @type ÉmissionFicheDePaie[] */
     export let fichesDePaie;
-    export let envoyerFicheDePaie;
 
     /** @type ÉmissionFicheDePaie */
     let ficheEnModification;
@@ -54,22 +54,17 @@
         if (compteRémunéré === undefined) {
             return "";
         }
-        const suffixe = Number.parseInt(compteRémunéré.compte.slice(3));
-        const salarié·e = salarié·es.find((s) => s.suffixeCompte === suffixe);
         const personne = personnes.find(
-            (p) => p.identifiant === salarié·e.idPersonne
+            (p) => p.comptePersonnel === compteRémunéré.compte
         );
         return personne.nom;
     }
 
     function sauvegarderFiche() {
         const personne = personnes.find((p) => p.nom === salarié·e);
-        const compte = salarié·es.find(
-            (s) => s.idPersonne === personne.identifiant
-        ).suffixeCompte;
         editPromise = envoyerFicheDePaie({
             identifiantOpération: ficheEnModification.identifiantOpération,
-            compteSalarié·e: compte,
+            compteSalarié·e: personne.comptePersonnel,
             nomSalarié·e: salarié·e,
             rémunération,
             sécu,

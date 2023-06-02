@@ -178,9 +178,6 @@ page('/comptabilite/fiches-de-paie', ({ querystring }) => {
             org,
             repo,
             personnes: state.personnes?.data ?? [],
-            salarié·es: state.salarié·es?.data ?? [],
-            créerFicheDePaieVide,
-            envoyerFicheDePaie,
             fichesDePaie: getFichesDePaie(state),
         }
     }

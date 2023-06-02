@@ -7,6 +7,7 @@
     import Tableau, { action } from '../Tableau.svelte'
     import SaveButton from '../SaveButton.svelte'
     import { créerPersonneVide } from '../../../format-données/personnes'
+    import { envoyerPersonne, supprimerPersonne } from '../../actions'
 
     export let login
     export let logout
@@ -14,8 +15,6 @@
     export let repo
     /** @type {Personne[]} */
     export let personnes
-    export let supprimerPersonne
-    export let envoyerPersonne
 
     let editPromise
     let personneEnModification
@@ -24,6 +23,7 @@
     let formStart
     let table
     let tableConfig
+    let type
 
     function sauvegarderFormulaire() {
         editPromise = envoyerPersonne({
@@ -74,6 +74,13 @@
                     <label>
                         <div>Nom</div>
                         <input bind:this={formStart} bind:value={nom} type="text">
+                    </label>
+                    <label>
+                        <div>Type</div>
+                        <select bind:value={type}>
+                            <option value="Morale">Morale</option>
+                            <option value="Physique">Physique</option>
+                        </select>
                     </label>
 
                     <SaveButton bind:promise={editPromise} />

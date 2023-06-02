@@ -36,21 +36,42 @@ export function isOpérationHautNiveau(op){
 }
 
 /**
- * @param {any} p 
+ * @param {any} p
  * @returns {p is Personne}
  */
 export function estPersonne(p) {
     return Object(p) === p &&
         typeof p.nom === 'string' &&
-        typeof p.identifiant === 'string'
+        typeof p.identifiant === 'string' &&
+        typeof p.type === 'string' &&
+        (p.type === 'Physique' || p.type === 'Morale') &&
+        p.adresse === null ? true : typeof p.adresse === 'string' &&
+        p.siret === null ? true : (typeof p.siret === 'string' && p.type === 'Morale') &&
+        p.compteAssocié·e === null ? true : typeof p.compteAssocié·e === 'string' &&
+        p.comptePersonnel === null ? true : typeof p.comptePersonnel === 'string' &&
+        p.compteFournisseur === null ? true : typeof p.compteFournisseur === 'string' &&
+        p.compteClient === null ? true : typeof p.compteClient === 'string'
 }
 
 /**
- * @param {any} s 
+ * @param {any} s
  * @returns {s is Salarié·e}
  */
 export function estSalarié·e(s) {
     return Object(s) === s &&
-        typeof s.suffixeCompte === 'number' &&
+        s.débutContrat instanceof Date && !isNaN(s.débutContrat) &&
+        s.finContrat !== null ? s.finContrat instanceof Date && !isNaN(s.finContrat) : true &&
         typeof s.idPersonne === 'string'
+}
+
+/**
+ * 
+ * @param {any} m
+ * @returns {m is Membre}
+ */
+export function estMembre(m) {
+    return Object(m) === m &&
+        m.débutPériode instanceof Date && !isNaN(m.débutPériode) &&
+        m.finPériode !== null ? m.finPériode instanceof Date && !isNaN(m.finPériode) : true &&
+        typeof m.idPersonne === 'string'
 }

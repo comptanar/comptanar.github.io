@@ -4,8 +4,12 @@
     import Skeleton from "../Skeleton.svelte"
     import Tableau, { action } from "../Tableau.svelte"
     import SaveButton from "../SaveButton.svelte"
-    import { créerSalarié·eVide } from '../../../format-données/salariees'
+    import { créerSalarié·eVide } from '../../../format-données/salarié·es'
     import { tick } from "svelte";
+    import { format } from "date-fns";
+    import { displayDate } from "../../stringifiers";
+    import { fr } from "date-fns/locale";
+    import { envoyerSalarié·e, supprimerSalarié·e } from "../../actions";
 
     export let login
     export let logout
@@ -15,8 +19,6 @@
     export let personnes
     /** @type {Salarié·e[]} */
     export let salarié·es
-    export let supprimerSalarié·e
-    export let envoyerSalarié·e
 
     let table
     let tableConfig
@@ -26,13 +28,15 @@
     let editPromise
 
     let personne
-    let suffixe
+    let débutContrat
+    let finContrat
 
     function sauvegarderSalarié·e() {
         editPromise = envoyerSalarié·e({
             identifiant: salarié·eEnÉdition.identifiant,
-            personne,
-            suffixe,
+            idPersonne: personne.identifiant,
+            débutContrat: new Date(débutContrat),
+            finContrat: new Date(finContrat)
         })
 
         editPromise.then(() => {
@@ -45,7 +49,8 @@
         salarié·eEnÉdition = sal ?? créerSalarié·eVide()
         
         personne = personnePour(salarié·eEnÉdition)
-        suffixe = salarié·eEnÉdition.suffixeCompte
+        débutContrat = format(sal.débutContrat, 'yyyy-MM-dd')
+        finContrat = sal.finContrat === null ? null : format(sal.finContrat, 'yyyy-MM-dd')
 
         await tick()
         formStart?.focus()
@@ -60,12 +65,15 @@
 
     $: tableConfig = {
         globalActions: [
-            action(() => table.edit(-1), 'Ajouter quelqu\'un', 'Alt+N')
+            action(() => table.edit(-1), 'Ajouter un contrat', 'Alt+N')
         ],
-        columns: [ 'Personne', 'Suffixe des comptes' ],
+        columns: [ 'Personne', 'Période du contrat' ],
         data: salarié·es.map(s => [
             { content: personnePour(s)?.nom || '⚠️ Données corrompues (personne introuvable)' },
-            { content: s.suffixeCompte },
+            {
+                content: `${displayDate(s.débutContrat)} 🠒 ${s.finContrat === null ? 'Toujours en cours' : displayDate(s.finContrat)}`,
+                title: `${format(s.débutContrat, 'd MMMM yyyy', {locale: fr})} 🠒 ${s.finContrat === null ? 'Toujours en cours' : format(s.finContrat, 'd MMMM yyyy', {locale: fr})}`
+            },
         ])
     }
 </script>
@@ -91,8 +99,12 @@
                     </select>
                 </label>
                 <label>
-                    <div>Suffixe des comptes</div>
-                    <input type="number" bind:value={suffixe}>
+                    <div>Début du contrat</div>
+                    <input bind:value={débutContrat} type="date">
+                </label>
+                <label>
+                    <div>Fin du contrat</div>
+                    <input bind:value={finContrat} type="date">
                 </label>
 
                 <SaveButton bind:promise={editPromise} />

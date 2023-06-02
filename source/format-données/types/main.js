@@ -82,15 +82,30 @@
  * @typedef Personne
  * @property {string} nom
  * @property {string} identifiant
+ * @property {'Physique' | 'Morale'} type
+ * @property {string?} adresse
+ * @property {number?} siret
+ * @property {string?} compteAssocié·e
+ * @property {string?} comptePersonnel
+ * @property {string?} compteFournisseur
+ * @property {string?} compteClient
  */
 
 /**
  * @typedef {Object} Salarié·e
- * @property {number} suffixeCompte
  * @property {string} idPersonne
  * @property {string} identifiant
+ * @property {Date} débutContrat
+ * @property {Date?} finContrat
 */
 
+/**
+ * @typedef {Object} Membre
+ * @property {string} idPersonne
+ * @property {string} identifiant
+ * @property {Date} débutPériode
+ * @property {Date?} finPériode
+*/
 
 /**
  * @template T

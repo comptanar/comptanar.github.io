@@ -63,7 +63,11 @@ const syncSalarié·es = () => githubAsDatabase.getSalarié·es().then(store.mut
  * et si GitHub signale un conflit, met à jour les données puis retente
  * une fois.
  * 
+ * @template {any[]} P
+ * @template O
+ * @param {(...args: P) => Promise<O>} f
  * @param {() => Promise<any>} sync
+ * @returns {(...args: P) => Promise<O>}
  */
 function ajouterRéessai(f, sync = syncExercices) {
     return async (...args) => {
@@ -80,6 +84,7 @@ function ajouterRéessai(f, sync = syncExercices) {
     }
 }
 
+/** @returns {never} */
 function makeConflictError(err) {
     if (err.response?.status === 409) {
         throw new ConflictError()
@@ -321,6 +326,7 @@ export function envoyerPersonne(personne) {
     })
 }
 
+/** @type {(personne: Personne) => Promise<void>} */
 export const supprimerPersonne = ajouterRéessai(personne => {
     store.mutations.supprimerPersonne(personne)
     const sha = store.state.personnes.sha
@@ -335,16 +341,17 @@ export const supprimerPersonne = ajouterRéessai(personne => {
     })
 }, syncPersonnes)
 
-export function envoyerSalarié·e({ identifiant, personne, suffixe }, retry = true) {
-    const creation = !store.state.salarié·es.data.some(s => s.identifiant === identifiant)
+/**
+ * 
+ * @param {Salarié·e} sal 
+ * @returns {Promise<void>}
+ */
+export function envoyerSalarié·e(sal) {
+    const creation = !store.state.salarié·es.data.some(s => s.identifiant === sal.identifiant)
     let writePromise
     if (creation) {
         const action = ajouterRéessai(() => {
-            store.mutations.addSalarié·e({
-                identifiant,
-                idPersonne: personne.identifiant,
-                suffixeCompte: suffixe,
-            })
+            store.mutations.addSalarié·e(sal)
             const sha = store.state.salarié·es.sha
             return githubAsDatabase.writeSalarié·es(
                 sha,
@@ -354,11 +361,7 @@ export function envoyerSalarié·e({ identifiant, personne, suffixe }, retry = t
 
         writePromise = action()
     } else {
-        store.mutations.updateSalarié·e({
-            identifiant,
-            idPersonne: personne.identifiant,
-            suffixeCompte: suffixe,
-        })
+        store.mutations.updateSalarié·e(sal)
         const sha = store.state.salarié·es.sha
         writePromise = githubAsDatabase.writeSalarié·es(
             sha,
@@ -371,7 +374,10 @@ export function envoyerSalarié·e({ identifiant, personne, suffixe }, retry = t
     })
 }
 
-export const supprimerSalarié·e = ajouterRéessai((salarié·e) => {
+/**
+ * @type {(salarié·e: Salarié·e) => Promise<void>}
+*/
+export const supprimerSalarié·e = ajouterRéessai(salarié·e => {
     store.mutations.supprimerSalarié·e(salarié·e)
     const sha = store.state.salarié·es.sha
 
