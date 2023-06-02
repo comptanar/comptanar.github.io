@@ -107,9 +107,9 @@ export default {
                 })
 
                 promisesToWait.push(exerciceDirP)
-
-                return Promise.all(promisesToWait).then(() => opérationsHautNiveauByYear)
             }
+
+            return Promise.all(promisesToWait).then(() => opérationsHautNiveauByYear)
         })
     },
     /**
