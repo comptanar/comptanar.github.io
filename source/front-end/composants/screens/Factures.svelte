@@ -212,14 +212,8 @@
                         </fieldset>
                     {/each}
                     <button type="button" on:click={e => ajouterLigneFacture()}>Ajouter ligne</button>
-                    <div class="button-with-loader">
-                        <SaveButton bind:promise={factureSent} />
-                        {#await factureSent}
-                            <Loader></Loader>
-                        {:catch err}
-                            Problème avec l'envoi de la facture {err}
-                        {/await}
-                    </div>
+                    
+                    <SaveButton bind:promise={factureSent} />
                     
                     <button type="button" on:click={annulerÉdition}>Abandonner les modifications</button>
                     <button type="button" on:click={supprimer}>Supprimer cette facture</button>
@@ -246,12 +240,6 @@
         fieldset.ligne-facture{
             border: 1px solid #333;
             padding: 0.5rem;
-        }
-
-        .button-with-loader{
-            display: flex;
-            flex-direction: row;
-            align-items: flex-start;
         }
     }
 
