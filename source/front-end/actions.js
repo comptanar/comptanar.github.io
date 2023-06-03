@@ -10,6 +10,8 @@ import store from './store.js'
 
 import { formatCompte } from './stringifiers.js'
 
+import '../format-données/types/main.js'
+
 export class ConflictError extends Error {}
 
 /**
@@ -125,9 +127,12 @@ export function getUserOrgChoices(){
  * @returns 
  */
 function envoyerOpérationHautNiveau(year, op, messageCréation, messageÉdition) {
-    const creation = !store.state
-        .opérationsHautNiveauByYear.get(year)
-        .opérationsHautNiveau.some(o => o.identifiantOpération === op.identifiantOpération)
+    const opérationsHautNiveauWithSha = store.state.opérationsHautNiveauByYear.get(year)
+
+    const creation = !opérationsHautNiveauWithSha || 
+        !opérationsHautNiveauWithSha.opérationsHautNiveau
+            .some(o => o.identifiantOpération === op.identifiantOpération)
+            
     let writePromise
     if (creation) {
         const action = ajouterRéessai(() => {
@@ -164,58 +169,44 @@ export const supprimerOpérationHautNiveau = ajouterRéessai(({ identifiantOpér
     const formattedDate = format(date, 'd MMMM yyyy', {locale: fr})
 
     store.mutations.supprimerOpérationHautNiveau(year, identifiantOpération)    
-    const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
+    const opérationsHautNiveauWithSha = store.state.opérationsHautNiveauByYear.get(year)
 
-    return githubAsDatabase.writeExercice(
-        year,
-        yearSha,
-        store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
-        `Suppression de l'opération du ${formattedDate}`
-    )
-    .then(({data: {content: {sha}}}) => {
-        // sha is the new modified content sha
-        return store.mutations.updateOpérationsHautNiveauSha(year, sha)
-    })
+    if(opérationsHautNiveauWithSha.opérationsHautNiveau.length >=1){
+        return githubAsDatabase.writeExercice(
+            year,
+            opérationsHautNiveauWithSha.sha,
+            opérationsHautNiveauWithSha.opérationsHautNiveau,
+            `Suppression de l'opération du ${formattedDate}`
+        )
+        .then(({data: {content: {sha}}}) => {
+            // sha is the new modified content sha
+            return store.mutations.updateOpérationsHautNiveauSha(year, sha)
+        })
+    }
+    else{
+        return githubAsDatabase.deleteExercice(
+            year,
+            opérationsHautNiveauWithSha.sha
+        ).then(() => store.mutations.supprimerAnnéeOpérationHautNiveau(year))
+    }
+    
 })
 
-export function sauvegarderEnvoiFactureÀClient({
-    identifiantOpération,
-    compteClient,
-    identifiantFacture,
-    dateFacture,
-    montantHT,
-    montantTVA,
-    compteProduit,
-}) {
-    const date = new Date(dateFacture)
+/**
+ * 
+ * @param {EnvoiFactureClient} envoiFactureÀClient 
+ * @returns {Promise<any>} // Résout quand l'opération a bien été sauvegardée
+ */
+export function sauvegarderEnvoiFactureÀClient(envoiFactureÀClient) {
+    const date = envoiFactureÀClient.date
+    console.log('date', date)
     const formattedDate = format(date, 'd MMMM yyyy', {locale: fr})
-
-    /** @type {EnvoiFactureClient} */
-    const envoiFactureÀClient = {
-        type: 'Envoi facture client',
-        numéroFacture: identifiantFacture,
-        date,
-        compteClient,
-        identifiantOpération,
-        opérations: [
-            {
-                compte: compteProduit,
-                montant: montantHT,
-                sens: 'Débit'
-            },
-            {
-                compte: '44566', // TVA
-                montant: montantTVA,
-                sens: 'Débit'
-            }
-        ]
-    }
 
     return envoyerOpérationHautNiveau(
         date.getFullYear(),
         envoiFactureÀClient,
-        `Création de la facture ${identifiantFacture} envoyée au client ${compteClient} le ${formattedDate}`,
-        `Modification de la facture ${identifiantFacture} envoyée au client ${compteClient} le ${formattedDate}`,
+        `Création de la facture ${envoiFactureÀClient.numéroFacture} envoyée au client ${envoiFactureÀClient.compteClient} le ${formattedDate}`,
+        `Modification de la facture ${envoiFactureÀClient.numéroFacture} envoyée au client ${envoiFactureÀClient.compteClient} le ${formattedDate}`,
     )
 }
 

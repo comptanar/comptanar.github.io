@@ -6,6 +6,8 @@ import { parseOpérationsHautNiveauYaml, stringifyOpérationsHautNiveauYaml } fr
 import { parsePersonnes, stringifyPersonnesYaml } from "../format-données/personnes.js";
 import { parseSalarié·es, stringifySalarié·esYaml } from "../format-données/salariees.js";
 
+import '../format-données/types/main.js'
+
 const initialRequestDefaults = {
     headers: {
         'user-agent': 'comptanar https://github.com/comptanar/comptanar.github.io',
@@ -114,9 +116,9 @@ export default {
     },
     /**
      * @param {number} year
-     * @param {string} sha
+     * @param {string?} sha
      * @param {OpérationHautNiveau[]} opérationsHautNiveau
-     * @param {string?} message
+     * @param {string} [message]
      */
     writeExercice(year, sha, opérationsHautNiveau, message){
         return theRequest(`/repos/{owner}/{repo}/contents/${opérationsHautNiveauPath(year)}`, {
@@ -124,6 +126,18 @@ export default {
             message: message || `Mise à jour des opérations haut niveau de l'exercice ${year}`,
             sha,
             content: btoa(stringifyOpérationsHautNiveauYaml(opérationsHautNiveau))
+        })
+    },
+    /**
+     * @param {number} year
+     * @param {string} sha
+     * @param {string} [message]
+     */
+    deleteExercice(year, sha, message){
+        return theRequest(`/repos/{owner}/{repo}/contents/${opérationsHautNiveauPath(year)}`, {
+            method: 'DELETE',
+            sha,
+            message: message || `Suppression de l'exercice ${year}`
         })
     },
     /**
@@ -144,10 +158,6 @@ export default {
 
 // Quelques fonctions utilitaires :
 
-/**
- * @template T
- * @typedef {{ sha: string, data: T }} WithSha<T>
- */
 
 /**
  * Génère une fonction de lecture de données stockées dans un fichier unique

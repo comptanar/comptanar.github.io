@@ -5,6 +5,7 @@ import { stringify } from 'yaml'
 import { isOpérationHautNiveau } from './predicates.js';
 import { parseYamlArray } from './utils.js';
 
+import './types/main.js'
 
 /**
  * @param {string} str
@@ -41,16 +42,11 @@ export function créerEnvoiFactureÀClientVide() {
         date: new Date(),
         compteClient: '',
         identifiantOpération: Math.random().toString(32).slice(2),
-        opérations: [
+        lignes: [
             {
-                compte: '',
-                montant: 0,
-                sens: 'Débit'
-            },
-            {
-                compte: '44566', // TVA
-                montant: 0,
-                sens: 'Débit'
+                compteProduit: '',
+                montantHT: 0,
+                tauxTVA: 0
             }
         ]
     }

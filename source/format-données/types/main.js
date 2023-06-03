@@ -5,14 +5,24 @@
  * @property {string} compte
  * @property {number} montant
  * @property {'Crédit' | 'Débit'} sens
+ * @property {string} [opérationHautNiveauCorrespondante] // identifiant OpérationHautNiveau
+ * @property {any} [détails]
  */
+
 
 /**
  * @typedef {Object} BaseOpérationHautNiveau
  * @property {string} identifiantOpération
  * @property {string} type
  * @property {Date} date
- * @property {OpérationDeCompte[]} opérations
+ * @property {OpérationDeCompte[]} [opérations]
+ */
+
+/**
+ * @typedef {Object} LigneFacture
+ * @property {string} compteProduit
+ * @property {number} montantHT
+ * @property {number} tauxTVA
  */
 
 /**
@@ -20,6 +30,7 @@
  * @property {'Envoi facture client'} type
  * @property {string} numéroFacture
  * @property {string} compteClient
+ * @property {LigneFacture[]} lignes
  * 
  * @typedef {BaseOpérationHautNiveau & SpécifiqueEnvoiFactureClient} EnvoiFactureClient
  */
@@ -79,3 +90,9 @@
  * @property {string} idPersonne
  * @property {string} identifiant
 */
+
+
+/**
+ * @template T
+ * @typedef {{ sha: string | undefined, data: T }} WithSha<T>
+ */
