@@ -63,11 +63,10 @@ const syncSalarié·es = () => githubAsDatabase.getSalarié·es().then(store.mut
  * et si GitHub signale un conflit, met à jour les données puis retente
  * une fois.
  * 
- * @template {any[]} P
- * @template O
- * @param {(...args: P) => Promise<O>} f
+ * @template {(...args: any[]) => Promise<any>} F
+ * @param {F} f
  * @param {() => Promise<any>} sync
- * @returns {(...args: P) => Promise<O>}
+ * @returns {(...args: Parameters<F>) => Promise<Awaited<ReturnType<F>>>}
  */
 function ajouterRéessai(f, sync = syncExercices) {
     return async (...args) => {
@@ -169,6 +168,7 @@ function envoyerOpérationHautNiveau(year, op, messageCréation, messageÉdition
     })
 }
 
+/** @type {(identifiantOpération: string, date: Date) => Promise<void>} */
 export const supprimerOpérationHautNiveau = ajouterRéessai(({ identifiantOpération, date }) => {
     const year = date.getFullYear()
     const formattedDate = format(date, 'd MMMM yyyy', {locale: fr})
