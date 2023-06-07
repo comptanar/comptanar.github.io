@@ -225,21 +225,10 @@
 
 <style lang="scss">
     form {
-        label {
-            & > div:first-child{
-                font-weight: bold;
-                min-width: 7rem;
-            }
-
-            input, select, output{
-                margin-left: 1rem;
-                width: 8rem;
-            }
-        }
-
         fieldset.ligne-facture{
             border: 1px solid #333;
-            padding: 0.5rem;
+            padding: 1rem;
+            margin: 2rem 0;
         }
     }
 

@@ -170,7 +170,7 @@
     .tableau-editable {
         display: grid;
         grid-template: "table-title form-title" auto
-                       "table-body  form-body " auto
+                       "table-body  form-body " 1fr
                         / 2fr 1fr;
         height: 100%;
 
@@ -217,6 +217,11 @@
             display: flex;
             justify-content: space-between;
             padding-left: 0;
+            gap: 2rem;
+
+            & > div {
+                flex-shrink: 0;
+            }
         }
 
         .form-header {
@@ -228,7 +233,7 @@
     .form-body {
         background-color: white;
         grid-area: form-body;
-        padding: 2rem;
+        padding: 0 2rem 2rem;
     }
 
     .etat-vide {

@@ -43,6 +43,6 @@
     header{
         display: flex;
         flex-direction: row;
-        justify-content: space-around;
+        justify-content: space-between;
     }
 </style>
