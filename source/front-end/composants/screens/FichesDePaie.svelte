@@ -14,6 +14,7 @@
     export let login
     export let logout
     export let org
+    export let repo
     /** @type Personne[] */
     export let personnes
     /** @type Salarié·e[] */
@@ -123,7 +124,7 @@
     }
 </script>
 
-<Skeleton {login} {logout} fullwidth>
+<Skeleton {login} {logout} {org} {repo} fullwidth>
     <Tableau {...tableConfig} bind:this={table} on:edit={e => màjFormulaire(fichesDePaie[e.detail])}>
         <h1 slot="header">Voici les fiches de paie pour <code>{org}</code></h1>
         <h1 slot="form-header">Détails de la fiche</h1>

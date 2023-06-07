@@ -150,6 +150,7 @@ page('/comptabilite/factures', ({ querystring }) => {
             login: state.login,
             logout: logoutAndRedirect,
             org,
+            repo,
             envoiFactureàClients : getEnvoiFactureÀClients(state)
         }
     }
@@ -175,6 +176,7 @@ page('/comptabilite/fiches-de-paie', ({ querystring }) => {
             login: state.login,
             logout: logoutAndRedirect,
             org,
+            repo,
             personnes: state.personnes?.data ?? [],
             salarié·es: state.salarié·es?.data ?? [],
             créerFicheDePaieVide,
@@ -203,6 +205,8 @@ page('/comptabilite/personnes', ({ querystring }) => {
         return {
             login: state.login,
             logout: logoutAndRedirect,
+            org,
+            repo,
             personnes: state.personnes?.data ?? [],
             envoyerPersonne,
             supprimerPersonne,
@@ -229,6 +233,8 @@ page('/comptabilite/salarié·es', ({ querystring }) => {
         return {
             login: state.login,
             logout: logoutAndRedirect,
+            org,
+            repo,
             personnes: state.personnes?.data ?? [],
             salarié·es: state.salarié·es?.data ?? [],
             envoyerSalarié·e,
@@ -258,6 +264,7 @@ page('/comptabilite/achats', ({ querystring }) => {
             logout: logoutAndRedirect,
             achats: getAchats(state) ?? [],
             org,
+            repo,
         }
     }
 

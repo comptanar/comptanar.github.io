@@ -7,7 +7,7 @@ export let org
 export let repo
 </script>
 
-<Skeleton {login} {logout}>
+<Skeleton {login} {logout} {org} {repo}>
   <h1>Voici la comptabilité de l'organisation <code>{org}</code></h1>
   <section>
     <a href="/comptabilite/personnes?org={org}&repo={repo}">

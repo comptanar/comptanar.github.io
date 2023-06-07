@@ -216,7 +216,7 @@
             grid-area: table-title;
             display: flex;
             justify-content: space-between;
-            padding-left: 0;
+            padding: 2rem 0;
             gap: 2rem;
 
             & > div {

@@ -2,6 +2,8 @@
     //@ts-check
     
     export let login = undefined;
+    export let repo
+    export let org
 
     export let logout;
 
@@ -22,14 +24,24 @@
 </script>
 
 <header>
-    <h1>🏴‍☠️ Compt'anar 🤓 🔢</h1>
+    {#if org && repo}
+        <h1><a href={`/comptabilite?org=${org}&repo=${repo}`}>Compt'anar</a></h1>
+    {:else}
+        <h1>Compt'anar</h1>
+    {/if}
 
     <div>
         {#if login}
             {#await login}
                 ... recherche du nom d'utilisateur.rice Github ...
             {:then l}
-                connecté.e en tant que {l} <button on:click={logout}>Se déconnecter</button>
+                <div class="user">
+                    <div>
+                        <p>{l}</p>
+                        <button on:click={logout}>Se déconnecter</button>
+                    </div>
+                    <img src="" alt="">
+                </div>
             {:catch err}
                 Problème de connexion à Github ! {err}
             {/await}
@@ -44,5 +56,32 @@
         display: flex;
         flex-direction: row;
         justify-content: space-between;
+    }
+
+    img {
+        border: 1px solid black;
+        background-color: aliceblue;
+        border-radius: 50%;
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .user {
+        display: flex;
+        align-items: center;
+        text-align: right;
+        gap: 1rem;
+
+        p {
+            margin: 0;
+            font-weight: bold;
+            font-size: 1.15rem;
+        }
+
+        button {
+            border: none;
+            padding: 0;
+            text-decoration: underline;
+        }
     }
 </style>

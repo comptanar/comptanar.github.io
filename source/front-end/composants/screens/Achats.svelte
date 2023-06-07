@@ -18,6 +18,7 @@
     /** @type {RéceptionFactureFournisseur[]} */
     export let achats
     export let org
+    export let repo
 
     let formStart
     let table
@@ -71,7 +72,7 @@
     }
 </script>
 
-<Skeleton {login} {logout} fullwidth>
+<Skeleton {login} {logout} {org} {repo} fullwidth>
     <Tableau bind:this={table} on:edit={e => màjFormulaire(achats[e.detail])} {...tableConfig}>
         <h1 slot="header">
             Achats réalisés par {org}
