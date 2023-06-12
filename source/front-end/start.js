@@ -10,6 +10,7 @@ import FichesDePaie from './composants/screens/FichesDePaie.svelte'
 import Personnes from './composants/screens/Personnes.svelte'
 import Salarié·es from './composants/screens/Salarié·es.svelte'
 import Achats from './composants/screens/Achats.svelte'
+import CompteResultat from './composants/screens/CompteResultat.svelte'
 
 import store, {getAchats, getEnvoiFactureÀClients, getFichesDePaie} from './store.js'
 import {
@@ -262,6 +263,30 @@ page('/comptabilite/achats', ({ querystring }) => {
     }
 
     const factures = new Achats({
+        target: svelteTarget,
+        props: mapStateToProps(store.state),
+    });
+
+    replaceComponent(factures, mapStateToProps);
+})
+
+page('/comptabilite/compte-resultat', ({ querystring }) => {
+    const params = new URLSearchParams(querystring)
+
+    const org = params.get('org');
+    const repo = params.get('repo');
+
+    selectOrgAndRepo(org, repo)
+
+    function mapStateToProps(state){
+        return {
+            login: state.login,
+            logout: logoutAndRedirect,
+            personnes: state.personnes?.data ?? [],
+        }
+    }
+
+    const factures = new CompteResultat({
         target: svelteTarget,
         props: mapStateToProps(store.state),
     });

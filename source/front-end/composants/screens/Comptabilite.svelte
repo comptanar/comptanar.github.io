@@ -1,10 +1,10 @@
 <script>
-//@ts-check
-import Skeleton from '../Skeleton.svelte'
-export let login
-export let logout
-export let org
-export let repo
+  //@ts-check
+  import Skeleton from "../Skeleton.svelte";
+  export let login;
+  export let logout;
+  export let org;
+  export let repo;
 </script>
 
 <Skeleton {login} {logout}>
@@ -30,11 +30,11 @@ export let repo
       <h2>Achats</h2>
     </a>
 
-    <h2>Compte de résultat et bilan comptable</h2>
-
+    <a href="/comptabilite/compte-resultat?org={org}&repo={repo}">
+      <h2>Compte de résultat et bilan comptable</h2>
+    </a>
   </section>
 </Skeleton>
 
 <style>
-
 </style>
