@@ -168,7 +168,7 @@ function envoyerOpérationHautNiveau(year, op, messageCréation, messageÉdition
     })
 }
 
-/** @type {(identifiantOpération: string, date: Date) => Promise<void>} */
+/** @type {({ identifiantOpération, date }: { identifiantOpération: string, date: Date }) => Promise<void>} */
 export const supprimerOpérationHautNiveau = ajouterRéessai(({ identifiantOpération, date }) => {
     const year = date.getFullYear()
     const formattedDate = format(date, 'd MMMM yyyy', {locale: fr})
