@@ -68,7 +68,7 @@ const syncSalarié·es = () => githubAsDatabase.getSalarié·es().then(store.mut
  * @param {() => Promise<any>} sync
  * @returns {(...args: Parameters<F>) => Promise<Awaited<ReturnType<F>>>}
  */
-function ajouterRéessai(f, sync = syncExercices) {
+function ajouterRéessai(f, sync) {
     return async (...args) => {
         try {
             return await f(...args)
@@ -148,7 +148,7 @@ function envoyerOpérationHautNiveau(year, op, messageCréation, messageÉdition
                 store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
                 messageCréation
             )
-        })
+        }, syncExercices)
 
         writePromise = action()
     } else {
@@ -194,8 +194,7 @@ export const supprimerOpérationHautNiveau = ajouterRéessai(({ identifiantOpér
             opérationsHautNiveauWithSha.sha
         ).then(() => store.mutations.supprimerAnnéeOpérationHautNiveau(year))
     }
-    
-})
+}, syncExercices)
 
 /**
  * 
