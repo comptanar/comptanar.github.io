@@ -3,24 +3,35 @@
 
   import Skeleton from "../Skeleton.svelte";
   import EtatDesComptes from "../../../format-données/produireEtatDesComptes";
+  import OphnEnOdc from "../../../format-données/traduireOpérationsHautNiveauEnOpérationsDeCompte";
 
   export let login;
   export let logout;
+  export let ophn;
+
+  console.log("ophn", ophn);
 
   let columns = ["Compte", "Description", "Montant"];
-  /** @type {OpérationDeCompte} */
-  const op = {
-    compte: "2",
-    montant: 40,
-    sens: "Crédit",
-  };
+
   /** @type {OpérationDeCompte} */
   const op2 = {
     compte: "3",
     montant: 400,
     sens: "Crédit",
   };
-  let data = EtatDesComptes([op, op2]);
+
+  /** @type {EnvoiFactureClient} */
+  const testOphn = {
+    identifiantOpération: "2",
+    type: "Envoi facture client",
+    date: new Date(),
+    opérations: [op2],
+    numéroFacture: "1",
+    compteClient: "2",
+  };
+
+  let temp = OphnEnOdc([testOphn]);
+  let data = EtatDesComptes(temp);
 </script>
 
 <Skeleton {login} {logout} fullwidth>
