@@ -9,7 +9,7 @@
   export let logout;
   export let ophn;
 
-  console.log("ophn", ophn);
+  $: console.log("ophn", ophn);
 
   let columns = ["Compte", "Description", "Montant"];
 
