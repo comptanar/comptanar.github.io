@@ -3,44 +3,33 @@
 
   import Skeleton from "../Skeleton.svelte";
   import EtatDesComptes from "../../../format-données/produireEtatDesComptes";
-  import OphnEnOdc from "../../../format-données/traduireOpérationsHautNiveauEnOpérationsDeCompte";
+  import OpHautNiveauVersOpDeCompte from "../../../format-données/traduireOpérationsHautNiveauEnOpérationsDeCompte";
 
   export let login;
   export let logout;
   export let ophn;
 
-  $: console.log("ophn", ophn);
+  let data;
 
-  let columns = ["Compte", "Description", "Montant"];
-
-  /** @type {OpérationDeCompte} */
-  const op2 = {
-    compte: "3",
-    montant: 400,
-    sens: "Crédit",
-  };
-
-  /** @type {EnvoiFactureClient} */
-  const testOphn = {
-    identifiantOpération: "2",
-    type: "Envoi facture client",
-    date: new Date(),
-    opérations: [op2],
-    numéroFacture: "1",
-    compteClient: "2",
-  };
-
-  let temp = OphnEnOdc([testOphn]);
-  let data = EtatDesComptes(temp);
+  $: {
+    if (ophn !== undefined) {
+      let listeOpHautNiveau = ophn.get(2020);
+      let listeOpDeCompte = OpHautNiveauVersOpDeCompte(
+        listeOpHautNiveau.opérationsHautNiveau
+      );
+      data = EtatDesComptes(listeOpDeCompte);
+    } else {
+      data = [];
+    }
+  }
 </script>
 
 <Skeleton {login} {logout} fullwidth>
   <table>
     <thead>
       <tr>
-        {#each columns as col}
-          <th>{col}</th>
-        {/each}
+        <th>Compte</th>
+        <th>Montant</th>
       </tr>
     </thead>
     <tbody>

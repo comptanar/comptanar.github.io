@@ -8,14 +8,29 @@ import "./types/main.js";
  * @returns {OpérationDeCompte[]}
  */
 function traduireEnvoiFactureClientEnOpérationsDeCompte(efc) {
+  let sommeMontant = 0;
+  let sommeTVA = 0;
+  console.log("lignes", efc.lignes);
+  efc.lignes.forEach((ligne) => {
+    console.log("ligne", ligne);
+    sommeMontant += ligne.montantHT;
+    sommeTVA += (ligne.montantHT * ligne.tauxTVA) / 100;
+  });
+  //opération client
   /** @type {OpérationDeCompte} */
   const op = {
-    compte: efc.compteClient,
-    montant: sum(efc.opérations.map((op) => op.montant)),
+    compte: efc.compteClient, // --> PB : string alors que nb attendu pour le nb compte
+    montant: sommeMontant, //sum(efc.opérations.map((op) => op.montant)) --> PB : opérations est undefined
     sens: "Débit",
   };
-
-  return [op].concat(efc.opérations);
+  //opération TVA
+  /** @type {OpérationDeCompte} */
+  const opTVA = {
+    compte: "44566",
+    montant: sommeTVA,
+    sens: "Crédit",
+  };
+  return [op, opTVA];
 }
 
 /**
@@ -78,9 +93,7 @@ export default (opérationsHautNiveau) => {
         const _exhaustiveCheck = ophn;
         return _exhaustiveCheck;
     }
-
     result = result.concat(newOps);
-
     //console.log(ophn, newOps)
   }
 
