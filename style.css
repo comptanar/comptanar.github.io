@@ -69,19 +69,19 @@ h6 {
   font-size: 1em;
 }
 
-body > main.fullwidth {
+body>main.fullwidth {
   padding: 3rem;
   margin: 0;
   height: 100vh;
   overflow: auto;
 }
 
-body > main {
+body>main {
   min-height: 60vh;
   padding: 3rem;
 }
 
-body > header {
+body>header {
   padding: 2rem 3rem;
   border-bottom: 1px solid black;
   background-color: white;
@@ -110,36 +110,54 @@ button {
 }
 
 fieldset {
-    border: none;
-    padding: 0;
+  border: none;
+  padding: 0;
 }
 
 label {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 1.5rem;
-    font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+  font-weight: bold;
 }
 
-input, select {
-    padding: 1rem;
-    background-color: white;
-    appearance: none;
-    border: 1px solid black;
-    font-family: inherit;
-    font-size: inherit;
-    margin-top: 0.5rem;
+input,
+select {
+  padding: 1rem;
+  background-color: white;
+  appearance: none;
+  border: 1px solid black;
+  font-family: inherit;
+  font-size: inherit;
+  margin-top: 0.5rem;
 }
 
 output {
-    font-weight: normal;
+  font-weight: normal;
 }
 
 form button {
-    width: 100%;
-    text-align: center;
+  width: 100%;
+  text-align: center;
 }
 
-form .button-with-loader, form > fieldset > button:not(:last-child) {
-    margin-bottom: 1rem;
+form .button-with-loader,
+form>fieldset>button:not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+.avatar {
+  border: 1px solid black;
+  background-color: aliceblue;
+  border-radius: 50%;
+}
+
+.avatar.small {
+  width: 3rem;
+  height: 3rem;
+}
+
+.avatar.big {
+  width: 6rem;
+  height: 6rem;
 }
