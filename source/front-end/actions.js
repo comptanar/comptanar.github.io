@@ -63,7 +63,7 @@ const syncSalarié·es = () => githubAsDatabase.getSalarié·es().then(store.mut
  * et si GitHub signale un conflit, met à jour les données puis retente
  * une fois.
  * 
- * @template {(...args: any[]) => Promise<any>} F
+ * @template {(...args: any[]) => Promise<any> | void} F
  * @param {F} f
  * @param {() => Promise<any>} sync
  * @returns {(...args: Parameters<F>) => Promise<Awaited<ReturnType<F>>>}
@@ -388,3 +388,32 @@ export const supprimerSalarié·e = ajouterRéessai(salarié·e => {
         return store.mutations.updateSalarié·esSha(sha)
     })
 }, syncSalarié·es)
+
+export const initCompteSiBesoin = ajouterRéessai((personne, compte, préfixe) => {
+    if (personne[compte] === undefined) {
+        /** @type {Array<string>} */
+        const autresComptes = store.state.personnes.data
+            .map(p => p[compte])
+            .filter(c => c !== undefined)
+        const autresSuffixes = autresComptes
+            .map(c => c.replace(préfixe, ''))
+            .sort()
+
+        const dernierSuffixeUtilisé = autresSuffixes[autresSuffixes.length - 1]
+        const suffixe = dernierSuffixeUtilisé + 1
+        const nouveauCompte = formatCompte(préfixe, suffixe)
+
+        personne[compte] = nouveauCompte
+
+        store.mutations.updatePersonne(personne)
+        const sha = store.state.personnes.sha
+
+        return githubAsDatabase.writePersonnes(
+            sha,
+            store.state.personnes.data,
+        )
+        .then(({ data: { content: { sha } } }) => {
+            return store.mutations.updatePersonnesSha(sha)
+        })
+    }
+}, syncPersonnes)

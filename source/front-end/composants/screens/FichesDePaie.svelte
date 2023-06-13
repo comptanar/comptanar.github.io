@@ -15,6 +15,7 @@
     } from "../../stringifiers";
     import {
         envoyerFicheDePaie,
+        initCompteSiBesoin,
         supprimerOpérationHautNiveau,
     } from "../../actions";
     import { créerFicheDePaieVide } from "../../../format-données/opérationsHautNiveau";
@@ -62,17 +63,24 @@
 
     function sauvegarderFiche() {
         const personne = personnes.find((p) => p.nom === salarié·e);
-        editPromise = envoyerFicheDePaie({
-            identifiantOpération: ficheEnModification.identifiantOpération,
-            compteSalarié·e: personne.comptePersonnel,
-            nomSalarié·e: salarié·e,
-            rémunération,
-            sécu,
-            prélèvement,
-            dateÉmission,
-            débutPériodeStr: débutPériode,
-            finPériodeStr: finPériode,
-        });
+
+        editPromise = initCompteSiBesoin(
+            personne,
+            "comptePersonnel",
+            "641"
+        ).then((_) =>
+            envoyerFicheDePaie({
+                identifiantOpération: ficheEnModification.identifiantOpération,
+                compteSalarié·e: personne.comptePersonnel,
+                nomSalarié·e: salarié·e,
+                rémunération,
+                sécu,
+                prélèvement,
+                dateÉmission,
+                débutPériodeStr: débutPériode,
+                finPériodeStr: finPériode,
+            })
+        );
 
         editPromise.then(() => {
             editPromise = undefined;
