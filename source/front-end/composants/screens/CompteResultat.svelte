@@ -4,7 +4,7 @@
   import Skeleton from "../Skeleton.svelte";
   import EtatDesComptes from "../../../format-données/produireEtatDesComptes";
   import OpHautNiveauVersOpDeCompte from "../../../format-données/traduireOpérationsHautNiveauEnOpérationsDeCompte";
-  import { formatMontant } from "../../stringifiers";
+  import { formatMontant, libelleCompte } from "../../stringifiers";
 
   export let login;
   export let logout;
@@ -58,7 +58,8 @@
   <table>
     <thead>
       <tr>
-        <th>Compte</th>
+        <th>Numéro de compte</th>
+        <th>Propriétaire</th>
         <th>Montant</th>
       </tr>
     </thead>
@@ -66,6 +67,7 @@
       {#each [...data] as row}
         <tr>
           <td>{row[0]}</td>
+          <td>{libelleCompte(row[0])}</td>
           <td>{formatMontant(row[1])}</td>
         </tr>
       {/each}
