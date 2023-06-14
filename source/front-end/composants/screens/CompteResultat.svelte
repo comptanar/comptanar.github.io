@@ -4,6 +4,7 @@
   import Skeleton from "../Skeleton.svelte";
   import EtatDesComptes from "../../../format-données/produireEtatDesComptes";
   import OpHautNiveauVersOpDeCompte from "../../../format-données/traduireOpérationsHautNiveauEnOpérationsDeCompte";
+  import { formatMontant } from "../../stringifiers";
 
   export let login;
   export let logout;
@@ -13,7 +14,7 @@
 
   $: {
     if (ophn !== undefined) {
-      let listeOpHautNiveau = ophn.get(2020);
+      let listeOpHautNiveau = ophn.get(2023);
       let listeOpDeCompte = OpHautNiveauVersOpDeCompte(
         listeOpHautNiveau.opérationsHautNiveau
       );
@@ -35,9 +36,8 @@
     <tbody>
       {#each [...data] as row}
         <tr>
-          {#each row as content}
-            <td>{content}</td>
-          {/each}
+          <td>{row[0]}</td>
+          <td>{formatMontant(row[1])}</td>
         </tr>
       {/each}
     </tbody>
