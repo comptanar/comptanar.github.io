@@ -11,15 +11,22 @@
   export let ophn;
 
   let data;
-  let annee;
+  let annee = new Date().getFullYear();
+  let listeAnnees = [];
+
+  function getAnneesDispo(anneesDispo) {
+    let listeAnnees = [];
+    let annee = anneesDispo.next();
+    while (!annee.done) {
+      listeAnnees.push(annee.value);
+      annee = anneesDispo.next();
+    }
+    return listeAnnees;
+  }
 
   function chargerAnnee() {
     if (ophn !== undefined) {
       let listeOpHautNiveau = ophn.get(annee);
-      if (listeOpHautNiveau == undefined) {
-        console.log("Année qui n'existe pas, 2020 prise par défaut");
-        listeOpHautNiveau = ophn.get(2020);
-      }
       let listeOpDeCompte = OpHautNiveauVersOpDeCompte(
         listeOpHautNiveau.opérationsHautNiveau
       );
@@ -30,16 +37,24 @@
   }
 
   $: {
+    if (ophn !== undefined) {
+      console.log(ophn);
+      console.log(ophn.keys().length);
+      listeAnnees = getAnneesDispo(ophn.keys());
+    }
     chargerAnnee();
   }
 </script>
 
 <Skeleton {login} {logout} fullwidth>
   <label>
-    <div>Année du compte de résultat à produire</div>
-    <input type="number" placeholder="202X" bind:value={annee} />
+    <div>Année</div>
+    <select bind:value={annee}>
+      {#each listeAnnees as a}
+        <option value={a}>{a}</option>
+      {/each}
+    </select>
   </label>
-  <button type="button" on:click={chargerAnnee}>Enregistrer</button>
   <table>
     <thead>
       <tr>

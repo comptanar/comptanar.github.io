@@ -56,10 +56,8 @@ export default (opérationsDeCompte) => {
   console.log(opérationsDeCompte);
 
   for (const { sens, compte, montant } of opérationsDeCompte) {
-    console.log("compte", compte);
     if (compte === undefined) {
       throw new Error("Nom de compte vide");
-      return;
     }
 
     const montantActuel = étatDesComptes.get(compte) || 0;
