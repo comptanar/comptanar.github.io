@@ -30,7 +30,11 @@
       let listeOpDeCompte = OpHautNiveauVersOpDeCompte(
         listeOpHautNiveau.opérationsHautNiveau
       );
-      data = EtatDesComptes(listeOpDeCompte);
+      try {
+        data = EtatDesComptes(listeOpDeCompte);
+      } catch (err) {
+        console.error(err);
+      }
     } else {
       data = [];
     }

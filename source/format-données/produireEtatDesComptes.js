@@ -56,7 +56,7 @@ export default (opérationsDeCompte) => {
   console.log(opérationsDeCompte);
 
   for (const { sens, compte, montant } of opérationsDeCompte) {
-    if (compte === undefined) {
+    if (compte == undefined || compte == "") {
       throw new Error("Nom de compte vide");
     }
 
