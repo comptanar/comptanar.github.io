@@ -5,6 +5,7 @@ import { request } from "@octokit/request";
 import { parseOpérationsHautNiveauYaml, stringifyOpérationsHautNiveauYaml } from '../format-données/opérationsHautNiveau.js'
 import { parsePersonnes, stringifyPersonnesYaml } from "../format-données/personnes.js";
 import { parseSalarié·es, stringifySalarié·esYaml } from "../format-données/salariees.js";
+import { b64ToUTF8, UTF8ToB64 } from "./utf8Base64.js";
 
 import '../format-données/types/main.js'
 
@@ -93,7 +94,7 @@ export default {
 
                     const opérationsHautNiveauFileContentP = theRequest(url).then(({data: {encoding, content, sha}}) => {
                         if(encoding === 'base64'){
-                            const ymlContent = atob(content)
+                            const ymlContent = b64ToUTF8(content)
 
                             const opérationsHautNiveau = parseOpérationsHautNiveauYaml(ymlContent)
                             opérationsHautNiveauByYear.set(year, {opérationsHautNiveau, sha})
@@ -125,7 +126,7 @@ export default {
             method: 'PUT',
             message: message || `Mise à jour des opérations haut niveau de l'exercice ${year}`,
             sha,
-            content: btoa(stringifyOpérationsHautNiveauYaml(opérationsHautNiveau))
+            content: UTF8ToB64(stringifyOpérationsHautNiveauYaml(opérationsHautNiveau))
         })
     },
     /**
@@ -174,7 +175,7 @@ function fileReader(path, parser) {
         if (typeof content !== 'string') throw new TypeError()
 
         if (encoding === 'base64') {
-            return { sha, data: parser(atob(content)) }
+            return { sha, data: parser(b64ToUTF8(content)) }
         } else {
             throw new TypeError(`Encodage du fichier ${path} incorrect : on attendait du base64, on a du ${encoding}`)
         }
@@ -195,6 +196,6 @@ function fileWriter(path, defaultMessage, formatter) {
         method: 'PUT',
         message: message || defaultMessage,
         sha,
-        content: btoa(formatter(data))
+        content: UTF8ToB64(formatter(data))
     })
 }
