@@ -52,14 +52,17 @@ export function estPersonne(p) {
         (!p.compteClient || typeof p.compteClient === 'string')
 }
 
+/** @type {(date: Date) => boolean} */
+const isValidDate = (date) => !Number.isNaN(date.getTime)
+
 /**
  * @param {any} s
  * @returns {s is Salarié·e}
  */
 export function estSalarié·e(s) {
     return Object(s) === s &&
-        s.débutContrat instanceof Date && !isNaN(s.débutContrat) &&
-        s.finContrat !== null ? s.finContrat instanceof Date && !isNaN(s.finContrat) : true &&
+        s.débutContrat instanceof Date && isValidDate(s.débutContrat) &&
+        s.finContrat !== null ? s.finContrat instanceof Date && isValidDate(s.finContrat) : true &&
     typeof s.idPersonne === 'string'
 }
 
@@ -70,7 +73,7 @@ export function estSalarié·e(s) {
  */
 export function estMembre(m) {
     return Object(m) === m &&
-        m.débutPériode instanceof Date && !isNaN(m.débutPériode) &&
-        m.finPériode !== null ? m.finPériode instanceof Date && !isNaN(m.finPériode) : true &&
+        m.débutPériode instanceof Date && isValidDate(m.débutPériode) &&
+        m.finPériode !== null ? m.finPériode instanceof Date && isValidDate(m.finPériode) : true &&
     typeof m.idPersonne === 'string'
 }
