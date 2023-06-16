@@ -10,6 +10,8 @@
 
     export let login
     export let logout
+    export let org
+    export let repo
     /** @type {Personne[]} */
     export let personnes
     export let supprimerPersonne
@@ -61,7 +63,7 @@
     $: console.log(personnes)
 </script>
 
-<Skeleton {login} {logout} fullwidth>
+<Skeleton {login} {logout} {org} {repo} fullwidth>
     <Tableau {...tableConfig} bind:this={table} on:edit={(e) => màjFormulaire(personnes[e.detail])}>
         <h1 slot="header">Liste des personnes connues</h1>
         <h1 slot="form-header">Modifier une personne</h1>

@@ -6,9 +6,11 @@
     export let login = undefined;
     export let logout = undefined;
     export let fullwidth = false;
+    export let repo
+    export let org
 </script>
 
-<Header {login} {logout}/>
+<Header {login} {logout} {org} {repo}/>
 
 <main class:fullwidth={fullwidth}>
 <slot></slot>
