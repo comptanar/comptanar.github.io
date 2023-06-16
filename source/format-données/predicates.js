@@ -6,10 +6,10 @@ import './types/main.js'
  * @param {any} op
  * @returns {op is OpérationDeCompte}
  */
-export function isOpérationDeCompte(op){
+export function isOpérationDeCompte(op) {
     return Object(op) === op &&
         typeof op.compte === 'string' &&
-        Number.isFinite(op.montant) && 
+        Number.isFinite(op.montant) &&
         op.sens === 'Crédit' || op.sens === 'Débit';
 }
 
@@ -17,12 +17,12 @@ export function isOpérationDeCompte(op){
  * @param {any} op
  * @returns {op is BaseOpérationHautNiveau}
  */
-function isBaseOpérationHautNiveau(op){
+function isBaseOpérationHautNiveau(op) {
     return Object(op) === op &&
         typeof op.identifiantOpération === 'string' &&
         typeof op.type === 'string' &&
         op.date instanceof Date && // maybe weak, but it's complicated to find a better test for now
-        !op.opérations || (Array.isArray(op.opérations) && op.opérations.every( isOpérationDeCompte ))
+        !op.opérations || (Array.isArray(op.opérations) && op.opérations.every(isOpérationDeCompte))
 }
 
 
@@ -31,7 +31,7 @@ function isBaseOpérationHautNiveau(op){
  * @param {any} op
  * @returns {op is OpérationHautNiveau}
  */
-export function isOpérationHautNiveau(op){
+export function isOpérationHautNiveau(op) {
     return isBaseOpérationHautNiveau(op) // faux ; PPP à raffiner plus tard
 }
 
@@ -45,12 +45,12 @@ export function estPersonne(p) {
         typeof p.identifiant === 'string' &&
         typeof p.type === 'string' &&
         (p.type === 'Physique' || p.type === 'Morale') &&
-        p.adresse === null ? true : typeof p.adresse === 'string' &&
-        p.siret === null ? true : (typeof p.siret === 'string' && p.type === 'Morale') &&
-        p.compteAssocié·e === null ? true : typeof p.compteAssocié·e === 'string' &&
-        p.comptePersonnel === null ? true : typeof p.comptePersonnel === 'string' &&
-        p.compteFournisseur === null ? true : typeof p.compteFournisseur === 'string' &&
-        p.compteClient === null ? true : typeof p.compteClient === 'string'
+        (!p.adresse || typeof p.adresse === 'string') &&
+        (!p.siret || (typeof p.siret === 'string' && p.type === 'Morale')) &&
+        (!p.compteAssocié·e || typeof p.compteAssocié·e === 'string') &&
+        (!p.comptePersonnel || typeof p.comptePersonnel === 'string') &&
+        (!p.compteFournisseur || typeof p.compteFournisseur === 'string') &&
+        (!p.compteClient || typeof p.compteClient === 'string')
 }
 
 /**
@@ -61,7 +61,7 @@ export function estSalarié·e(s) {
     return Object(s) === s &&
         s.débutContrat instanceof Date && !isNaN(s.débutContrat) &&
         s.finContrat !== null ? s.finContrat instanceof Date && !isNaN(s.finContrat) : true &&
-        typeof s.idPersonne === 'string'
+    typeof s.idPersonne === 'string'
 }
 
 /**
@@ -73,5 +73,5 @@ export function estMembre(m) {
     return Object(m) === m &&
         m.débutPériode instanceof Date && !isNaN(m.débutPériode) &&
         m.finPériode !== null ? m.finPériode instanceof Date && !isNaN(m.finPériode) : true &&
-        typeof m.idPersonne === 'string'
+    typeof m.idPersonne === 'string'
 }
