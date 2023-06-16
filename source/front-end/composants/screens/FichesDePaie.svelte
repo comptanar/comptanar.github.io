@@ -56,7 +56,7 @@
             return "";
         }
         const personne = personnes.find(
-            (p) => p.comptePersonnel === compteRémunéré.compte
+            (p) => p.compteAssocié·e === compteRémunéré.compte
         );
         return personne.nom;
     }
@@ -66,12 +66,12 @@
 
         editPromise = initCompteSiBesoin(
             personne,
-            "comptePersonnel",
+            "compteAssocié·e",
             "641"
         ).then((_) =>
             envoyerFicheDePaie({
                 identifiantOpération: ficheEnModification.identifiantOpération,
-                compteSalarié·e: personne.comptePersonnel,
+                compteSalarié·e: personne.compteAssocié·e,
                 nomSalarié·e: salarié·e,
                 rémunération,
                 sécu,

@@ -48,7 +48,6 @@ export function estPersonne(p) {
         (!p.adresse || typeof p.adresse === 'string') &&
         (!p.siret || (typeof p.siret === 'string' && p.type === 'Morale')) &&
         (!p.compteAssocié·e || typeof p.compteAssocié·e === 'string') &&
-        (!p.comptePersonnel || typeof p.comptePersonnel === 'string') &&
         (!p.compteFournisseur || typeof p.compteFournisseur === 'string') &&
         (!p.compteClient || typeof p.compteClient === 'string')
 }

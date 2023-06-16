@@ -86,7 +86,6 @@
  * @property {string?} adresse
  * @property {number?} siret
  * @property {string?} compteAssocié·e
- * @property {string?} comptePersonnel
  * @property {string?} compteFournisseur
  * @property {string?} compteClient
  */

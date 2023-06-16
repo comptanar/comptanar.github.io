@@ -14,7 +14,7 @@ import { parseYamlArray } from './utils'
  * @param {string} str 
  * @returns {Personne[]}
  */
-export const parsePersonnes = (str) => parseYamlArray(str, 'une liste de personnes', estPersonne) 
+export const parsePersonnes = (str) => parseYamlArray(str, 'une liste de personnes', estPersonne)
 
 /**
  * @param {Personne[]} personnes
@@ -34,7 +34,6 @@ export function créerPersonneVide() {
         compteAssocié·e: null,
         compteClient: null,
         compteFournisseur: null,
-        comptePersonnel: null,
         siret: null,
     }
 }
