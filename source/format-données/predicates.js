@@ -43,7 +43,6 @@ export function estPersonne(p) {
     return Object(p) === p &&
         typeof p.nom === 'string' &&
         typeof p.identifiant === 'string' &&
-        typeof p.type === 'string' &&
         (p.type === 'Physique' || p.type === 'Morale') &&
         (!p.adresse || typeof p.adresse === 'string') &&
         (!p.siret || (typeof p.siret === 'string' && p.type === 'Morale')) &&
