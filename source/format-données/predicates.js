@@ -52,7 +52,7 @@ export function estPersonne(p) {
 }
 
 /** @type {(date: Date) => boolean} */
-const isValidDate = (date) => !Number.isNaN(date.getTime)
+const isValidDate = (date) => !Number.isNaN(date.getTime())
 
 /**
  * @param {any} s
