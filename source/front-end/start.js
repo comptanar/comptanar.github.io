@@ -14,11 +14,8 @@ import Achats from './composants/screens/Achats.svelte'
 import store, {getAchats, getEnvoiFactureÀClients, getFichesDePaie} from './store.js'
 import {
     logout, saveToken, initDance, getUserOrgChoices, selectOrgAndRepo,
-    envoyerFicheDePaie,
-    supprimerPersonne, envoyerPersonne,
     envoyerSalarié·e, supprimerSalarié·e,
 } from './actions.js'
-import { créerEnvoiFactureÀClientVide, créerFicheDePaieVide } from '../format-données/opérationsHautNiveau'
 
 console.info('start')
 
@@ -204,9 +201,7 @@ page('/comptabilite/personnes', ({ querystring }) => {
             logout: logoutAndRedirect,
             org,
             repo,
-            personnes: state.personnes?.data ?? [],
-            envoyerPersonne,
-            supprimerPersonne,
+            personnes: state.personnes?.data ?? []
         }
     }
 
