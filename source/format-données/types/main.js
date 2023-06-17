@@ -91,7 +91,7 @@
  */
 
 /**
- * @typedef {Object} Salarié·e
+ * @typedef {Object} Salariat
  * @property {string} idPersonne
  * @property {string} identifiant
  * @property {Date} débutContrat

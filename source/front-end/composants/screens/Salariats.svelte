@@ -4,12 +4,12 @@
     import Skeleton from "../Skeleton.svelte"
     import Tableau, { action } from "../Tableau.svelte"
     import SaveButton from "../SaveButton.svelte"
-    import { créerSalarié·eVide } from '../../../format-données/salarié·es'
+    import { créerSalariatVide } from '../../../format-données/salariat'
     import { tick } from "svelte";
     import { format } from "date-fns";
     import { displayDate } from "../../stringifiers";
     import { fr } from "date-fns/locale";
-    import { envoyerSalarié·e, supprimerSalarié·e } from "../../actions";
+    import { envoyerSalariat, supprimerSalariat } from "../../actions";
 
     export let login
     export let logout
@@ -17,23 +17,23 @@
     export let repo
     /** @type {Personne[]} */
     export let personnes
-    /** @type {Salarié·e[]} */
-    export let salarié·es
+    /** @type {Salariat[]} */
+    export let salariats
 
     let table
     let tableConfig
     let formStart
 
-    let salarié·eEnÉdition
+    let salariatEnÉdition
     let editPromise
 
     let personne
     let débutContrat
     let finContrat
 
-    function sauvegarderSalarié·e() {
-        editPromise = envoyerSalarié·e({
-            identifiant: salarié·eEnÉdition.identifiant,
+    function sauvegarderSalariat() {
+        editPromise = envoyerSalariat({
+            identifiant: salariatEnÉdition.identifiant,
             idPersonne: personne.identifiant,
             débutContrat: new Date(débutContrat),
             finContrat: new Date(finContrat)
@@ -41,34 +41,41 @@
 
         editPromise.then(() => {
             editPromise = undefined
-            table.edit(salarié·es.findIndex(s => s.identifiant === salarié·eEnÉdition.identifiant))
+            table.edit(salariats.findIndex(s => s.identifiant === salariatEnÉdition.identifiant))
         })
     }
 
     async function màjFormulaire(sal) {
-        salarié·eEnÉdition = sal ?? créerSalarié·eVide()
+        salariatEnÉdition = sal ?? créerSalariatVide()
         
-        personne = personnePour(salarié·eEnÉdition)
-        débutContrat = format(sal.débutContrat, 'yyyy-MM-dd')
-        finContrat = sal.finContrat === null ? null : format(sal.finContrat, 'yyyy-MM-dd')
+        personne = personnePour(salariatEnÉdition)
+        débutContrat = format(salariatEnÉdition.débutContrat, 'yyyy-MM-dd')
+        finContrat = salariatEnÉdition.finContrat === null ? null : format(sal.finContrat, 'yyyy-MM-dd')
 
         await tick()
         formStart?.focus()
     }
 
     function supprimer() {
-        supprimerSalarié·e(salarié·eEnÉdition)
+        supprimerSalariat(salariatEnÉdition)
         table.edit(undefined)
     }
 
-    const personnePour = (s) => personnes.find(p => p.identifiant === s.idPersonne)
+    /**
+     * 
+     * @param {Salariat} salariat
+     * @return {Personne}
+     */
+    const personnePour = (salariat) => personnes.find(p => p.identifiant === salariat.idPersonne)
+
+    console.log('salariats', salariats)
 
     $: tableConfig = {
         globalActions: [
-            action(() => table.edit(-1), 'Ajouter un contrat', 'Alt+N')
+            action(() => table.edit(-1), 'Ajouter un salariat', 'Alt+N')
         ],
         columns: [ 'Personne', 'Période du contrat' ],
-        data: salarié·es.map(s => [
+        data: salariats.map(s => [
             { content: personnePour(s)?.nom || '⚠️ Données corrompues (personne introuvable)' },
             {
                 content: `${displayDate(s.débutContrat)} 🠒 ${s.finContrat === null ? 'Toujours en cours' : displayDate(s.finContrat)}`,
@@ -79,16 +86,16 @@
 </script>
 
 <Skeleton {login} {logout} {org} {repo} fullwidth>
-    <Tableau {...tableConfig} bind:this={table} on:edit={(e) => màjFormulaire(salarié·es[e.detail])}>
-        <h1 slot="header">Liste des salarié·es</h1>
+    <Tableau {...tableConfig} bind:this={table} on:edit={(e) => màjFormulaire(salariats[e.detail])}>
+        <h1 slot="header">Liste des salariats</h1>
         <svelte:fragment slot="form-header">
-            {#if salarié·eEnÉdition && salarié·eEnÉdition.idPersonne !== '' }
-                <h1>Modifier « { personnePour(salarié·eEnÉdition).nom } »</h1>
+            {#if salariatEnÉdition && salariatEnÉdition.idPersonne !== '' }
+                <h1>Modifier « { personnePour(salariatEnÉdition).nom } »</h1>
             {:else}
-                <h1>Ajouter un·e salarié·e</h1>
+                <h1>Ajouter un salariat</h1>
             {/if}
         </svelte:fragment>
-        <form on:submit|preventDefault={sauvegarderSalarié·e}>
+        <form on:submit|preventDefault={sauvegarderSalariat}>
             <fieldset disabled={editPromise && editPromise[Symbol.toStringTag] === 'Promise'}>
                 <label>
                     <div>Personne</div>

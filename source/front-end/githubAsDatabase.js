@@ -5,7 +5,7 @@ import { request } from "@octokit/request";
 import { parseOpérationsHautNiveauYaml, stringifyOpérationsHautNiveauYaml } from '../format-données/opérationsHautNiveau.js'
 import { parsePersonnes, stringifyPersonnesYaml } from "../format-données/personnes.js";
 import { b64ToUTF8, UTF8ToB64 } from "./utf8Base64.js";
-import { parseSalarié·es, stringifySalarié·esYaml } from "../format-données/salarié·es.js";
+import { parseSalariat, stringifySalariatsYaml } from "../format-données/salariat.js";
 
 import '../format-données/types/main.js'
 
@@ -22,7 +22,7 @@ function opérationsHautNiveauPath(year) {
 }
 
 const personnesPath = 'personnes.yml'
-const salarié·esPath = 'salarié-es.yml'
+const salariatsPath = 'salariats.yml'
 
 export default {
     reset() {
@@ -153,8 +153,8 @@ export default {
      * @param {string} message 
      */
     writePersonnes: fileWriter(personnesPath, 'Mise à jour des personnes', stringifyPersonnesYaml),
-    getSalarié·es: fileReader(salarié·esPath, parseSalarié·es),
-    writeSalarié·es: fileWriter(salarié·esPath, 'Mise à jour des salarié⋅es', stringifySalarié·esYaml),
+    getSalariats: fileReader(salariatsPath, parseSalariat),
+    writeSalariats: fileWriter(salariatsPath, 'Mise à jour des salarié⋅es', stringifySalariatsYaml),
 }
 
 // Quelques fonctions utilitaires :
