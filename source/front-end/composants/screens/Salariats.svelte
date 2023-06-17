@@ -50,7 +50,7 @@
         
         personne = personnePour(salariatEnÉdition)
         débutContrat = format(salariatEnÉdition.débutContrat, 'yyyy-MM-dd')
-        finContrat = salariatEnÉdition.finContrat === null ? null : format(sal.finContrat, 'yyyy-MM-dd')
+        finContrat = !salariatEnÉdition.finContrat ? undefined : format(sal.finContrat, 'yyyy-MM-dd')
 
         await tick()
         formStart?.focus()
@@ -68,8 +68,6 @@
      */
     const personnePour = (salariat) => personnes.find(p => p.identifiant === salariat.idPersonne)
 
-    console.log('salariats', salariats)
-
     $: tableConfig = {
         globalActions: [
             action(() => table.edit(-1), 'Ajouter un salariat', 'Alt+N')
@@ -78,8 +76,8 @@
         data: salariats.map(s => [
             { content: personnePour(s)?.nom || '⚠️ Données corrompues (personne introuvable)' },
             {
-                content: `${displayDate(s.débutContrat)} 🠒 ${s.finContrat === null ? 'Toujours en cours' : displayDate(s.finContrat)}`,
-                title: `${format(s.débutContrat, 'd MMMM yyyy', {locale: fr})} 🠒 ${s.finContrat === null ? 'Toujours en cours' : format(s.finContrat, 'd MMMM yyyy', {locale: fr})}`
+                content: `${displayDate(s.débutContrat)} - ${!s.finContrat ? 'Toujours en cours' : displayDate(s.finContrat)}`,
+                title: `${format(s.débutContrat, 'd MMMM yyyy', {locale: fr})} - ${!s.finContrat ? 'Toujours en cours' : format(s.finContrat, 'd MMMM yyyy', {locale: fr})}`
             },
         ])
     }
