@@ -12,8 +12,8 @@ import {rememberToken} from './localStorage.js';
  *      org: string,
  *      repo: string,
  *      opérationsHautNiveauByYear: Map<number, OpérationHautNiveau[]> | undefined,
- *      personnes: import("./githubAsDatabase.js").WithSha<Personne[]> | undefined,
- *      salariats: import("./githubAsDatabase.js").WithSha<Salariat[]> | undefined,
+ *      personnes: WithSha<Personne[]> | undefined,
+ *      salariats: WithSha<Salariat[]> | undefined,
  * }} State
  */
 
@@ -101,7 +101,7 @@ const store = Store({
         },
         /**
          * @param {State} state 
-         * @param {import("./githubAsDatabase.js").WithSha<Personne[]>} personnes 
+         * @param {WithSha<Personne[]>} personnes 
          */
         setPersonnes(state, personnes) {
             state.personnes = personnes
@@ -146,8 +146,8 @@ const store = Store({
             }
         },
 
-        setSalariats(state, s) {
-            state.salariats = s
+        setSalariats(state, salariats) {
+            state.salariats = salariats
         },
         addSalariat(state, salariat) {
             if (state.salariats) {
