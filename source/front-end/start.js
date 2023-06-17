@@ -13,8 +13,7 @@ import Achats from './composants/screens/Achats.svelte'
 
 import store, {getAchats, getEnvoiFactureÀClients, getFichesDePaie} from './store.js'
 import {
-    logout, saveToken, initDance, getUserOrgChoices, selectOrgAndRepo,
-    envoyerSalarié·e, supprimerSalarié·e,
+    logout, saveToken, initDance, getUserOrgChoices, selectOrgAndRepo
 } from './actions.js'
 
 console.info('start')
@@ -229,8 +228,6 @@ page('/comptabilite/salarié·es', ({ querystring }) => {
             repo,
             personnes: state.personnes?.data ?? [],
             salarié·es: state.salarié·es?.data ?? [],
-            envoyerSalarié·e,
-            supprimerSalarié·e,
         }
     }
 
