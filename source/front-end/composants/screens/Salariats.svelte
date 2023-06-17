@@ -20,6 +20,10 @@
     /** @type {Salariat[]} */
     export let salariats
 
+    let personnesPhysiques
+
+    $: personnesPhysiques = personnes.filter(({type}) => type === 'Physique')
+
     let table
     let tableConfig
     let formStart
@@ -98,7 +102,7 @@
                 <label>
                     <div>Personne</div>
                     <select bind:value={personne} bind:this={formStart}>
-                        {#each personnes as p}
+                        {#each personnesPhysiques as p}
                             <option value={p}>{p.nom}</option>
                         {/each}
                     </select>
