@@ -2,8 +2,8 @@
     //@ts-check
 
     export let login = undefined;
-    export let repo;
-    export let org;
+    export let repo = undefined;
+    export let org = undefined;
 
     export let logout;
 

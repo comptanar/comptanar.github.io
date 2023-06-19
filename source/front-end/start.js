@@ -8,17 +8,13 @@ import Comptabilite from "./composants/screens/Comptabilite.svelte";
 import Factures from "./composants/screens/Factures.svelte";
 import FichesDePaie from './composants/screens/FichesDePaie.svelte'
 import Personnes from './composants/screens/Personnes.svelte'
-import Salarié·es from './composants/screens/Salarié·es.svelte'
+import Salariats from './composants/screens/Salariats.svelte'
 import Achats from './composants/screens/Achats.svelte'
 
 import store, {getAchats, getEnvoiFactureÀClients, getFichesDePaie} from './store.js'
 import {
-    logout, saveToken, initDance, getUserOrgChoices, selectOrgAndRepo,
-    envoyerFicheDePaie,
-    supprimerPersonne, envoyerPersonne,
-    envoyerSalarié·e, supprimerSalarié·e,
+    logout, saveToken, initDance, getUserOrgChoices, selectOrgAndRepo
 } from './actions.js'
-import { créerEnvoiFactureÀClientVide, créerFicheDePaieVide } from '../format-données/opérationsHautNiveau'
 
 console.info('start')
 
@@ -178,9 +174,6 @@ page('/comptabilite/fiches-de-paie', ({ querystring }) => {
             org,
             repo,
             personnes: state.personnes?.data ?? [],
-            salarié·es: state.salarié·es?.data ?? [],
-            créerFicheDePaieVide,
-            envoyerFicheDePaie,
             fichesDePaie: getFichesDePaie(state),
         }
     }
@@ -207,9 +200,7 @@ page('/comptabilite/personnes', ({ querystring }) => {
             logout: logoutAndRedirect,
             org,
             repo,
-            personnes: state.personnes?.data ?? [],
-            envoyerPersonne,
-            supprimerPersonne,
+            personnes: state.personnes?.data ?? []
         }
     }
 
@@ -221,7 +212,7 @@ page('/comptabilite/personnes', ({ querystring }) => {
     replaceComponent(factures, mapStateToProps);
 })
 
-page('/comptabilite/salarié·es', ({ querystring }) => {
+page('/comptabilite/salariats', ({ querystring }) => {
     const params = new URLSearchParams(querystring)
 
     const org = params.get('org');
@@ -236,15 +227,13 @@ page('/comptabilite/salarié·es', ({ querystring }) => {
             org,
             repo,
             personnes: state.personnes?.data ?? [],
-            salarié·es: state.salarié·es?.data ?? [],
-            envoyerSalarié·e,
-            supprimerSalarié·e,
+            salariats: state.salariats?.data ?? [],
         }
     }
 
-    const factures = new Salarié·es({
+    const factures = new Salariats({
         target: svelteTarget,
-        props: mapStateToProps(store.state),
+        props: mapStateToProps(store.state)
     });
 
     replaceComponent(factures, mapStateToProps);
