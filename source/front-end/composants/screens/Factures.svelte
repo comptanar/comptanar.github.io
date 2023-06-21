@@ -20,6 +20,7 @@
     export let login
     export let logout
     export let org
+    export let repo
     /** @type {EnvoiFactureClient[]} */
     export let envoiFactureàClients
     
@@ -151,7 +152,7 @@
     }
 </script>
 
-<Skeleton {login} {logout} fullwidth>
+<Skeleton {login} {logout} {org} {repo} fullwidth>
     <Tableau bind:this={table} on:edit={(e) => { màjFormulaire(envoiFactureàClients[e.detail]) }} {...tableConfig}>
         <h1 slot="header">
             Voici la liste des factures pour 
@@ -225,21 +226,10 @@
 
 <style lang="scss">
     form {
-        label {
-            & > div:first-child{
-                font-weight: bold;
-                min-width: 7rem;
-            }
-
-            input, select, output{
-                margin-left: 1rem;
-                width: 8rem;
-            }
-        }
-
         fieldset.ligne-facture{
             border: 1px solid #333;
-            padding: 0.5rem;
+            padding: 1rem;
+            margin: 2rem 0;
         }
     }
 

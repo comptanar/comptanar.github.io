@@ -4,7 +4,8 @@ import { request } from "@octokit/request";
 
 import { parseOpérationsHautNiveauYaml, stringifyOpérationsHautNiveauYaml } from '../format-données/opérationsHautNiveau.js'
 import { parsePersonnes, stringifyPersonnesYaml } from "../format-données/personnes.js";
-import { parseSalarié·es, stringifySalarié·esYaml } from "../format-données/salariees.js";
+import { b64ToUTF8, UTF8ToB64 } from "./utf8Base64.js";
+import { parseSalariat, stringifySalariatsYaml } from "../format-données/salariat.js";
 
 import '../format-données/types/main.js'
 
@@ -16,50 +17,50 @@ const initialRequestDefaults = {
 
 let theRequest = request.defaults(initialRequestDefaults)
 
-function opérationsHautNiveauPath(year){
+function opérationsHautNiveauPath(year) {
     return `exercices/${year}/operationsHautNiveau.yml`
 }
 
 const personnesPath = 'personnes.yml'
-const salarié·esPath = 'salarié-es.yml'
+const salariatsPath = 'salariats.yml'
 
 export default {
-    reset(){
+    reset() {
         theRequest = request.defaults(initialRequestDefaults)
     },
-    set token(token){
+    set token(token) {
         theRequest = theRequest.defaults({
             headers: {
                 authorization: `token ${token}`,
             }
         })
     },
-    set owner(owner){
+    set owner(owner) {
         theRequest = theRequest.defaults({ owner })
     },
-    set repo(repo){
+    set repo(repo) {
         theRequest = theRequest.defaults({ repo })
     },
     getAuthenticatedUser() {
         return theRequest("/user")
-            .then(({data}) => {
+            .then(({ data }) => {
                 const login = data.login
 
                 return data
             })
     },
-    getOrgs(){
+    getOrgs() {
         return theRequest("/user/orgs")
-            .then(({data: organisations}) => {
+            .then(({ data: organisations }) => {
                 console.log('organisations', organisations)
 
                 return organisations
             })
     },
-    getRepo(owner, repo){
+    getRepo(owner, repo) {
         return theRequest(`/repos/${owner}/${repo}`)
     },
-    createComptabilityRepo(owner, name){
+    createComptabilityRepo(owner, name) {
         const TEMPLATE_OWNER = 'comptanar'
         const TEMPLATE_REPO = 'comptabilite'
 
@@ -69,50 +70,50 @@ export default {
             name
         })
     },
-    getExercices(){
+    getExercices() {
         return theRequest(`/repos/{owner}/{repo}/contents/exercices`)
-        .then(({data: exercicesDir}) => {
-            console.log('exercices', exercicesDir)
+            .then(({ data: exercicesDir }) => {
+                console.log('exercices', exercicesDir)
 
-            const promisesToWait = [];
+                const promisesToWait = [];
 
-            const opérationsHautNiveauByYear = new Map();
-            for(const {name, git_url} of exercicesDir){
-                const year = Number(name)
-                
-                const exerciceDirP = theRequest(git_url).then(({data: exerciceDirGitObj}) => {
-                    
-                    const treeFiles = exerciceDirGitObj.tree;
+                const opérationsHautNiveauByYear = new Map();
+                for (const { name, git_url } of exercicesDir) {
+                    const year = Number(name)
 
-                    if(treeFiles.length >= 2){
-                        throw TypeError(`Il ne devrait y avoir qu'un seul fichier opérationsHautNiveau.yml et il y a plusieurs fichiers`)
-                    }
+                    const exerciceDirP = theRequest(git_url).then(({ data: exerciceDirGitObj }) => {
 
-                    const opérationsHautNiveauTreeFile = treeFiles[0];
-                    const {url} = opérationsHautNiveauTreeFile
+                        const treeFiles = exerciceDirGitObj.tree;
 
-                    const opérationsHautNiveauFileContentP = theRequest(url).then(({data: {encoding, content, sha}}) => {
-                        if(encoding === 'base64'){
-                            const ymlContent = atob(content)
-
-                            const opérationsHautNiveau = parseOpérationsHautNiveauYaml(ymlContent)
-                            opérationsHautNiveauByYear.set(year, {opérationsHautNiveau, sha})
+                        if (treeFiles.length >= 2) {
+                            throw TypeError(`Il ne devrait y avoir qu'un seul fichier opérationsHautNiveau.yml et il y a plusieurs fichiers`)
                         }
-                        else{
-                            throw new TypeError(`type de fichier inconnu: ${encoding}. On ne sait gérer que 'base64'`)
-                        }
+
+                        const opérationsHautNiveauTreeFile = treeFiles[0];
+                        const { url } = opérationsHautNiveauTreeFile
+
+                        const opérationsHautNiveauFileContentP = theRequest(url).then(({ data: { encoding, content, sha } }) => {
+                            if (encoding === 'base64') {
+                                const ymlContent = b64ToUTF8(content)
+
+                                const opérationsHautNiveau = parseOpérationsHautNiveauYaml(ymlContent)
+                                opérationsHautNiveauByYear.set(year, { opérationsHautNiveau, sha })
+                            }
+                            else {
+                                throw new TypeError(`type de fichier inconnu: ${encoding}. On ne sait gérer que 'base64'`)
+                            }
+                        })
+
+                        promisesToWait.push(opérationsHautNiveauFileContentP)
+
+                        return opérationsHautNiveauFileContentP
                     })
 
-                    promisesToWait.push(opérationsHautNiveauFileContentP)
+                    promisesToWait.push(exerciceDirP)
+                }
 
-                    return opérationsHautNiveauFileContentP
-                })
-
-                promisesToWait.push(exerciceDirP)
-            }
-
-            return Promise.all(promisesToWait).then(() => opérationsHautNiveauByYear)
-        })
+                return Promise.all(promisesToWait).then(() => opérationsHautNiveauByYear)
+            })
     },
     /**
      * @param {number} year
@@ -120,12 +121,12 @@ export default {
      * @param {OpérationHautNiveau[]} opérationsHautNiveau
      * @param {string} [message]
      */
-    writeExercice(year, sha, opérationsHautNiveau, message){
+    writeExercice(year, sha, opérationsHautNiveau, message) {
         return theRequest(`/repos/{owner}/{repo}/contents/${opérationsHautNiveauPath(year)}`, {
             method: 'PUT',
             message: message || `Mise à jour des opérations haut niveau de l'exercice ${year}`,
             sha,
-            content: btoa(stringifyOpérationsHautNiveauYaml(opérationsHautNiveau))
+            content: UTF8ToB64(stringifyOpérationsHautNiveauYaml(opérationsHautNiveau))
         })
     },
     /**
@@ -133,7 +134,7 @@ export default {
      * @param {string} sha
      * @param {string} [message]
      */
-    deleteExercice(year, sha, message){
+    deleteExercice(year, sha, message) {
         return theRequest(`/repos/{owner}/{repo}/contents/${opérationsHautNiveauPath(year)}`, {
             method: 'DELETE',
             sha,
@@ -152,8 +153,8 @@ export default {
      * @param {string} message 
      */
     writePersonnes: fileWriter(personnesPath, 'Mise à jour des personnes', stringifyPersonnesYaml),
-    getSalarié·es: fileReader(salarié·esPath, parseSalarié·es),
-    writeSalarié·es: fileWriter(salarié·esPath, 'Mise à jour des salarié⋅es', stringifySalarié·esYaml),
+    getSalariats: fileReader(salariatsPath, parseSalariat),
+    writeSalariats: fileWriter(salariatsPath, 'Mise à jour des salarié⋅es', stringifySalariatsYaml),
 }
 
 // Quelques fonctions utilitaires :
@@ -174,7 +175,7 @@ function fileReader(path, parser) {
         if (typeof content !== 'string') throw new TypeError()
 
         if (encoding === 'base64') {
-            return { sha, data: parser(atob(content)) }
+            return { sha, data: parser(b64ToUTF8(content)) }
         } else {
             throw new TypeError(`Encodage du fichier ${path} incorrect : on attendait du base64, on a du ${encoding}`)
         }
@@ -195,6 +196,6 @@ function fileWriter(path, defaultMessage, formatter) {
         method: 'PUT',
         message: message || defaultMessage,
         sha,
-        content: btoa(formatter(data))
+        content: UTF8ToB64(formatter(data))
     })
 }

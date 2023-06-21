@@ -56,16 +56,19 @@ export async function initDance(){
 
 const syncExercices = () => githubAsDatabase.getExercices().then(store.mutations.setOpérationsHautNiveauByYear)
 const syncPersonnes = () => githubAsDatabase.getPersonnes().then(store.mutations.setPersonnes)
-const syncSalarié·es = () => githubAsDatabase.getSalarié·es().then(store.mutations.setSalarié·es)
+const syncSalariats = () => githubAsDatabase.getSalariats().then(store.mutations.setSalariats)
 
 /**
  * Crée une fonction qui tente de faire une action un première fois,
  * et si GitHub signale un conflit, met à jour les données puis retente
  * une fois.
  * 
+ * @template {(...args: any[]) => Promise<any> | void} F
+ * @param {F} f
  * @param {() => Promise<any>} sync
+ * @returns {(...args: Parameters<F>) => Promise<Awaited<ReturnType<F>>>}
  */
-function ajouterRéessai(f, sync = syncExercices) {
+function ajouterRéessai(f, sync) {
     return async (...args) => {
         try {
             return await f(...args)
@@ -80,6 +83,7 @@ function ajouterRéessai(f, sync = syncExercices) {
     }
 }
 
+/** @returns {never} */
 function makeConflictError(err) {
     if (err.response?.status === 409) {
         throw new ConflictError()
@@ -96,9 +100,9 @@ export function selectOrgAndRepo(org, repo){
 
     const exercicesP = syncExercices()
     const personnesP = syncPersonnes()
-    const salarié·esP = syncSalarié·es()
+    const salariatsP = syncSalariats()
 
-    return Promise.all([exercicesP, personnesP, salarié·esP])
+    return Promise.all([exercicesP, personnesP, salariatsP])
 }
 
 export function getUserOrgChoices(){
@@ -144,7 +148,7 @@ function envoyerOpérationHautNiveau(year, op, messageCréation, messageÉdition
                 store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
                 messageCréation
             )
-        })
+        }, syncExercices)
 
         writePromise = action()
     } else {
@@ -164,6 +168,7 @@ function envoyerOpérationHautNiveau(year, op, messageCréation, messageÉdition
     })
 }
 
+/** @type {({ identifiantOpération, date }: { identifiantOpération: string, date: Date }) => Promise<void>} */
 export const supprimerOpérationHautNiveau = ajouterRéessai(({ identifiantOpération, date }) => {
     const year = date.getFullYear()
     const formattedDate = format(date, 'd MMMM yyyy', {locale: fr})
@@ -189,8 +194,7 @@ export const supprimerOpérationHautNiveau = ajouterRéessai(({ identifiantOpér
             opérationsHautNiveauWithSha.sha
         ).then(() => store.mutations.supprimerAnnéeOpérationHautNiveau(year))
     }
-    
-})
+}, syncExercices)
 
 /**
  * 
@@ -321,6 +325,7 @@ export function envoyerPersonne(personne) {
     })
 }
 
+/** @type {(personne: Personne) => Promise<void>} */
 export const supprimerPersonne = ajouterRéessai(personne => {
     store.mutations.supprimerPersonne(personne)
     const sha = store.state.personnes.sha
@@ -335,51 +340,80 @@ export const supprimerPersonne = ajouterRéessai(personne => {
     })
 }, syncPersonnes)
 
-export function envoyerSalarié·e({ identifiant, personne, suffixe }, retry = true) {
-    const creation = !store.state.salarié·es.data.some(s => s.identifiant === identifiant)
+/**
+ * 
+ * @param {Salariat} sal 
+ * @returns {Promise<void>}
+ */
+export function envoyerSalariat(sal) {
+    const creation = !store.state.salariats.data.some(s => s.identifiant === sal.identifiant)
     let writePromise
     if (creation) {
         const action = ajouterRéessai(() => {
-            store.mutations.addSalarié·e({
-                identifiant,
-                idPersonne: personne.identifiant,
-                suffixeCompte: suffixe,
-            })
-            const sha = store.state.salarié·es.sha
-            return githubAsDatabase.writeSalarié·es(
+            store.mutations.addSalariat(sal)
+            const sha = store.state.salariats.sha
+            return githubAsDatabase.writeSalariats(
                 sha,
-                store.state.salarié·es.data,
+                store.state.salariats.data,
             )
         }, syncPersonnes)
 
         writePromise = action()
     } else {
-        store.mutations.updateSalarié·e({
-            identifiant,
-            idPersonne: personne.identifiant,
-            suffixeCompte: suffixe,
-        })
-        const sha = store.state.salarié·es.sha
-        writePromise = githubAsDatabase.writeSalarié·es(
+        store.mutations.updateSalariat(sal)
+        const sha = store.state.salariats.sha
+        writePromise = githubAsDatabase.writeSalariats(
             sha,
-            store.state.salarié·es.data,
+            store.state.salariats.data,
         ).catch(makeConflictError)
     }
     
     return writePromise.then(({ data: { content: { sha }}}) => {
-        return store.mutations.updateSalarié·esSha(sha)
+        return store.mutations.updateSalariatsSha(sha)
     })
 }
 
-export const supprimerSalarié·e = ajouterRéessai((salarié·e) => {
-    store.mutations.supprimerSalarié·e(salarié·e)
-    const sha = store.state.salarié·es.sha
+/**
+ * @type {(salariat: Salariat) => Promise<void>}
+*/
+export const supprimerSalariat = ajouterRéessai(salariat => {
+    store.mutations.supprimerSalariat(salariat)
+    const sha = store.state.salariats.sha
 
-    return githubAsDatabase.writeSalarié·es(
+    return githubAsDatabase.writeSalariats(
         sha,
-        store.state.salarié·es.data,
+        store.state.salariats.data,
     )
     .then(({ data: { content: { sha }}}) => {
-        return store.mutations.updateSalarié·esSha(sha)
+        return store.mutations.updateSalariatsSha(sha)
     })
-}, syncSalarié·es)
+}, syncSalariats)
+
+export const initCompteSiBesoin = ajouterRéessai((personne, compte, préfixe) => {
+    if (personne[compte] === undefined) {
+        /** @type {Array<string>} */
+        const autresComptes = store.state.personnes.data
+            .map(p => p[compte])
+            .filter(c => c !== undefined)
+        const autresSuffixes = autresComptes
+            .map(c => c.replace(préfixe, ''))
+            .sort()
+
+        const dernierSuffixeUtilisé = autresSuffixes[autresSuffixes.length - 1]
+        const suffixe = dernierSuffixeUtilisé + 1
+        const nouveauCompte = formatCompte(préfixe, suffixe)
+
+        personne[compte] = nouveauCompte
+
+        store.mutations.updatePersonne(personne)
+        const sha = store.state.personnes.sha
+
+        return githubAsDatabase.writePersonnes(
+            sha,
+            store.state.personnes.data,
+        )
+        .then(({ data: { content: { sha } } }) => {
+            return store.mutations.updatePersonnesSha(sha)
+        })
+    }
+}, syncPersonnes)

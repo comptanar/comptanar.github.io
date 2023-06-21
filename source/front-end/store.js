@@ -12,8 +12,8 @@ import {rememberToken} from './localStorage.js';
  *      org: string,
  *      repo: string,
  *      opérationsHautNiveauByYear: Map<number, OpérationHautNiveau[]> | undefined,
- *      personnes: import("./githubAsDatabase.js").WithSha<Personne[]> | undefined,
- *      salarié·es: import("./githubAsDatabase.js").WithSha<Salarié·e[]> | undefined,
+ *      personnes: WithSha<Personne[]> | undefined,
+ *      salariats: WithSha<Salariat[]> | undefined,
  * }} State
  */
 
@@ -27,7 +27,7 @@ const store = Store({
         repo: undefined,
         opérationsHautNiveauByYear: undefined,
         personnes: undefined,
-        salarié·es: undefined,
+        salariats: undefined,
     },
     mutations: {
         // Dans un store baredux, les mutations sont des fonctions qui modifient les données de manière synchrone
@@ -101,7 +101,7 @@ const store = Store({
         },
         /**
          * @param {State} state 
-         * @param {import("./githubAsDatabase.js").WithSha<Personne[]>} personnes 
+         * @param {WithSha<Personne[]>} personnes 
          */
         setPersonnes(state, personnes) {
             state.personnes = personnes
@@ -146,43 +146,43 @@ const store = Store({
             }
         },
 
-        setSalarié·es(state, s) {
-            state.salarié·es = s
+        setSalariats(state, salariats) {
+            state.salariats = salariats
         },
-        addSalarié·e(state, salarié·e) {
-            if (state.salarié·es) {
-                const { sha, data: salarié·es } = state.salarié·es
-                salarié·es.push(salarié·e)
+        addSalariat(state, salariat) {
+            if (state.salariats) {
+                const { sha, data: salariats } = state.salariats
+                salariats.push(salariat)
 
                 // Le SHA et le tableau sont temporairement désynchronisés, il faut penser à appeler
-                // updateSalarié·esSha avec le nouveau SHA ensuite
-                state.salarié·es = { sha, data: salarié·es }
+                // updateSalariatsSha avec le nouveau SHA ensuite
+                state.salariats = { sha, data: salariats }
             }
         },
         /**
          * 
          * @param {State} state 
-         * @param {Salarié·e} salarié·e
+         * @param {Salariat} salariat
          */
-        updateSalarié·e(state, salarié·e) {
-            if (state.salarié·es) {
-                const { sha, data: salarié·es } = state.salarié·es
-                const index = salarié·es.findIndex(s => s.identifiant === salarié·e.identifiant)
+        updateSalariat(state, salariat) {
+            if (state.salariats) {
+                const { sha, data: salariats } = state.salariats
+                const index = salariats.findIndex(s => s.identifiant === salariat.identifiant)
 
-                salarié·es[index] = salarié·e
+                salariats[index] = salariat
 
                 // Le SHA et le tableau sont temporairement désynchronisés, il faut penser à appeler
-                // updateSalarié·esSha avec le nouveau SHA ensuite
-                state.salarié·es = { sha, data: salarié·es }
+                // updateSalariatsSha avec le nouveau SHA ensuite
+                state.salariats = { sha, data: salariats }
             }
         },
-        updateSalarié·esSha(state, newSha) {
-            state.salarié·es.sha = newSha
+        updateSalariatsSha(state, newSha) {
+            state.salariats.sha = newSha
         },
-        supprimerSalarié·e(state, salarié·e) {
-            if (state.salarié·es) {
-                state.salarié·es.data = state.salarié·es.data.filter(
-                    s => s.identifiant !== salarié·e.identifiant
+        supprimerSalariat(state, salariat) {
+            if (state.salariats) {
+                state.salariats.data = state.salariats.data.filter(
+                    s => s.identifiant !== salariat.identifiant
                 )
             }
         }
