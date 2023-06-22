@@ -11,7 +11,7 @@
   export let ophn;
 
   let data;
-  let annee = new Date().getFullYear();
+  let annee = 2020;
   let listeAnnees = [];
 
   function getAnneesDispo(anneesDispo) {
@@ -43,7 +43,7 @@
   $: {
     if (ophn !== undefined) {
       console.log(ophn);
-      console.log(ophn.keys().length);
+      console.log(ophn.keys());
       listeAnnees = getAnneesDispo(ophn.keys());
     }
     chargerAnnee();
