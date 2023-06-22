@@ -11,7 +11,7 @@
   export let ophn;
 
   let data;
-  let annee = 2020;
+  let annee;
   let listeAnnees = [];
 
   function getAnneesDispo(anneesDispo) {
@@ -45,6 +45,7 @@
       console.log(ophn);
       console.log(ophn.keys());
       listeAnnees = getAnneesDispo(ophn.keys());
+      annee = listeAnnees[listeAnnees.length - 1];
     }
     chargerAnnee();
   }
