@@ -67,22 +67,13 @@
  * @typedef {BaseOpérationHautNiveau & SpécifiqueÉmissionFicheDePaie} ÉmissionFicheDePaie
  */
 
-/**
- * @typedef {Object} SpécifiqueAchat
- * @property {'Achat'} type
- * @property {string} motif
- *
- * @typedef {BaseOpérationHautNiveau & SpécifiqueAchat} Achat
- */
-
 /** 
     @typedef {
         EnvoiFactureClient | 
         PaiementFactureClient |
         RéceptionFactureFournisseur |
         PaiementFactureFournisseur |
-        ÉmissionFicheDePaie |
-        Achat
+        ÉmissionFicheDePaie
     } OpérationHautNiveau
 */
 
@@ -113,7 +104,7 @@
  * @property {string} identifiant
  * @property {Date} débutPériode
  * @property {Date?} finPériode
-*/
+ */
 
 /**
  * @template T

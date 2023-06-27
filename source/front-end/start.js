@@ -226,12 +226,18 @@ page("/comptabilite/personnes", ({ querystring }) => {
 page("/comptabilite/achats", ({ querystring }) => {
   const params = new URLSearchParams(querystring);
 
+  const org = params.get("org");
+  const repo = params.get("repo");
+
+  selectOrgAndRepo(org, repo);
+
   function mapStateToProps(state) {
     return {
       login: state.login,
       logout: logoutAndRedirect,
       achats: getAchats(state) ?? [],
       org,
+      repo,
     };
   }
 
@@ -239,6 +245,7 @@ page("/comptabilite/achats", ({ querystring }) => {
     target: svelteTarget,
     props: mapStateToProps(store.state),
   });
+
   replaceComponent(factures, mapStateToProps);
 });
 

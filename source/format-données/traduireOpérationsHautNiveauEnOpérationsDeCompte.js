@@ -47,7 +47,7 @@ function traduireRécéptionFactureFournisseurEnOpérationsDeCompte(rff) {
     sens: "Crédit",
   };
 
-  return [op].concat(rff.opérations);
+  return [op];
 }
 
 /**
@@ -63,21 +63,6 @@ function traduirePaiementFactureFournisseurEnOpérationsDeCompte(rff) {
   };
 
   return [op].concat(rff.opérations);
-}
-
-/**
- * @param {Achat} a
- * @returns {OpérationDeCompte[]}
- */
-function traduireAchatEnOpérationsDeCompte(a) {
-  /** @type {OpérationDeCompte} */
-  const op = {
-    compte: a.opérations[0].compte,
-    montant: sum(a.opérations.map((op) => op.montant)),
-    sens: "Crédit",
-  };
-
-  return [op].concat(a.opérations);
 }
 
 /**
@@ -121,9 +106,6 @@ export default (opérationsHautNiveau) => {
         break;
       case "Paiement facture fournisseur":
         newOps = traduirePaiementFactureFournisseurEnOpérationsDeCompte(ophn);
-        break;
-      case "Achat":
-        newOps = traduireAchatEnOpérationsDeCompte(ophn);
         break;
       case "Fiche de paie":
         newOps = traduireÉmissionFicheDePaieEnOpérationsDeCompte(ophn);
