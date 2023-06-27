@@ -3,21 +3,10 @@
 import { sum } from "d3-array";
 import "./types/main.js";
 
-function calculMontantHT(lignes) {
-  let sommeMontant = 0;
-  lignes.forEach((ligne) => {
-    sommeMontant += ligne.montantHT;
-  });
-  return sommeMontant;
-}
+const calculMontantHT = (lignes) => sum(lignes.map((l) => l.montantHT));
 
-function calculTVA(lignes) {
-  let sommeTVA = 0;
-  lignes.forEach((ligne) => {
-    sommeTVA += (ligne.montantHT * ligne.tauxTVA) / 100;
-  });
-  return sommeTVA;
-}
+const calculTVA = (lignes) =>
+  sum(lignes.map((l) => (l.montantHT * l.tauxTVA) / 100));
 
 /**
  * @param {EnvoiFactureClient} efc

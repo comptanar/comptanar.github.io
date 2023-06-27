@@ -7,19 +7,28 @@ import ChooseOrganisation from "./composants/screens/ChooseOrganisation.svelte";
 import Comptabilite from "./composants/screens/Comptabilite.svelte";
 import Factures from "./composants/screens/Factures.svelte";
 
-import FichesDePaie from './composants/screens/FichesDePaie.svelte'
-import Personnes from './composants/screens/Personnes.svelte'
-import Salariats from './composants/screens/Salariats.svelte'
-import Achats from './composants/screens/Achats.svelte'
+import FichesDePaie from "./composants/screens/FichesDePaie.svelte";
+import Personnes from "./composants/screens/Personnes.svelte";
+import Salariats from "./composants/screens/Salariats.svelte";
+import Achats from "./composants/screens/Achats.svelte";
 import CompteResultat from "./composants/screens/CompteResultat.svelte";
 
-import store, {getAchats, getEnvoiFactureÀClients, getFichesDePaie} from './store.js'
+import store, {
+  getAchats,
+  getEnvoiFactureÀClients,
+  getFichesDePaie,
+} from "./store.js";
 import {
-    logout, saveToken, initDance, getUserOrgChoices, selectOrgAndRepo
-} from './actions.js'
+  logout,
+  saveToken,
+  initDance,
+  getUserOrgChoices,
+  selectOrgAndRepo,
+  envoyerFicheDePaie,
+} from "./actions.js";
+import { créerFicheDePaieVide } from "../format-données/opérationsHautNiveau";
 
-console.info('start')
-
+console.info("start");
 
 /**
  * Component rendering loop
@@ -132,7 +141,6 @@ page("/comptabilite/", ({ querystring }) => {
   replaceComponent(comptabilite, mapStateToProps);
 });
 
-
 page("/comptabilite/factures", ({ querystring }) => {
   console.info("route", "/comptabilite/factures", querystring);
   const params = new URLSearchParams(querystring);
@@ -140,16 +148,16 @@ page("/comptabilite/factures", ({ querystring }) => {
   const org = params.get("org");
   const repo = params.get("repo");
 
-  selectOrgAndRepo(org, repo)
+  selectOrgAndRepo(org, repo);
 
-  function mapStateToProps(state){
-      return {
-          login: state.login,
-          logout: logoutAndRedirect,
-          org,
-          repo,
-          envoiFactureàClients : getEnvoiFactureÀClients(state)
-      }
+  function mapStateToProps(state) {
+    return {
+      login: state.login,
+      logout: logoutAndRedirect,
+      org,
+      repo,
+      envoiFactureàClients: getEnvoiFactureÀClients(state),
+    };
   }
   const factures = new Factures({
     target: svelteTarget,
@@ -196,16 +204,16 @@ page("/comptabilite/personnes", ({ querystring }) => {
 
   selectOrgAndRepo(org, repo);
 
-    function mapStateToProps(state){
-        return {
-            login: state.login,
-            logout: logoutAndRedirect,
-            org,
-            repo,
-            personnes: state.personnes?.data ?? [],
-            fichesDePaie: getFichesDePaie(state),
-        }
-    }
+  function mapStateToProps(state) {
+    return {
+      login: state.login,
+      logout: logoutAndRedirect,
+      org,
+      repo,
+      personnes: state.personnes?.data ?? [],
+      fichesDePaie: getFichesDePaie(state),
+    };
+  }
 
   const factures = new Personnes({
     target: svelteTarget,
@@ -217,8 +225,8 @@ page("/comptabilite/personnes", ({ querystring }) => {
 
 page("/comptabilite/achats", ({ querystring }) => {
   const params = new URLSearchParams(querystring);
-  
-    function mapStateToProps(state) {
+
+  function mapStateToProps(state) {
     return {
       login: state.login,
       logout: logoutAndRedirect,
@@ -231,31 +239,31 @@ page("/comptabilite/achats", ({ querystring }) => {
     target: svelteTarget,
     props: mapStateToProps(store.state),
   });
-    replaceComponent(factures, mapStateToProps);
+  replaceComponent(factures, mapStateToProps);
 });
 
-page('/comptabilite/salariats', ({ querystring }) => {
-    const params = new URLSearchParams(querystring)
+page("/comptabilite/salariats", ({ querystring }) => {
+  const params = new URLSearchParams(querystring);
 
   const org = params.get("org");
   const repo = params.get("repo");
 
   selectOrgAndRepo(org, repo);
-    function mapStateToProps(state){
-        return {
-            login: state.login,
-            logout: logoutAndRedirect,
-            org,
-            repo,
-            personnes: state.personnes?.data ?? [],
-            salariats: state.salariats?.data ?? [],
-        }
-    }
+  function mapStateToProps(state) {
+    return {
+      login: state.login,
+      logout: logoutAndRedirect,
+      org,
+      repo,
+      personnes: state.personnes?.data ?? [],
+      salariats: state.salariats?.data ?? [],
+    };
+  }
 
-    const factures = new Salariats({
-        target: svelteTarget,
-        props: mapStateToProps(store.state)
-    });
+  const factures = new Salariats({
+    target: svelteTarget,
+    props: mapStateToProps(store.state),
+  });
   replaceComponent(factures, mapStateToProps);
 });
 
@@ -267,16 +275,16 @@ page("/comptabilite/compte-resultat", ({ querystring }) => {
 
   selectOrgAndRepo(org, repo);
 
-    function mapStateToProps(state){
-        return {
-            login: state.login,
-            logout: logoutAndRedirect,
-            achats: getAchats(state) ?? [],
-            org,
-            repo,
-            ophn: state.opérationsHautNiveauByYear,
-        }
-    }
+  function mapStateToProps(state) {
+    return {
+      login: state.login,
+      logout: logoutAndRedirect,
+      achats: getAchats(state) ?? [],
+      org,
+      repo,
+      ophn: state.opérationsHautNiveauByYear,
+    };
+  }
 
   const factures = new CompteResultat({
     target: svelteTarget,

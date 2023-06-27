@@ -16,10 +16,8 @@
 
   function getAnneesDispo(anneesDispo) {
     let listeAnnees = [];
-    let annee = anneesDispo.next();
-    while (!annee.done) {
-      listeAnnees.push(annee.value);
-      annee = anneesDispo.next();
+    for (const a of anneesDispo) {
+      listeAnnees.push(a);
     }
     return listeAnnees;
   }
@@ -41,9 +39,7 @@
   }
 
   $: {
-    if (ophn !== undefined) {
-      console.log(ophn);
-      console.log(ophn.keys());
+    if (ophn !== undefined && annee == undefined) {
       listeAnnees = getAnneesDispo(ophn.keys());
       annee = listeAnnees[listeAnnees.length - 1];
     }
