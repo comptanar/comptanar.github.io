@@ -28,14 +28,14 @@
     let type;
 
     function clientClick(e){
-        const prochainCompteClient = créerProchainCompteClient(personnes.map(({compteClient}) => compteClient))
+        const prochainCompteClient = créerProchainCompteClient(personnes.map(({compteClient}) => compteClient).filter(x => !!x))
         personneEnModification.compteClient = prochainCompteClient
         // PPP vérifier que ça met bien à jour le client
     }
 
     function sauvegarderFormulaire() {
         editPromise = envoyerPersonne({
-            identifiant: personneEnModification.identifiant,
+            ...personneEnModification,
             type,
             nom,
         });
