@@ -22,9 +22,15 @@
     export let repo
     /** @type {EnvoiFactureClient[]} */
     export let envoiFactureàClients
+    /** @type {Personne[] | undefined} */
     export let personnes 
 
     console.log('personnes', personnes)
+
+    /** @type {Personne[] | undefined} */
+    let clients
+
+    $: clients = personnes?.filter(({compteClient}) => !!compteClient)
 
     // https://www.economie.gouv.fr/cedef/taux-tva-france-et-union-europeenne
     const tauxTVAPossibles = [
@@ -67,8 +73,11 @@
 
     // svelte gère mal le bind sur un input@type=date, donc gestion manuelle
     let dateFacture = format(factureEnModification.date, 'yyyy-MM-dd')
-
     $: factureEnModification.date = new Date(dateFacture)
+
+    /** @type {Personne} */
+    let client
+    $: factureEnModification.compteClient = client?.compteClient
 
     /**
      * 
@@ -103,7 +112,7 @@
             ? []
             : envoiFactureàClients.sort((a, b) => b.date.getTime() - a.date.getTime()).map(facture => [
                 { content: displayDate(facture.date), title: format(facture.date, 'd MMMM yyyy', {locale: fr}) },
-                { content: facture.compteClient },
+                { content: clients.find(c => c.compteClient === facture.compteClient)?.nom || 'client non trouvé' },
                 { content: formatMontant(calculMontantTTCFacture(facture)) },
                 { content: formatMontant(calculMontantHTFacture(facture)) },
             ])
@@ -174,7 +183,16 @@
                 <fieldset disabled={factureSent && factureSent[Symbol.toStringTag] === 'Promise'}>
                     <label>
                         <div>Client</div>
-                        <input bind:this={formStart} bind:value={factureEnModification.compteClient} placeholder="411xxxx">
+                        {#if !clients || clients.length === 0}
+                            <select disabled></select>
+                        {:else}
+                            <select bind:value={client}>
+                                <option> - </option>
+                                {#each clients as client}
+                                    <option value={client} selected={factureEnModification.compteClient === client.compteClient}>{client.nom}</option>
+                                {/each}
+                            </select>
+                        {/if}
                     </label>
                     <label>
                         <div>Numéro de facture</div>
