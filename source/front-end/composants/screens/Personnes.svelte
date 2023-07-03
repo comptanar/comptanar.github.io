@@ -8,6 +8,7 @@
     import SaveButton from "../SaveButton.svelte";
     import { créerPersonneVide } from "../../../format-données/personnes";
     import { envoyerPersonne, supprimerPersonne } from "../../actions";
+    import { créerProchainCompteClient } from '../../../format-données/comptabilité.js'
 
     export let login;
     export let logout;
@@ -17,6 +18,7 @@
     export let personnes;
 
     let editPromise;
+    /** @type {Personne} */
     let personneEnModification;
     let nom;
 
@@ -24,6 +26,12 @@
     let table;
     let tableConfig;
     let type;
+
+    function clientClick(e){
+        const prochainCompteClient = créerProchainCompteClient(personnes.map(({compteClient}) => compteClient))
+        personneEnModification.compteClient = prochainCompteClient
+        // PPP vérifier que ça met bien à jour le client
+    }
 
     function sauvegarderFormulaire() {
         editPromise = envoyerPersonne({
@@ -96,6 +104,15 @@
                             <option value="Physique">Physique</option>
                         </select>
                     </label>
+                    <section>
+                        <div>Cette personne est un client</div>
+                        {#if personneEnModification.compteClient}
+                            yep! (compte client: <code>{personneEnModification.compteClient}</code>)
+                        {:else}
+                            Nope! En faire un client:
+                            <input type="checkbox" on:click={clientClick}>
+                        {/if}
+                    </section>
 
                     <SaveButton bind:promise={editPromise} />
                     <button type="button" on:click={() => table.edit(undefined)}

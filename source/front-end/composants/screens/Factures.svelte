@@ -8,7 +8,6 @@
 
     import Skeleton from '../Skeleton.svelte'
     import SaveButton from '../SaveButton.svelte'
-    import Loader from '../Loader.svelte'
 
     import Tableau, { action } from '../Tableau.svelte';
     import { displayDate, formatMontant } from '../../stringifiers'
@@ -23,7 +22,10 @@
     export let repo
     /** @type {EnvoiFactureClient[]} */
     export let envoiFactureàClients
-    
+    export let personnes 
+
+    console.log('personnes', personnes)
+
     // https://www.economie.gouv.fr/cedef/taux-tva-france-et-union-europeenne
     const tauxTVAPossibles = [
         {value: 20, text: "20%", selected: true},
