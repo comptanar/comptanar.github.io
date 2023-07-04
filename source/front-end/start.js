@@ -289,7 +289,7 @@ page("/comptabilite/compte-resultat", ({ querystring }) => {
       achats: getAchats(state) ?? [],
       org,
       repo,
-      ophn: state.opérationsHautNiveauByYear,
+      opHautNiveau: state.opérationsHautNiveauByYear,
     };
   }
 

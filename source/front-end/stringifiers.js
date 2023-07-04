@@ -35,14 +35,14 @@ export const formatCompte = (préfixe, suffixe) =>
   (préfixe * Math.pow(10, 6 - préfixe.toString().length) + suffixe).toString();
 
 export function libelleCompte(numCompte) {
-  if (numCompte == "44566") {
+  if (numCompte === "44566") {
     return "dépôt TVA";
   }
   for (const personne of store.state.personnes.data) {
     if (personne.compteAssocié·e == undefined) {
       initCompteSiBesoin(personne, "compteAssocié·e", "641");
     }
-    if (numCompte == personne.compteAssocié·e) {
+    if (numCompte === personne.compteAssocié·e) {
       return personne.nom;
     }
   }

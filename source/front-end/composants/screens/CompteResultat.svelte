@@ -8,23 +8,15 @@
 
   export let login;
   export let logout;
-  export let ophn;
+  export let opHautNiveau;
 
   let data;
   let annee;
   let listeAnnees = [];
 
-  function getAnneesDispo(anneesDispo) {
-    let listeAnnees = [];
-    for (const a of anneesDispo) {
-      listeAnnees.push(a);
-    }
-    return listeAnnees;
-  }
-
   function chargerAnnee() {
-    if (ophn !== undefined) {
-      let listeOpHautNiveau = ophn.get(annee);
+    if (opHautNiveau !== undefined) {
+      let listeOpHautNiveau = opHautNiveau.get(annee);
       let listeOpDeCompte = OpHautNiveauVersOpDeCompte(
         listeOpHautNiveau.opérationsHautNiveau
       );
@@ -39,9 +31,9 @@
   }
 
   $: {
-    if (ophn !== undefined && annee == undefined) {
-      listeAnnees = getAnneesDispo(ophn.keys());
-      annee = listeAnnees[listeAnnees.length - 1];
+    if (opHautNiveau !== undefined && annee === undefined) {
+      listeAnnees = [...opHautNiveau.keys()];
+      annee = listeAnnees.at(-1);
     }
     chargerAnnee();
   }
