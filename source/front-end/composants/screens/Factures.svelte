@@ -223,12 +223,12 @@
                                 </select>
                             </label>
                             <label>
-                                <div>Montant TVA (€)</div>
-                                <output>{calculTVA(ligne)}</output>
+                                <div>Montant TVA</div>
+                                <output>{formatMontant(calculTVA(ligne))}</output>
                             </label>
                             <label>
-                                <div>Montant TTC (€)</div>
-                                <output>{calculTTC(ligne)}</output>
+                                <div>Montant TTC</div>
+                                <output>{formatMontant(calculTTC(ligne))}</output>
                             </label>
                             <button type="button" on:click={e => supprimerLigneFacture(ligne)}>Supprimer ligne</button>
                         </fieldset>
