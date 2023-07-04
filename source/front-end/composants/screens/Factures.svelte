@@ -193,6 +193,7 @@
                                 {/each}
                             </select>
                         {/if}
+                        <a href="/comptabilite/personnes?org={org}&repo={repo}">Rajouter un client</a>
                     </label>
                     <label>
                         <div>Numéro de facture</div>
