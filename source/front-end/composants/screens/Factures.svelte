@@ -112,7 +112,7 @@
             ? []
             : envoiFactureàClients.sort((a, b) => b.date.getTime() - a.date.getTime()).map(facture => [
                 { content: displayDate(facture.date), title: format(facture.date, 'd MMMM yyyy', {locale: fr}) },
-                { content: clients.find(c => c.compteClient === facture.compteClient)?.nom || 'client non trouvé' },
+                { content: clients.find(c => c.compteClient === facture.compteClient)?.nom || `client non trouvé (${facture.compteClient})` },
                 { content: formatMontant(calculMontantTTCFacture(facture)) },
                 { content: formatMontant(calculMontantHTFacture(facture)) },
             ])
