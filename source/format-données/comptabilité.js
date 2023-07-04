@@ -41,7 +41,7 @@ export function créerProchainCompteClient(compteClientsExistants){
     const suffixes = compteClientsExistants.map(compte => compte.slice(PRÉFIXE_COMPTE_CLIENT_VENTES.length))
     console.log('suffixes', suffixes)
 
-    suffixes.sort((s1, s2) => parseInt(s1) - parseInt(s2))
+    suffixes.sort((s1, s2) => parseInt(s2) - parseInt(s1))
 
     return PRÉFIXE_COMPTE_CLIENT_VENTES + prochainSuffixe(suffixes[0])
 }
