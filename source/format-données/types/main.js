@@ -9,7 +9,6 @@
  * @property {any} [détails]
  */
 
-
 /**
  * @typedef {Object} BaseOpérationHautNiveau
  * @property {string} identifiantOpération
@@ -31,7 +30,7 @@
  * @property {string} numéroFacture
  * @property {string} compteClient
  * @property {LigneFacture[]} lignes
- * 
+ *
  * @typedef {BaseOpérationHautNiveau & SpécifiqueEnvoiFactureClient} EnvoiFactureClient
  */
 
@@ -39,7 +38,7 @@
  * @typedef {Object} SpécifiquePaiementFactureClient
  * @property {'Paiement facture client'} type
  * @property {string=} numéroFacture
- * 
+ *
  * @typedef {BaseOpérationHautNiveau & SpécifiquePaiementFactureClient} PaiementFactureClient
  */
 
@@ -47,7 +46,7 @@
  * @typedef {Object} SpécifiqueRéceptionFactureFournisseur
  * @property {'Réception facture fournisseur'} type
  * @property {string} compteFournisseur
- * 
+ *
  * @typedef {BaseOpérationHautNiveau & SpécifiqueRéceptionFactureFournisseur} RéceptionFactureFournisseur
  */
 
@@ -55,7 +54,7 @@
  * @typedef {Object} SpécifiquePaiementFactureFournisseur
  * @property {'Paiement facture fournisseur'} type
  * @property {string} compteBancaire
- * 
+ *
  * @typedef {BaseOpérationHautNiveau & SpécifiquePaiementFactureFournisseur} PaiementFactureFournisseur
  */
 
@@ -64,7 +63,7 @@
  * @property {'Fiche de paie'} type
  * @property {Date} débutPériode
  * @property {Date} finPériode
- * 
+ *
  * @typedef {BaseOpérationHautNiveau & SpécifiqueÉmissionFicheDePaie} ÉmissionFicheDePaie
  */
 
@@ -94,6 +93,7 @@
  * @typedef {Object} Salariat
  * @property {string} idPersonne
  * @property {string} identifiant
+
  * @property {Date} débutContrat
  * @property {Date?} finContrat
 */
@@ -104,7 +104,7 @@
  * @property {string} identifiant
  * @property {Date} débutPériode
  * @property {Date?} finPériode
-*/
+ */
 
 /**
  * @template T
