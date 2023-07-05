@@ -30,7 +30,6 @@
     function clientClick(e){
         const prochainCompteClient = créerProchainCompteClient(personnes.map(({compteClient}) => compteClient).filter(x => !!x))
         personneEnModification.compteClient = prochainCompteClient
-        // PPP vérifier que ça met bien à jour le client
     }
 
     function sauvegarderFormulaire() {
@@ -105,12 +104,12 @@
                         </select>
                     </label>
                     <section>
-                        <div>Cette personne est un client</div>
                         {#if personneEnModification.compteClient}
-                            yep! (compte client: <code>{personneEnModification.compteClient}</code>)
+                            <div>Cette personne est un.e client.e</div>
+                            <p>compte client: <code>{personneEnModification.compteClient}</p>
                         {:else}
-                            Nope! En faire un client:
-                            <input type="checkbox" on:click={clientClick}>
+                            <div>Cette personne n'est pas un.e client.e</div>
+                            <button type="button" on:click={clientClick}>En faire un.e client.e</button>
                         {/if}
                     </section>
 
