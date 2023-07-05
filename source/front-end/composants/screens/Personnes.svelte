@@ -8,6 +8,7 @@
     import SaveButton from "../SaveButton.svelte";
     import { créerPersonneVide } from "../../../format-données/personnes";
     import { envoyerPersonne, supprimerPersonne } from "../../actions";
+    import { créerProchainCompteClient } from '../../../format-données/comptabilité.js'
 
     export let login;
     export let logout;
@@ -17,6 +18,7 @@
     export let personnes;
 
     let editPromise;
+    /** @type {Personne} */
     let personneEnModification;
     let nom;
 
@@ -25,9 +27,14 @@
     let tableConfig;
     let type;
 
+    function clientClick(e){
+        const prochainCompteClient = créerProchainCompteClient(personnes.map(({compteClient}) => compteClient).filter(x => !!x))
+        personneEnModification.compteClient = prochainCompteClient
+    }
+
     function sauvegarderFormulaire() {
         editPromise = envoyerPersonne({
-            identifiant: personneEnModification.identifiant,
+            ...personneEnModification,
             type,
             nom,
         });
@@ -96,6 +103,15 @@
                             <option value="Physique">Physique</option>
                         </select>
                     </label>
+                    <section>
+                        {#if personneEnModification.compteClient}
+                            <div>Cette personne est un.e client.e</div>
+                            <p>compte client: <code>{personneEnModification.compteClient}</p>
+                        {:else}
+                            <div>Cette personne n'est pas un.e client.e</div>
+                            <button type="button" on:click={clientClick}>En faire un.e client.e</button>
+                        {/if}
+                    </section>
 
                     <SaveButton bind:promise={editPromise} />
                     <button type="button" on:click={() => table.edit(undefined)}

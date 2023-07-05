@@ -63,16 +63,14 @@
                 <p>Voici les organisations possibles&nbsp;:</p>
                 <div class="choices">
                     {#each orgs as org}
-                        <article>
+                        <a href="#" on:click={() => selectOrg(org)}>
                             <img
                                 class="avatar big"
                                 src={`https://github.com/${org.login}.png`}
                                 alt=""
                             />
-                            <a href="#" on:click={() => selectOrg(org)}
-                                >{org.login}</a
-                            >
-                        </article>
+                            <span>{org.login}</span>
+                        </a>
                     {/each}
                 </div>
             </section>
@@ -147,19 +145,19 @@
     {/if}
 </Skeleton>
 
-<style>
+<style lang="scss">
     :global(main) > section {
         position: absolute;
-    }
-
-    article {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
     }
 
     .choices {
         display: flex;
         gap: 3em;
+
+        a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
     }
 </style>

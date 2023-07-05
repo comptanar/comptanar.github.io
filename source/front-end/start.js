@@ -150,15 +150,17 @@ page("/comptabilite/factures", ({ querystring }) => {
 
   selectOrgAndRepo(org, repo);
 
-  function mapStateToProps(state) {
+  function mapStateToProps(state){
     return {
-      login: state.login,
-      logout: logoutAndRedirect,
-      org,
-      repo,
-      envoiFactureàClients: getEnvoiFactureÀClients(state),
-    };
+        login: state.login,
+        logout: logoutAndRedirect,
+        org,
+        repo,
+        personnes: state.personnes.data,
+        envoiFactureàClients : getEnvoiFactureÀClients(state)
+    }
   }
+
   const factures = new Factures({
     target: svelteTarget,
     props: mapStateToProps(store.state),
