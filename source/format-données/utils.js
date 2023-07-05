@@ -1,6 +1,6 @@
 // @ts-check
 
-import { parse } from "yaml";
+import { parse } from 'yaml'
 
 /**
  * Parse une chaîne YAML qui représente une liste
@@ -16,19 +16,19 @@ export function parseYamlArray(
   str,
   descriptionFormatAttendu,
   prédicat,
-  reviver = undefined
+  reviver = undefined,
 ) {
-  if (str.trim() === "") return [];
+  if (str.trim() === '') return []
 
-  const parsed = reviver === undefined ? parse(str) : parse(str, reviver);
+  const parsed = reviver === undefined ? parse(str) : parse(str, reviver)
 
-  if (Array.isArray(parsed) && parsed.every(prédicat)) return parsed;
+  if (Array.isArray(parsed) && parsed.every(prédicat)) return parsed
   else {
     throw new TypeError(
       `Problème dans le format de fichier qui n'est pas reconnu (devrait être ${descriptionFormatAttendu}). Début du fichier:\n\n---\n${str.slice(
         0,
-        100
-      )}\n---`
-    );
+        100,
+      )}\n---`,
+    )
   }
 }

@@ -7,7 +7,7 @@
  * @returns {string} // utf-8-encoded base64 string
  */
 export function UTF8ToB64(s) {
-  return btoa(unescape(encodeURIComponent(s)));
+  return btoa(unescape(encodeURIComponent(s)))
 }
 
 /**
@@ -16,5 +16,5 @@ export function UTF8ToB64(s) {
  * @returns {string} // cleartext string
  */
 export function b64ToUTF8(s) {
-  return decodeURIComponent(escape(atob(s)));
+  return decodeURIComponent(escape(atob(s)))
 }

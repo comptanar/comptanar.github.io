@@ -1,12 +1,12 @@
 //@ts-check
 
-import { sum } from "d3-array";
-import "./types/main.js";
+import { sum } from 'd3-array'
+import './types/main.js'
 
-const calculMontantHT = (lignes) => sum(lignes.map((l) => l.montantHT));
+const calculMontantHT = lignes => sum(lignes.map(l => l.montantHT))
 
-const calculTVA = (lignes) =>
-  sum(lignes.map((l) => (l.montantHT * l.tauxTVA) / 100));
+const calculTVA = lignes =>
+  sum(lignes.map(l => (l.montantHT * l.tauxTVA) / 100))
 
 /**
  * @param {EnvoiFactureClient} efc
@@ -15,7 +15,7 @@ const calculTVA = (lignes) =>
 function traduireEnvoiFactureClientEnOpérationsDeCompte(efc) {
   //gérer cas facture vide ??
   if (efc.lignes.length == 0) {
-    return [];
+    return []
   }
 
   //opération client
@@ -23,16 +23,16 @@ function traduireEnvoiFactureClientEnOpérationsDeCompte(efc) {
   const op = {
     compte: efc.compteClient, //gérer cas compte vide
     montant: calculMontantHT(efc.lignes),
-    sens: "Débit",
-  };
+    sens: 'Débit',
+  }
   //opération TVA
   /** @type {OpérationDeCompte} */
   const opTVA = {
-    compte: "44566",
+    compte: '44566',
     montant: calculTVA(efc.lignes),
-    sens: "Crédit",
-  };
-  return [op, opTVA];
+    sens: 'Crédit',
+  }
+  return [op, opTVA]
 }
 
 /**
@@ -43,11 +43,11 @@ function traduireRécéptionFactureFournisseurEnOpérationsDeCompte(rff) {
   /** @type {OpérationDeCompte} */
   const op = {
     compte: rff.compteFournisseur,
-    montant: sum(rff.opérations.map((op) => op.montant)),
-    sens: "Crédit",
-  };
+    montant: sum(rff.opérations.map(op => op.montant)),
+    sens: 'Crédit',
+  }
 
-  return [op];
+  return [op]
 }
 
 /**
@@ -58,11 +58,11 @@ function traduirePaiementFactureFournisseurEnOpérationsDeCompte(rff) {
   /** @type {OpérationDeCompte} */
   const op = {
     compte: rff.compteBancaire,
-    montant: sum(rff.opérations.map((op) => op.montant)),
-    sens: "Crédit",
-  };
+    montant: sum(rff.opérations.map(op => op.montant)),
+    sens: 'Crédit',
+  }
 
-  return [op].concat(rff.opérations);
+  return [op].concat(rff.opérations)
 }
 
 /**
@@ -70,55 +70,55 @@ function traduirePaiementFactureFournisseurEnOpérationsDeCompte(rff) {
  * @returns {OpérationDeCompte[]}
  */
 function traduireÉmissionFicheDePaieEnOpérationsDeCompte(efp) {
-  let res = [];
-  efp.opérations?.forEach((ligneOp) => {
+  let res = []
+  efp.opérations?.forEach(ligneOp => {
     /** @type {OpérationDeCompte} */
     const op = {
       compte: ligneOp.compte,
       montant: ligneOp.montant,
-      sens: "Crédit",
-    };
+      sens: 'Crédit',
+    }
 
-    res.push(op);
-  });
-  return res;
+    res.push(op)
+  })
+  return res
 }
 
 /**
  * @param {OpérationHautNiveau[]} opérationsHautNiveau
  * @returns {OpérationDeCompte[]}
  */
-export default (opérationsHautNiveau) => {
+export default opérationsHautNiveau => {
   /** @type {OpérationDeCompte[]} */
-  let result = [];
+  let result = []
 
   for (const ophn of opérationsHautNiveau) {
-    let newOps;
+    let newOps
     switch (ophn.type) {
-      case "Envoi facture client":
-        newOps = traduireEnvoiFactureClientEnOpérationsDeCompte(ophn);
-        break;
-      case "Paiement facture client":
-        throw "pas implémenté";
-        break;
-      case "Réception facture fournisseur":
-        newOps = traduireRécéptionFactureFournisseurEnOpérationsDeCompte(ophn);
-        break;
-      case "Paiement facture fournisseur":
-        newOps = traduirePaiementFactureFournisseurEnOpérationsDeCompte(ophn);
-        break;
-      case "Fiche de paie":
-        newOps = traduireÉmissionFicheDePaieEnOpérationsDeCompte(ophn);
-        break;
+      case 'Envoi facture client':
+        newOps = traduireEnvoiFactureClientEnOpérationsDeCompte(ophn)
+        break
+      case 'Paiement facture client':
+        throw 'pas implémenté'
+        break
+      case 'Réception facture fournisseur':
+        newOps = traduireRécéptionFactureFournisseurEnOpérationsDeCompte(ophn)
+        break
+      case 'Paiement facture fournisseur':
+        newOps = traduirePaiementFactureFournisseurEnOpérationsDeCompte(ophn)
+        break
+      case 'Fiche de paie':
+        newOps = traduireÉmissionFicheDePaieEnOpérationsDeCompte(ophn)
+        break
 
       default:
         /** @type {never} */
-        const _exhaustiveCheck = ophn;
-        return _exhaustiveCheck;
+        const _exhaustiveCheck = ophn
+        return _exhaustiveCheck
     }
-    result = result.concat(newOps);
+    result = result.concat(newOps)
     //console.log(ophn, newOps)
   }
 
-  return result;
-};
+  return result
+}

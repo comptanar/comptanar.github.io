@@ -7,13 +7,13 @@
  */
 export async function readFileInStream(readableStream) {
   /** @type {Buffer[]} */
-  const chunks = [];
+  const chunks = []
 
   for await (const chunk of readableStream) {
-    chunks.push(chunk);
+    chunks.push(chunk)
   }
 
-  return Buffer.concat(chunks).toString("utf-8");
+  return Buffer.concat(chunks).toString('utf-8')
 }
 
 /**
@@ -23,9 +23,9 @@ export async function readFileInStream(readableStream) {
  */
 export async function writeFileInStream(content, writableStream) {
   return new Promise((resolve, reject) => {
-    writableStream.end(content);
+    writableStream.end(content)
 
-    writableStream.on("finish", resolve);
-    writableStream.on("error", reject);
-  });
+    writableStream.on('finish', resolve)
+    writableStream.on('error', reject)
+  })
 }
