@@ -4,7 +4,7 @@ body {
 }
 
 body {
-  font-family: "Source Sans Pro", Arial, sans-serif;
+  font-family: 'Source Sans Pro', Arial, sans-serif;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -69,19 +69,19 @@ h6 {
   font-size: 1em;
 }
 
-body>main.fullwidth {
+body > main.fullwidth {
   padding: 3rem;
   margin: 0;
   height: 100vh;
   overflow: auto;
 }
 
-body>main {
+body > main {
   min-height: 60vh;
   padding: 3rem;
 }
 
-body>header {
+body > header {
   padding: 2rem 3rem;
   border-bottom: 1px solid black;
   background-color: white;
@@ -156,7 +156,7 @@ form button {
 }
 
 form .button-with-loader,
-form>fieldset>button:not(:last-child) {
+form > fieldset > button:not(:last-child) {
   margin-bottom: 1rem;
 }
 

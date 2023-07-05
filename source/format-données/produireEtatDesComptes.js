@@ -6,8 +6,8 @@
  */
 function isActif(compte) {
   return (
-    compte.startsWith("2") || compte.startsWith("3") || compte.startsWith("5")
-  );
+    compte.startsWith('2') || compte.startsWith('3') || compte.startsWith('5')
+  )
 }
 
 /**
@@ -17,27 +17,27 @@ function isActif(compte) {
  * @param {string} compte
  */
 function isPassif(compte) {
-  return compte.startsWith("1");
+  return compte.startsWith('1')
 }
 
 /**
  * @param {string} compte
  */
 function isCompteDeTiers(compte) {
-  return compte.startsWith("4");
+  return compte.startsWith('4')
 }
 
 /**
  * @param {string} compte
  */
 function isProduit(compte) {
-  return compte.startsWith("7");
+  return compte.startsWith('7')
 }
 /**
  * @param {string} compte
  */
 function isCharge(compte) {
-  return compte.startsWith("6");
+  return compte.startsWith('6')
 }
 
 /**
@@ -50,31 +50,31 @@ Un compte de produits augmente avec un crédit diminue avec un débit.
  * @param {OpérationDeCompte[]} opérationsDeCompte 
  * @returns {Map<string, number>}
  */
-export default (opérationsDeCompte) => {
+export default opérationsDeCompte => {
   /** @type {Map<string, number>} */
-  const étatDesComptes = new Map();
-  console.log(opérationsDeCompte);
+  const étatDesComptes = new Map()
+  console.log(opérationsDeCompte)
 
   for (const { sens, compte, montant } of opérationsDeCompte) {
-    if (compte == undefined || compte == "") {
-      throw new Error("Nom de compte vide");
+    if (compte == undefined || compte == '') {
+      throw new Error('Nom de compte vide')
     }
 
-    const montantActuel = étatDesComptes.get(compte) || 0;
+    const montantActuel = étatDesComptes.get(compte) || 0
 
     if (isActif(compte) || isCharge(compte)) {
-      if (sens === "Débit") étatDesComptes.set(compte, montantActuel + montant);
-      else étatDesComptes.set(compte, montantActuel - montant);
+      if (sens === 'Débit') étatDesComptes.set(compte, montantActuel + montant)
+      else étatDesComptes.set(compte, montantActuel - montant)
     } else {
       if (isPassif(compte) || isProduit(compte) || isCompteDeTiers(compte)) {
-        if (sens === "Crédit")
-          étatDesComptes.set(compte, montantActuel + montant);
-        else étatDesComptes.set(compte, montantActuel - montant);
+        if (sens === 'Crédit')
+          étatDesComptes.set(compte, montantActuel + montant)
+        else étatDesComptes.set(compte, montantActuel - montant)
       } else {
-        throw new Error(`Compte inconnu: ${compte}`);
+        throw new Error(`Compte inconnu: ${compte}`)
       }
     }
   }
 
-  return étatDesComptes;
-};
+  return étatDesComptes
+}

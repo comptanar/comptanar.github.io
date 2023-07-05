@@ -1,5 +1,5 @@
 name: Build and Deploy
-on: 
+on:
   push:
     branches:
       - main
@@ -16,7 +16,7 @@ jobs:
         run: |
           npm install
           npm run build
-      
+
       - name: Add and commit
         run: |
           git config user.name "github-actions[bot]"
@@ -27,4 +27,4 @@ jobs:
 
       - name: Deploy 🚀
         run: |
-           git push origin online --force
+          git push origin online --force
