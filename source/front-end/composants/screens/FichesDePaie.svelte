@@ -1,10 +1,11 @@
 <script>
     // @ts-check
 
-    import { format } from "date-fns";
+    import { format, startOfMonth, endOfMonth } from "date-fns";
     import { fr } from "date-fns/locale";
     import { tick } from "svelte";
 
+    import DateInput from "../DateInput.svelte";
     import Skeleton from "../Skeleton.svelte";
     import Tableau, { action } from "../Tableau.svelte";
     import SaveButton from "../SaveButton.svelte";
@@ -40,9 +41,17 @@
     let rémunération;
     let sécu;
     let prélèvement;
-    let dateÉmission;
+    let dateÉmission = new Date();
+    
+    let année = (new Date()).getFullYear()
+    let mois = (new Date()).getMonth()
     let débutPériode;
     let finPériode;
+
+    console.log('Fiche mois', mois)
+
+    $: débutPériode = startOfMonth(new Date(année, mois));
+    $: finPériode = endOfMonth(new Date(année, mois));
 
     /**
      * @param {ÉmissionFicheDePaie} fiche
@@ -119,7 +128,6 @@
                 "yyyy-MM-dd"
             );
             finPériode = format(ficheEnModification.finPériode, "yyyy-MM-dd");
-            dateÉmission = format(ficheEnModification.date, "yyyy-MM-dd");
         } else {
             ficheEnModification = créerFicheDePaieVide();
         }
@@ -178,6 +186,55 @@
                         editPromise[Symbol.toStringTag] === "Promise"}
                 >
                     <label>
+                        <div>Date d'émission de la fiche de paie</div>
+                        <DateInput bind:date={dateÉmission} />
+                    </label>
+                    <!--
+                        Proposer sélection mois/année
+                        Défaut : mois précédent ou mois en cours
+
+                        ça remplit tout seul les dates de début et fin
+                        et option pour 
+
+
+                    -->
+
+                    <div class="input-group">
+                        <label>
+                            <div>Mois</div>
+                            <select bind:value={mois}>
+                                <option value={0}>Janvier</option>
+                                <option value={1}>Février</option>
+                                <option value={2}>Mars</option>
+                                <option value={3}>Avril</option>
+                                <option value={4}>Mai</option>
+                                <option value={5}>Juin</option>
+                                <option value={6}>Juillet</option>
+                                <option value={7}>Août</option>
+                                <option value={8}>Septembre</option>
+                                <option value={9}>Octobre</option>
+                                <option value={10}>Novembre</option>
+                                <option value={11}>Décembre</option>
+                            </select>
+                        </label>
+                        <label>
+                            <div>Année</div>
+                            <input bind:value={année} type="number" step="1"/>
+                        </label>
+                    </div>
+
+                    <div class="input-group">
+                        <label>
+                            <div>Début de la période</div>
+                            <DateInput bind:date={débutPériode}/>
+                        </label>
+                        <label>
+                            <div>Fin de la période</div>
+                            <DateInput bind:date={finPériode}/>
+                        </label>
+                    </div>
+
+                    <label>
                         <div>Salarié⋅e</div>
                         <input
                             bind:this={formStart}
@@ -208,20 +265,6 @@
                             type="number"
                         />
                     </label>
-                    <label>
-                        <div>Date d'émission de la fiche de paie</div>
-                        <input bind:value={dateÉmission} type="date" />
-                    </label>
-                    <div class="input-group">
-                        <label>
-                            <div>Début de la période</div>
-                            <input bind:value={débutPériode} type="date" />
-                        </label>
-                        <label>
-                            <div>Fin de la période</div>
-                            <input bind:value={finPériode} type="date" />
-                        </label>
-                    </div>
 
                     <SaveButton bind:promise={editPromise} />
                     <button type="button" on:click={() => table.edit(undefined)}
