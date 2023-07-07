@@ -25,12 +25,14 @@
     export let logout;
     export let org;
     export let repo;
-    /** @type Personne[] */
+    /** @type {Personne[]} */
     export let personnes;
-    /** @type ÉmissionFicheDePaie[] */
+    /** @type {Salariat[]} */
+    export let salariats;
+    /** @type {ÉmissionFicheDePaie[]} */
     export let fichesDePaie;
 
-    /** @type ÉmissionFicheDePaie */
+    /** @type {ÉmissionFicheDePaie} */
     let ficheEnModification;
     let editPromise;
     let table;
@@ -123,11 +125,6 @@
             rémunération = montantPour(641);
             sécu = montantPour(645);
             prélèvement = montantPour(4421);
-            débutPériode = format(
-                ficheEnModification.débutPériode,
-                "yyyy-MM-dd"
-            );
-            finPériode = format(ficheEnModification.finPériode, "yyyy-MM-dd");
         } else {
             ficheEnModification = créerFicheDePaieVide();
         }
