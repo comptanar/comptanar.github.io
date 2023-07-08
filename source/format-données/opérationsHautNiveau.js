@@ -67,7 +67,10 @@ export function créerFicheDePaieVide() {
     débutPériode: date,
     finPériode: date,
     identifiantOpération: Math.random().toString(32).slice(2),
-    opérations: [],
+    salarié·e: '',
+    rémunération: NaN,
+    cotisations: NaN,
+    prélèvementÀLaSource: NaN,
   }
 }
 
