@@ -61,8 +61,13 @@
 /**
  * @typedef {Object} SpécifiqueÉmissionFicheDePaie
  * @property {'Fiche de paie'} type
+ * @property {string} salarié·e // identifiant de personne
  * @property {Date} débutPériode
  * @property {Date} finPériode
+ * @property {number} rémunération
+ * @property {number} cotisations
+ * @property {number} prélèvementÀLaSource
+ *
  *
  * @typedef {BaseOpérationHautNiveau & SpécifiqueÉmissionFicheDePaie} ÉmissionFicheDePaie
  */
@@ -93,10 +98,9 @@
  * @typedef {Object} Salariat
  * @property {string} idPersonne
  * @property {string} identifiant
-
  * @property {Date} débutContrat
  * @property {Date?} finContrat
-*/
+ */
 
 /**
  * @typedef {Object} Membre

@@ -1,8 +1,7 @@
 <script>
     // @ts-check
 
-    import { format, startOfMonth, endOfMonth } from "date-fns";
-    import { fr } from "date-fns/locale";
+    import { startOfMonth, endOfMonth } from "date-fns";
     import { tick } from "svelte";
 
     import DateInput from "../DateInput.svelte";
@@ -11,8 +10,8 @@
     import SaveButton from "../SaveButton.svelte";
     import {
         displayDate,
-        afficherSommeOpérations,
-        formatCompte,
+        formatDate,
+        formatMontant
     } from "../../stringifiers";
     import {
         envoyerFicheDePaie,
@@ -26,72 +25,48 @@
     export let org;
     export let repo;
     /** @type {Personne[]} */
-    export let personnes;
+    export let personnes = [];
     /** @type {Salariat[]} */
-    export let salariats;
+    export let salariats = [];
     /** @type {ÉmissionFicheDePaie[]} */
     export let fichesDePaie;
 
-    /** @type {ÉmissionFicheDePaie} */
-    let ficheEnModification;
     let editPromise;
     let table;
-    let formStart;
 
-    // Données du formulaire
-    let salarié·e;
-    let rémunération;
-    let sécu;
-    let prélèvement;
-    let dateÉmission = new Date();
+    let salariatsIds
+    let salarié·es
+
+    $: salariatsIds = new Set(salariats.map(({idPersonne}) => idPersonne))
+    $: salarié·es = personnes.filter(({identifiant}) => salariatsIds.has(identifiant))
+
+    /** @type {ÉmissionFicheDePaie} */
+    let ficheEnModification = créerFicheDePaieVide();
+
+    /** @type {Personne} */
+    let salarié·e
+    $: ficheEnModification.salarié·e = salarié·e?.identifiant
     
     let année = (new Date()).getFullYear()
     let mois = (new Date()).getMonth()
-    let débutPériode;
-    let finPériode;
 
-    console.log('Fiche mois', mois)
-
-    $: débutPériode = startOfMonth(new Date(année, mois));
-    $: finPériode = endOfMonth(new Date(année, mois));
+    $: ficheEnModification.débutPériode = startOfMonth(new Date(année, mois));
+    $: ficheEnModification.finPériode = endOfMonth(new Date(année, mois));
 
     /**
      * @param {ÉmissionFicheDePaie} fiche
      * @returns {string}
      */
-    function salarié·eForFiche(fiche) {
-        const compteRémunéré = fiche.opérations.find((f) =>
-            f.compte.startsWith("641")
-        );
-        if (compteRémunéré === undefined) {
-            return "";
-        }
-        const personne = personnes.find(
-            (p) => p.compteAssocié·e === compteRémunéré.compte
-        );
-        return personne.nom;
+    function nomSalarié·eForFiche(fiche) {
+        const personne = personnes.find(({identifiant}) => fiche.salarié·e === identifiant);
+        return personne?.nom;
     }
 
     function sauvegarderFiche() {
-        const personne = personnes.find((p) => p.nom === salarié·e);
-
-        editPromise = initCompteSiBesoin(
-            personne,
-            "compteAssocié·e",
-            "641"
-        ).then((_) =>
-            envoyerFicheDePaie({
-                identifiantOpération: ficheEnModification.identifiantOpération,
-                compteSalarié·e: personne.compteAssocié·e,
-                nomSalarié·e: salarié·e,
-                rémunération,
-                sécu,
-                prélèvement,
-                dateÉmission,
-                débutPériodeStr: débutPériode,
-                finPériodeStr: finPériode,
-            })
-        );
+        editPromise = envoyerFicheDePaie(
+            ficheEnModification, 
+            personnes.find(({identifiant}) => ficheEnModification.salarié·e === identifiant)
+        )
 
         editPromise.then(() => {
             editPromise = undefined;
@@ -109,28 +84,9 @@
      * @param {ÉmissionFicheDePaie} fiche
      */
     async function màjFormulaire(fiche) {
-        if (fiche) {
-            ficheEnModification = fiche;
-            const extraireSuffixe = (compte) =>
-                Number.parseInt(compte.slice(3));
-            const suffixe = extraireSuffixe(
-                ficheEnModification.opérations[0]?.compte
-            );
-            const montantPour = (préfixe) =>
-                ficheEnModification.opérations.find(
-                    (x) => x.compte === formatCompte(préfixe, suffixe)
-                ).montant;
-
-            salarié·e = salarié·eForFiche(ficheEnModification);
-            rémunération = montantPour(641);
-            sécu = montantPour(645);
-            prélèvement = montantPour(4421);
-        } else {
-            ficheEnModification = créerFicheDePaieVide();
-        }
+        ficheEnModification = fiche || créerFicheDePaieVide();
 
         await tick();
-        formStart?.focus();
     }
 
     function supprimer() {
@@ -142,27 +98,22 @@
     $: tableConfig = {
         placeholder:
             "Sélectionne une fiche de paie pour en voir le détail et la modifier",
-        columns: ["Date d'émission", "Période", "Salarié⋅e", "Montant"],
+        columns: ["Date d'émission", "Période", "Salarié⋅e", "Net après prélèvement à la source", "Coût pour l'entreprise"],
         globalActions: [
             action(() => table.edit(-1), "Nouvelle fiche", "Alt+N"),
         ],
         data: fichesDePaie?.map((fiche) => [
             {
                 content: displayDate(fiche.date),
-                title: format(fiche.date, "d MMMM yyyy", { locale: fr }),
+                title: formatDate(fiche.date),
             },
             {
-                content: `${displayDate(fiche.débutPériode)} 🠒 ${displayDate(
-                    fiche.finPériode
-                )}`,
-                title: `${format(fiche.débutPériode, "d MMMM yyyy", {
-                    locale: fr,
-                })} 🠒 ${format(fiche.finPériode, "d MMMM yyyy", {
-                    locale: fr,
-                })}`,
+                content: `${displayDate(fiche.débutPériode)} 🠒 ${displayDate(fiche.finPériode)}`,
+                title: `${formatDate(fiche.débutPériode)} 🠒 ${formatDate(fiche.finPériode)}`,
             },
-            { content: salarié·eForFiche(fiche) },
-            { content: afficherSommeOpérations(fiche.opérations) },
+            { content: nomSalarié·eForFiche(fiche) },
+            { content: formatMontant(fiche.rémunération) },
+            { content: formatMontant(fiche.rémunération + fiche.cotisations + fiche.prélèvementÀLaSource) },
         ]),
     };
 </script>
@@ -184,17 +135,8 @@
                 >
                     <label>
                         <div>Date d'émission de la fiche de paie</div>
-                        <DateInput bind:date={dateÉmission} />
+                        <DateInput bind:date={ficheEnModification.date}/>
                     </label>
-                    <!--
-                        Proposer sélection mois/année
-                        Défaut : mois précédent ou mois en cours
-
-                        ça remplit tout seul les dates de début et fin
-                        et option pour 
-
-
-                    -->
 
                     <div class="input-group">
                         <label>
@@ -223,41 +165,41 @@
                     <div class="input-group">
                         <label>
                             <div>Début de la période</div>
-                            <DateInput bind:date={débutPériode}/>
+                            <DateInput bind:date={ficheEnModification.débutPériode}/>
                         </label>
                         <label>
                             <div>Fin de la période</div>
-                            <DateInput bind:date={finPériode}/>
+                            <DateInput bind:date={ficheEnModification.finPériode}/>
                         </label>
                     </div>
 
                     <label>
                         <div>Salarié⋅e</div>
-                        <input
-                            bind:this={formStart}
-                            bind:value={salarié·e}
-                            type="text"
-                        />
+                        <select bind:value={salarié·e}>
+                            <option> - </option>
+                            {#each salarié·es as salarié·e}
+                                <option value={salarié·e} selected={ficheEnModification.salarié·e === salarié·e.identifiant}>{salarié·e.nom}</option>
+                            {/each}
+                        </select>
                     </label>
                     <label>
                         <div>Net payé (€)</div>
                         <input
-                            bind:value={rémunération}
+                            bind:value={ficheEnModification.rémunération}
                             step="0.01"
                             type="number"
                         />
                     </label>
                     <label>
                         <div>
-                            Total des cotisations et contributions (À déduire)
-                            (€)
+                            Total des cotisations et contributions (à calculer dans la fiche de paie) (€)
                         </div>
-                        <input bind:value={sécu} step="0.01" type="number" />
+                        <input bind:value={ficheEnModification.cotisations} step="0.01" type="number" />
                     </label>
                     <label>
                         <div>Impôt sur le revenu prélevé à la source (€)</div>
                         <input
-                            bind:value={prélèvement}
+                            bind:value={ficheEnModification.prélèvementÀLaSource}
                             step="0.01"
                             type="number"
                         />
