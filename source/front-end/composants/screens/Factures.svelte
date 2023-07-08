@@ -62,12 +62,6 @@
         return sum(lignes.map(({montantHT}) => montantHT))
     }
 
-
-    // élément <input> qui correspond toujours au premier champ du formulaire d'édition
-    let formStart
-
-
-
     /** @type {EnvoiFactureÀClient} */
     let factureEnModification = créerEnvoiFactureÀClientVide()
 
@@ -146,11 +140,6 @@
         
         // On attend que Svelte ai redessiné la vue
         await tick()
-        // puis on met le focus sur le premier champ du formulaire, comme ça on peut
-        // directement commencer à le remplir sans devoir cliquer dedans
-        if (formStart) {
-            formStart.focus()
-        }
     }
 
     function annulerÉdition() {
