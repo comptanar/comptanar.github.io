@@ -398,39 +398,3 @@ export const supprimerSalariat = ajouterRéessai(salariat => {
     },
   )
 }, syncSalariats)
-
-export const initCompteSiBesoin = ajouterRéessai(
-  (personne, compte, préfixe) => {
-    if (personne[compte] === undefined) {
-      /** @type {Array<string>} */
-      const autresComptes = store.state.personnes.data
-        .map(p => p[compte])
-        .filter(c => c !== undefined)
-      const autresSuffixes = autresComptes
-        .map(c => c.replace(préfixe, ''))
-        .sort()
-
-      const dernierSuffixeUtilisé = autresSuffixes[autresSuffixes.length - 1]
-      const suffixe = dernierSuffixeUtilisé + 1
-      const nouveauCompte = formatCompte(préfixe, suffixe)
-
-      personne[compte] = nouveauCompte
-
-      store.mutations.updatePersonne(personne)
-      const sha = store.state.personnes.sha
-
-      return githubAsDatabase
-        .writePersonnes(sha, store.state.personnes.data)
-        .then(
-          ({
-            data: {
-              content: { sha },
-            },
-          }) => {
-            return store.mutations.updatePersonnesSha(sha)
-          },
-        )
-    }
-  },
-  syncPersonnes,
-)

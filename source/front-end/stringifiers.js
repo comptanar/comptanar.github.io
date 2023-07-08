@@ -4,7 +4,6 @@ import { sum } from 'd3-array'
 import { differenceInDays, format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import store from './store.js'
-import { initCompteSiBesoin } from './actions.js'
 
 /**
  *
@@ -48,9 +47,6 @@ export function libelleCompte(numCompte) {
     return 'dépôt TVA'
   }
   for (const personne of store.state.personnes.data) {
-    if (personne.compteAssocié·e == undefined) {
-      initCompteSiBesoin(personne, 'compteAssocié·e', '641')
-    }
     if (numCompte === personne.compteAssocié·e) {
       return personne.nom
     }

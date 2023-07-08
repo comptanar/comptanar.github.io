@@ -15,8 +15,7 @@
     } from "../../stringifiers";
     import {
         envoyerFicheDePaie,
-        initCompteSiBesoin,
-        supprimerOpérationHautNiveau,
+        supprimerOpérationHautNiveau
     } from "../../actions";
     import { créerFicheDePaieVide } from "../../../format-données/opérationsHautNiveau";
 
