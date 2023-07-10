@@ -226,6 +226,6 @@ const getSpecificOp = opType => state => {
     : undefined
 }
 
-export const getEnvoiFactureÀClients = getSpecificOp('Envoi facture client')
+export const getEnvoiFactureÀClients = getSpecificOp('Envoi facture à client')
 export const getFichesDePaie = getSpecificOp('Fiche de paie')
 export const getAchats = getSpecificOp('Réception facture fournisseur')

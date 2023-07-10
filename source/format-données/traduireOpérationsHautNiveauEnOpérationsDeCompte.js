@@ -9,10 +9,10 @@ const calculTVA = lignes =>
   sum(lignes.map(l => (l.montantHT * l.tauxTVA) / 100))
 
 /**
- * @param {EnvoiFactureClient} efc
+ * @param {EnvoiFactureÀClient} efc
  * @returns {OpérationDeCompte[]}
  */
-function traduireEnvoiFactureClientEnOpérationsDeCompte(efc) {
+function traduireEnvoiFactureÀClientEnOpérationsDeCompte(efc) {
   //gérer cas facture vide ??
   if (efc.lignes.length == 0) {
     return []
@@ -95,8 +95,8 @@ export default opérationsHautNiveau => {
   for (const ophn of opérationsHautNiveau) {
     let newOps
     switch (ophn.type) {
-      case 'Envoi facture client':
-        newOps = traduireEnvoiFactureClientEnOpérationsDeCompte(ophn)
+      case 'Envoi facture à client':
+        newOps = traduireEnvoiFactureÀClientEnOpérationsDeCompte(ophn)
         break
       case 'Paiement facture client':
         throw 'pas implémenté'
