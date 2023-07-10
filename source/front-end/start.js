@@ -156,7 +156,7 @@ page('/comptabilite/factures', ({ querystring }) => {
       logout: logoutAndRedirect,
       org,
       repo,
-      personnes: state.personnes.data,
+      personnes: state.personnes?.data ?? [],
       envoiFactureàClients: getEnvoiFactureÀClients(state),
     }
   }
