@@ -107,8 +107,8 @@
                 title: formatDate(fiche.date),
             },
             {
-                content: `${displayDate(fiche.débutPériode)} 🠒 ${displayDate(fiche.finPériode)}`,
-                title: `${formatDate(fiche.débutPériode)} 🠒 ${formatDate(fiche.finPériode)}`,
+                content: `${displayDate(fiche.débutPériode)} → ${displayDate(fiche.finPériode)}`,
+                title: `${formatDate(fiche.débutPériode)} → ${formatDate(fiche.finPériode)}`,
             },
             { content: nomSalarié·eForFiche(fiche) },
             { content: formatMontant(fiche.rémunération) },
