@@ -4,6 +4,8 @@ import Store from 'baredux'
 
 import { rememberToken } from './localStorage.js'
 
+import '../format-données/types/main.js'
+
 /**
  * @typedef {{
  *      githubToken: string,
