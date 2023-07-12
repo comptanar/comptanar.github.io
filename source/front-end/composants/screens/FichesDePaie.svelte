@@ -34,6 +34,7 @@
     let table;
 
     let salariatsIds
+    /** @type {Personne[]} */
     let salarié·es
 
     $: salariatsIds = new Set(salariats.map(({idPersonne}) => idPersonne))
@@ -44,7 +45,13 @@
 
     /** @type {Personne} */
     let salarié·e
+
+    function majsalarié·e(ficheEnModification){
+        salarié·e = salarié·es.find(({identifiant}) => ficheEnModification.salarié·e === identifiant);
+    }
+
     $: ficheEnModification.salarié·e = salarié·e?.identifiant
+    $: majsalarié·e(ficheEnModification)
     
     let année;
     let mois;
@@ -62,13 +69,13 @@
     $: remplirMoisEtAnnée(ficheEnModification.débutPériode)
     $: préRemplirPériode(mois, année)
 
-    
+
     /**
      * @param {ÉmissionFicheDePaie} fiche
      * @returns {string}
      */
     function nomSalarié·eForFiche(fiche) {
-        const personne = personnes.find(({identifiant}) => fiche.salarié·e === identifiant);
+        const personne = salarié·es.find(({identifiant}) => fiche.salarié·e === identifiant);
         return personne?.nom;
     }
 
