@@ -25,13 +25,13 @@
  */
 
 /**
- * @typedef {Object} SpécifiqueEnvoiFactureClient
- * @property {'Envoi facture client'} type
+ * @typedef {Object} SpécifiqueEnvoiFactureÀClient
+ * @property {'Envoi facture à client'} type
  * @property {string} numéroFacture
  * @property {string} compteClient
  * @property {LigneFacture[]} lignes
  *
- * @typedef {BaseOpérationHautNiveau & SpécifiqueEnvoiFactureClient} EnvoiFactureClient
+ * @typedef {BaseOpérationHautNiveau & SpécifiqueEnvoiFactureÀClient} EnvoiFactureÀClient
  */
 
 /**
@@ -69,7 +69,7 @@
 
 /** 
     @typedef {
-        EnvoiFactureClient | 
+        EnvoiFactureÀClient | 
         PaiementFactureClient |
         RéceptionFactureFournisseur |
         PaiementFactureFournisseur |

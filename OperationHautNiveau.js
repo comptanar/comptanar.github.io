@@ -6,9 +6,9 @@ import './types.js'
  * Ce fichier n'existe que pour faire des tests de types statiques
  */
 
-/** @type {EnvoiFactureClient} */
+/** @type {EnvoiFactureÀClient} */
 let op1 = {
-  type: 'Envoi facture client',
+  type: 'Envoi facture à client',
   date: new Date(),
   identifiantOpération: 'azer',
   numéroFacture: 'F2022-10-001',

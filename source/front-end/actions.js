@@ -221,7 +221,7 @@ export const supprimerOpérationHautNiveau = ajouterRéessai(
 
 /**
  *
- * @param {EnvoiFactureClient} envoiFactureÀClient
+ * @param {EnvoiFactureÀClient} envoiFactureÀClient
  * @returns {Promise<any>} // Résout quand l'opération a bien été sauvegardée
  */
 export function sauvegarderEnvoiFactureÀClient(envoiFactureÀClient) {

@@ -20,7 +20,7 @@
     export let logout
     export let org
     export let repo
-    /** @type {EnvoiFactureClient[]} */
+    /** @type {EnvoiFactureÀClient[]} */
     export let envoiFactureàClients
     /** @type {Personne[] | undefined} */
     export let personnes 
@@ -47,7 +47,7 @@
     }
 
     /**
-     * @param {EnvoiFactureClient} _
+     * @param {EnvoiFactureÀClient} _
      * @returns {number}
      */
     function calculMontantTTCFacture({lignes}){
@@ -55,7 +55,7 @@
     }    
     
     /**
-     * @param {EnvoiFactureClient} _
+     * @param {EnvoiFactureÀClient} _
      * @returns {number}
      */
     function calculMontantHTFacture({lignes}){
@@ -68,7 +68,7 @@
 
 
 
-    /** @type {EnvoiFactureClient} */
+    /** @type {EnvoiFactureÀClient} */
     let factureEnModification = créerEnvoiFactureÀClientVide()
 
     // svelte gère mal le bind sur un input@type=date, donc gestion manuelle
@@ -138,7 +138,7 @@
      * on ne peut pas facilement utiliser le data binding de Svelte, donc on fait la mise à jour à
      * la main quand on en a besoin avec cette fonction.
      * 
-     * @param {EnvoiFactureClient} f
+     * @param {EnvoiFactureÀClient} f
      */
     async function màjFormulaire(f) {
         factureEnModification = f === undefined ? créerEnvoiFactureÀClientVide() : f

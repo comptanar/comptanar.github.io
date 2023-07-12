@@ -37,11 +37,11 @@ export function stringifyOpérationsHautNiveauYaml(ops) {
 }
 
 /**
- * @returns {EnvoiFactureClient}
+ * @returns {EnvoiFactureÀClient}
  */
 export function créerEnvoiFactureÀClientVide() {
   return {
-    type: 'Envoi facture client',
+    type: 'Envoi facture à client',
     numéroFacture: '',
     date: new Date(),
     compteClient: '',
