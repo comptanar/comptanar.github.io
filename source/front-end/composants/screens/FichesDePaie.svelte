@@ -46,12 +46,23 @@
     let salarié·e
     $: ficheEnModification.salarié·e = salarié·e?.identifiant
     
-    let année = (new Date()).getFullYear()
-    let mois = (new Date()).getMonth()
+    let année;
+    let mois;
 
-    $: ficheEnModification.débutPériode = startOfMonth(new Date(année, mois));
-    $: ficheEnModification.finPériode = endOfMonth(new Date(année, mois));
+    function remplirMoisEtAnnée(débutPériode){
+        année = débutPériode.getFullYear()
+        mois = débutPériode.getMonth()
+    }
 
+    function préRemplirPériode(mois, année){
+        ficheEnModification.débutPériode = startOfMonth(new Date(année, mois));
+        ficheEnModification.finPériode = endOfMonth(new Date(année, mois));
+    }
+
+    $: remplirMoisEtAnnée(ficheEnModification.débutPériode)
+    $: préRemplirPériode(mois, année)
+
+    
     /**
      * @param {ÉmissionFicheDePaie} fiche
      * @returns {string}
