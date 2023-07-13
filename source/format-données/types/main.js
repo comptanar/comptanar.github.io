@@ -46,6 +46,7 @@
  * @typedef {Object} SpécifiqueRéceptionFactureFournisseur
  * @property {'Réception facture fournisseur'} type
  * @property {string} compteFournisseur
+ * @property {LigneFacture[]} lignes
  *
  * @typedef {BaseOpérationHautNiveau & SpécifiqueRéceptionFactureFournisseur} RéceptionFactureFournisseur
  */

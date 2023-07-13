@@ -33,6 +33,19 @@ function prochainSuffixe(précédent) {
 }
 
 /**
+ * Cette fonction fait ce qu'elle peut pour approximer le taux de TVA
+ * en faisant notamment l'hypothèse que le taux de TVA ne peut avoir qu'un seul chiffre après la virgule
+ * (genre 5,5%)
+ *
+ * @param {number} montantTVA
+ * @param {number} montantHT
+ * @returns {number}
+ */
+export function calculerTauxTVA(montantHT, montantTVA) {
+  return Number(((montantTVA * 100) / montantHT).toFixed(1))
+}
+
+/**
  *
  * @param {string[]} compteClientsExistants
  * @returns
