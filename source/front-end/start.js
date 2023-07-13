@@ -5,7 +5,7 @@ import page from 'page'
 import Welcome from './composants/screens/Welcome.svelte'
 import ChooseOrganisation from './composants/screens/ChooseOrganisation.svelte'
 import Comptabilite from './composants/screens/Comptabilite.svelte'
-import Factures from './composants/screens/Factures.svelte'
+import FacturesVentes from './composants/screens/FacturesVentes.svelte'
 
 import FichesDePaie from './composants/screens/FichesDePaie.svelte'
 import Personnes from './composants/screens/Personnes.svelte'
@@ -139,8 +139,8 @@ page('/comptabilite/', ({ querystring }) => {
   replaceComponent(comptabilite, mapStateToProps)
 })
 
-page('/comptabilite/factures', ({ querystring }) => {
-  console.info('route', '/comptabilite/factures', querystring)
+page('/comptabilite/ventes', ({ querystring }) => {
+  console.info('route', '/comptabilite/ventes', querystring)
   const params = new URLSearchParams(querystring)
 
   const org = params.get('org')
@@ -159,7 +159,7 @@ page('/comptabilite/factures', ({ querystring }) => {
     }
   }
 
-  const factures = new Factures({
+  const factures = new FacturesVentes({
     target: svelteTarget,
     props: mapStateToProps(store.state),
   })
@@ -187,12 +187,12 @@ page('/comptabilite/fiches-de-paie', ({ querystring }) => {
     }
   }
 
-  const factures = new FichesDePaie({
+  const fichesDePaie = new FichesDePaie({
     target: svelteTarget,
     props: mapStateToProps(store.state),
   })
 
-  replaceComponent(factures, mapStateToProps)
+  replaceComponent(fichesDePaie, mapStateToProps)
 })
 
 page('/comptabilite/personnes', ({ querystring }) => {
@@ -214,12 +214,12 @@ page('/comptabilite/personnes', ({ querystring }) => {
     }
   }
 
-  const factures = new Personnes({
+  const personnes = new Personnes({
     target: svelteTarget,
     props: mapStateToProps(store.state),
   })
 
-  replaceComponent(factures, mapStateToProps)
+  replaceComponent(personnes, mapStateToProps)
 })
 
 page('/comptabilite/achats', ({ querystring }) => {
@@ -240,12 +240,12 @@ page('/comptabilite/achats', ({ querystring }) => {
     }
   }
 
-  const factures = new Achats({
+  const achats = new Achats({
     target: svelteTarget,
     props: mapStateToProps(store.state),
   })
 
-  replaceComponent(factures, mapStateToProps)
+  replaceComponent(achats, mapStateToProps)
 })
 
 page('/comptabilite/salariats', ({ querystring }) => {
@@ -266,11 +266,11 @@ page('/comptabilite/salariats', ({ querystring }) => {
     }
   }
 
-  const factures = new Salariats({
+  const composant = new Salariats({
     target: svelteTarget,
     props: mapStateToProps(store.state),
   })
-  replaceComponent(factures, mapStateToProps)
+  replaceComponent(composant, mapStateToProps)
 })
 
 page('/comptabilite/compte-resultat', ({ querystring }) => {
@@ -292,12 +292,12 @@ page('/comptabilite/compte-resultat', ({ querystring }) => {
     }
   }
 
-  const factures = new CompteResultat({
+  const composant = new CompteResultat({
     target: svelteTarget,
     props: mapStateToProps(store.state),
   })
 
-  replaceComponent(factures, mapStateToProps)
+  replaceComponent(composant, mapStateToProps)
 })
 
 /**

@@ -18,8 +18,8 @@
       <h2>Salariats</h2>
     </a>
 
-    <a href="/comptabilite/factures?org={org}&repo={repo}">
-      <h2>Factures</h2>
+    <a href="/comptabilite/ventes?org={org}&repo={repo}">
+      <h2>Factures (ventes)</h2>
     </a>
 
     <a href="/comptabilite/fiches-de-paie?org={org}&repo={repo}">

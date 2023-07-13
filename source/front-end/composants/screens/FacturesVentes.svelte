@@ -155,7 +155,7 @@
 <Skeleton {login} {logout} {org} {repo} fullwidth>
     <Tableau bind:this={table} on:edit={(e) => { màjFormulaire(envoiFactureàClients[e.detail]) }} {...tableConfig}>
         <h1 slot="header">
-            Voici la liste des factures pour 
+            Voici la liste des factures (ventes) pour 
             <code>{org}</code>
         </h1>
 
