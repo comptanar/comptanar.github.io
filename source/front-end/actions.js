@@ -1,6 +1,6 @@
 //@ts-check
 
-import { format, parse } from 'date-fns'
+import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
 import githubAsDatabase from './githubAsDatabase.js'
@@ -8,7 +8,7 @@ import { rememberToken, forgetToken } from './localStorage.js'
 
 import store from './store.js'
 
-import { formatCompte } from './stringifiers.js'
+import { formatCompte, formatDate } from './stringifiers.js'
 
 import '../format-données/types/main.js'
 
@@ -226,8 +226,7 @@ export const supprimerOpérationHautNiveau = ajouterRéessai(
  */
 export function sauvegarderEnvoiFactureÀClient(envoiFactureÀClient) {
   const date = envoiFactureÀClient.date
-  console.log('date', date)
-  const formattedDate = format(date, 'd MMMM yyyy', { locale: fr })
+  const formattedDate = formatDate(date)
 
   return envoyerOpérationHautNiveau(
     date.getFullYear(),
@@ -237,54 +236,20 @@ export function sauvegarderEnvoiFactureÀClient(envoiFactureÀClient) {
   )
 }
 
-export function envoyerFicheDePaie({
-  identifiantOpération,
-  nomSalarié·e,
-  compteSalarié·e,
-  rémunération,
-  sécu,
-  prélèvement,
-  dateÉmission,
-  débutPériodeStr,
-  finPériodeStr,
-}) {
-  const date = new Date(dateÉmission)
-  const débutPériode = new Date(débutPériodeStr)
-  const finPériode = new Date(finPériodeStr)
-  const formattedStart = format(débutPériode, 'd MMMM yyyy', { locale: fr })
-  const formattedEnd = format(finPériode, 'd MMMM yyyy', { locale: fr })
-
-  /** @type {ÉmissionFicheDePaie} */
-  const fiche = {
-    identifiantOpération,
-    type: 'Fiche de paie',
-    date,
-    débutPériode,
-    finPériode,
-    opérations: [
-      {
-        compte: formatCompte(641, compteSalarié·e),
-        montant: rémunération,
-        sens: 'Crédit',
-      },
-      {
-        compte: formatCompte(645, compteSalarié·e),
-        montant: sécu,
-        sens: 'Crédit',
-      },
-      {
-        compte: formatCompte(4421, compteSalarié·e),
-        montant: prélèvement,
-        sens: 'Crédit',
-      },
-    ],
-  }
+/**
+ * @param {ÉmissionFicheDePaie} émissionFicheDePaie
+ * @param {Personne} salarié·e
+ * @returns
+ */
+export function envoyerFicheDePaie(émissionFicheDePaie, salarié·e) {
+  const formattedStart = formatDate(émissionFicheDePaie.débutPériode)
+  const formattedEnd = formatDate(émissionFicheDePaie.finPériode)
 
   return envoyerOpérationHautNiveau(
-    date.getFullYear(),
-    fiche,
-    `Création de la fiche de paie de ${nomSalarié·e} pour la période du ${formattedStart} au ${formattedEnd}`,
-    `Modification de la fiche de paie de ${nomSalarié·e} pour la période du ${formattedStart} au ${formattedEnd}`,
+    émissionFicheDePaie.date.getFullYear(),
+    émissionFicheDePaie,
+    `Création de la fiche de paie de ${salarié·e.nom} pour la période du ${formattedStart} au ${formattedEnd}`,
+    `Modification de la fiche de paie de ${salarié·e.nom} pour la période du ${formattedStart} au ${formattedEnd}`,
   )
 }
 
@@ -433,39 +398,3 @@ export const supprimerSalariat = ajouterRéessai(salariat => {
     },
   )
 }, syncSalariats)
-
-export const initCompteSiBesoin = ajouterRéessai(
-  (personne, compte, préfixe) => {
-    if (personne[compte] === undefined) {
-      /** @type {Array<string>} */
-      const autresComptes = store.state.personnes.data
-        .map(p => p[compte])
-        .filter(c => c !== undefined)
-      const autresSuffixes = autresComptes
-        .map(c => c.replace(préfixe, ''))
-        .sort()
-
-      const dernierSuffixeUtilisé = autresSuffixes[autresSuffixes.length - 1]
-      const suffixe = dernierSuffixeUtilisé + 1
-      const nouveauCompte = formatCompte(préfixe, suffixe)
-
-      personne[compte] = nouveauCompte
-
-      store.mutations.updatePersonne(personne)
-      const sha = store.state.personnes.sha
-
-      return githubAsDatabase
-        .writePersonnes(sha, store.state.personnes.data)
-        .then(
-          ({
-            data: {
-              content: { sha },
-            },
-          }) => {
-            return store.mutations.updatePersonnesSha(sha)
-          },
-        )
-    }
-  },
-  syncPersonnes,
-)

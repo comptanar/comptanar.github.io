@@ -216,6 +216,11 @@ const store = Store({
 
 export default store
 
+/**
+ *
+ * @param {OpérationHautNiveau["type"]} opType
+ * @returns {Function}
+ */
 const getSpecificOp = opType => state => {
   const { opérationsHautNiveauByYear } = state
 

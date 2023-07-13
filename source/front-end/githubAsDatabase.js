@@ -59,8 +59,6 @@ export default {
   },
   getOrgs() {
     return theRequest('/user/orgs').then(({ data: organisations }) => {
-      console.log('organisations', organisations)
-
       return organisations
     })
   },
@@ -80,8 +78,6 @@ export default {
   getExercices() {
     return theRequest(`/repos/{owner}/{repo}/contents/exercices`).then(
       ({ data: exercicesDir }) => {
-        console.log('exercices', exercicesDir)
-
         const promisesToWait = []
 
         const opérationsHautNiveauByYear = new Map()

@@ -24,9 +24,7 @@ import {
   initDance,
   getUserOrgChoices,
   selectOrgAndRepo,
-  envoyerFicheDePaie,
 } from './actions.js'
-import { créerFicheDePaieVide } from '../format-données/opérationsHautNiveau'
 
 console.info('start')
 
@@ -182,10 +180,9 @@ page('/comptabilite/fiches-de-paie', ({ querystring }) => {
       login: state.login,
       logout: logoutAndRedirect,
       org,
+      repo,
       personnes: state.personnes?.data ?? [],
-      salarié·es: state.salarié·es?.data ?? [],
-      créerFicheDePaieVide,
-      envoyerFicheDePaie,
+      salariats: state.salariats?.data ?? [],
       fichesDePaie: getFichesDePaie(state),
     }
   }
