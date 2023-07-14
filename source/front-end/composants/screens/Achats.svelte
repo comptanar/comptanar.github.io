@@ -8,7 +8,7 @@
     import SaveButton from '../SaveButton.svelte'
     import DateInput from "../DateInput.svelte";
 
-    import { déduireTauxTVA, calculTVALigne, calculTTCFacture, calculTVAFacture } from '../../../format-données/comptabilité.js'
+    import { déduireTauxTVA, calculTVALigne, calculTTCFacture, calculTVAFacture, tauxTVAPossibles } from '../../../format-données/comptabilité.js'
     import { créerAchatVide } from '../../../format-données/opérationsHautNiveau'
     import { displayDate, formatDate, formatMontant } from '../../stringifiers'
     import { envoyerAchat, supprimerOpérationHautNiveau } from '../../actions'
@@ -37,9 +37,20 @@
      * @param {LigneFacture} _
      * @returns {LigneAchat}
      */
-    function ligneFactureToLigneAchat({montantHT, tauxTVA, compteProduit}){
+     function ligneFactureToLigneAchat({montantHT, tauxTVA, compteProduit}){
         const montantTVA = calculTVALigne({montantHT, tauxTVA, compteProduit})
         return {compteProduit, montantTVA, montantTTC : montantHT + montantTVA}
+    }
+
+    /**
+     * @param {LigneAchat} _
+     * @returns {LigneFacture}
+     */
+    function ligneAchatToLigneFacture({compteProduit, montantTVA, montantTTC}){
+        const montantHT = montantTTC - montantTVA;
+        const tauxTVA = déduireTauxTVA(montantHT, montantTVA)
+        // @ts-ignore // Ptèt c'est un taux de TVA, ptèt pas et c'est ok
+        return {montantHT, tauxTVA, compteProduit}
     }
 
     /** @type { LigneAchat[] } */
@@ -62,13 +73,25 @@
             return
         }
 
-        achatEnÉdition.lignes = lignesAchats.map(({compteProduit, montantTVA, montantTTC}) => {
-            const montantHT = montantTTC - montantTVA;
-            const tauxTVA = déduireTauxTVA(montantHT, montantTVA)
-            return {montantHT, tauxTVA, compteProduit}
-        })
+        achatEnÉdition.lignes = lignesAchats.map(ligneAchatToLigneFacture)
     }
     $: lignesAchatsToLignesFactures(lignesAchats)
+
+
+    /**
+     * @param {number} taux
+     * @returns {boolean}
+    */
+    function tauxDeTVAEstChelou(taux){
+        /** @type {number[]} */
+        // @ts-ignore
+        const tauxTVANombres = [...tauxTVAPossibles].filter(t => typeof t === 'number')
+
+        if(tauxTVANombres.every(t => (Math.abs(taux - t) >= 0.2)))
+            return true
+
+        return false
+    }
 
     function sauvegarderAchat() {
         editPromise = envoyerAchat(achatEnÉdition)
@@ -153,6 +176,10 @@
                             <div>Montant TVA (€) (à récupérer)</div>
                             <input bind:value={ligne.montantTVA} step="0.01" min="0" type="number">
                         </label>
+                        {#if tauxDeTVAEstChelou(ligneAchatToLigneFacture(ligne).tauxTVA)}
+                            ⚠️ attontion, ça fait un taux de TVA chelou: {ligneAchatToLigneFacture(ligne).tauxTVA}%
+                        {/if}
+
                         {#if lignesAchats.length >= 2}
                             <button type="button" on:click={e => supprimerLigneAchat(ligne)}>Supprimer ligne</button>    
                         {/if}
