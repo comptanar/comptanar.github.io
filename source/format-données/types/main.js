@@ -17,11 +17,16 @@
  * @property {OpérationDeCompte[]} [opérations]
  */
 
+// https://www.economie.gouv.fr/cedef/taux-tva-france-et-union-europeenne
+/**
+ * @typedef { 'Non applicable' | 0 | 5.5 | 10 | 20 } TauxTVA
+ */
+
 /**
  * @typedef {Object} LigneFacture
  * @property {string} compteProduit
  * @property {number} montantHT
- * @property {number} tauxTVA
+ * @property {TauxTVA} tauxTVA
  */
 
 /**

@@ -49,8 +49,8 @@ export function créerEnvoiFactureÀClientVide() {
     lignes: [
       {
         compteProduit: '',
-        montantHT: NaN,
-        tauxTVA: NaN,
+        montantHT: 0,
+        tauxTVA: 'Non applicable',
       },
     ],
   }
@@ -87,8 +87,8 @@ export function créerAchatVide() {
     lignes: [
       {
         compteProduit: '',
-        montantHT: NaN,
-        tauxTVA: NaN,
+        montantHT: 0,
+        tauxTVA: 'Non applicable',
       },
     ],
   }

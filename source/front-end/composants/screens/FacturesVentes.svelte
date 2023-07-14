@@ -1,7 +1,5 @@
 <script>
     //@ts-check
-    
-    import { sum } from 'd3-array'
     import { format } from 'date-fns';
     import { fr } from 'date-fns/locale'
     import { tick } from 'svelte';
@@ -13,6 +11,7 @@
     import { displayDate, formatMontant } from '../../stringifiers'
     import { supprimerOpérationHautNiveau, sauvegarderEnvoiFactureÀClient } from '../../actions'
     import { créerEnvoiFactureÀClientVide } from '../../../format-données/opérationsHautNiveau';
+    import { calculTTCFacture, calculHTFacture, calculTVALigne, calculTTCLigne, tauxTVAPossibles } from '../../../format-données/comptabilité.js'
 
     import '../../../format-données/types/main.js'
     
@@ -32,35 +31,6 @@
 
     $: clients = personnes?.filter(({compteClient}) => !!compteClient)
 
-    // https://www.economie.gouv.fr/cedef/taux-tva-france-et-union-europeenne
-    const tauxTVAPossibles = [
-        {value: 20, text: "20%", selected: true},
-        {value: 10, text: "10%"},
-        {value: 5.5, text: "5,5%"},
-    ]
-
-    function calculTVA({montantHT, tauxTVA}){
-        return montantHT*tauxTVA/100
-    }
-    function calculTTC(ligneFacture){
-        return ligneFacture.montantHT + calculTVA(ligneFacture)
-    }
-
-    /**
-     * @param {EnvoiFactureÀClient} _
-     * @returns {number}
-     */
-    function calculMontantTTCFacture({lignes}){
-        return sum(lignes.map(calculTTC))
-    }    
-    
-    /**
-     * @param {EnvoiFactureÀClient} _
-     * @returns {number}
-     */
-    function calculMontantHTFacture({lignes}){
-        return sum(lignes.map(({montantHT}) => montantHT))
-    }
 
     /** @type {EnvoiFactureÀClient} */
     let factureEnModification = créerEnvoiFactureÀClientVide()
@@ -107,8 +77,8 @@
             : envoiFactureàClients.sort((a, b) => b.date.getTime() - a.date.getTime()).map(facture => [
                 { content: displayDate(facture.date), title: format(facture.date, 'd MMMM yyyy', {locale: fr}) },
                 { content: clients.find(c => c.compteClient === facture.compteClient)?.nom || `client non trouvé (${facture.compteClient})` },
-                { content: formatMontant(calculMontantTTCFacture(facture)) },
-                { content: formatMontant(calculMontantHTFacture(facture)) },
+                { content: formatMontant(calculTTCFacture(facture)) },
+                { content: formatMontant(calculHTFacture(facture)) },
             ])
     }
 
@@ -206,18 +176,21 @@
                             <label>
                                 <div>Taux TVA</div>
                                 <select bind:value={ligne.tauxTVA}>
-                                    {#each tauxTVAPossibles as {value, text, selected}}
-                                        <option value={value} selected={selected}>{text}</option>
+                                    <option> - </option>
+                                    {#each [...tauxTVAPossibles] as tauxTVAPossible}
+                                        <option value={tauxTVAPossible}>
+                                            {typeof tauxTVAPossible === 'number' ? `${tauxTVAPossible}%` : tauxTVAPossible}
+                                        </option>
                                     {/each}
                                 </select>
                             </label>
                             <label>
                                 <div>Montant TVA</div>
-                                <output>{formatMontant(calculTVA(ligne))}</output>
+                                <output>{formatMontant(calculTVALigne(ligne))}</output>
                             </label>
                             <label>
                                 <div>Montant TTC</div>
-                                <output>{formatMontant(calculTTC(ligne))}</output>
+                                <output>{formatMontant(calculTTCLigne(ligne))}</output>
                             </label>
                             <button type="button" on:click={e => supprimerLigneFacture(ligne)}>Supprimer ligne</button>
                         </fieldset>

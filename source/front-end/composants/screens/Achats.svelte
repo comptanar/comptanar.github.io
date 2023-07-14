@@ -2,18 +2,15 @@
     // @ts-check
 
     import { tick } from 'svelte'
-    import { format } from 'date-fns'
-    import { fr } from 'date-fns/locale'
-    import { sum } from 'd3-array'
 
     import Skeleton from '../Skeleton.svelte'
     import Tableau, { action } from '../Tableau.svelte'
     import SaveButton from '../SaveButton.svelte'
     import DateInput from "../DateInput.svelte";
 
-    import { calculerTauxTVA } from '../../../format-données/comptabilité.js'
+    import { déduireTauxTVA, calculTVALigne, calculTTCFacture, calculTVAFacture } from '../../../format-données/comptabilité.js'
     import { créerAchatVide } from '../../../format-données/opérationsHautNiveau'
-    import { displayDate } from '../../stringifiers'
+    import { displayDate, formatDate, formatMontant } from '../../stringifiers'
     import { envoyerAchat, supprimerOpérationHautNiveau } from '../../actions'
 
     export let login
@@ -41,19 +38,22 @@
      * @returns {LigneAchat}
      */
     function ligneFactureToLigneAchat({montantHT, tauxTVA, compteProduit}){
-        const montantTVA = montantHT*tauxTVA/100
+        const montantTVA = calculTVALigne({montantHT, tauxTVA, compteProduit})
         return {compteProduit, montantTVA, montantTTC : montantHT + montantTVA}
     }
 
     /** @type { LigneAchat[] } */
     let lignesAchats;
-    function réceptionFactureFournisseurToLignesAchats(achat){
-        if(!achat){
+    /**
+     * @param {RéceptionFactureFournisseur} achatEnÉdition
+    */
+    function réceptionFactureFournisseurToLignesAchats(achatEnÉdition){
+        if(!achatEnÉdition){
             lignesAchats = undefined
             return
         }
 
-        lignesAchats = achat.lignes.map(ligneFactureToLigneAchat)
+        lignesAchats = achatEnÉdition.lignes.map(ligneFactureToLigneAchat)
     }
     $: réceptionFactureFournisseurToLignesAchats(achatEnÉdition)
 
@@ -64,7 +64,7 @@
 
         achatEnÉdition.lignes = lignesAchats.map(({compteProduit, montantTVA, montantTTC}) => {
             const montantHT = montantTTC - montantTVA;
-            const tauxTVA = calculerTauxTVA(montantHT, montantTVA)
+            const tauxTVA = déduireTauxTVA(montantHT, montantTVA)
             return {montantHT, tauxTVA, compteProduit}
         })
     }
@@ -111,10 +111,10 @@
         placeholder: 'Sélectionne un achat dans la liste pour en voir le détail ou le modifier',
         columns: ['Date', 'Fournisseur', 'Montant TTC', 'Montant TVA'],
         data: achats.map(a => [
-            { content: displayDate(a.date), title: format(a.date, 'd MMMM yyyy', {locale: fr}) },
+            { content: displayDate(a.date), title: formatDate(a.date) },
             { content: a.compteFournisseur },
-            { content: sum(a.lignes.map(ligneFactureToLigneAchat).map(({montantTTC}) => montantTTC)) },
-            { content: sum(a.lignes.map(ligneFactureToLigneAchat).map(({montantTVA}) => montantTVA)) },
+            { content: formatMontant(calculTTCFacture(a)) },
+            { content: formatMontant(calculTVAFacture(a)) },
         ])
     }
 </script>
@@ -153,7 +153,9 @@
                             <div>Montant TVA (€) (à récupérer)</div>
                             <input bind:value={ligne.montantTVA} step="0.01" min="0" type="number">
                         </label>
-                        <button type="button" on:click={e => supprimerLigneAchat(ligne)}>Supprimer ligne</button>
+                        {#if lignesAchats.length >= 2}
+                            <button type="button" on:click={e => supprimerLigneAchat(ligne)}>Supprimer ligne</button>    
+                        {/if}
                     </fieldset>
                 {/each}
                 
@@ -173,10 +175,6 @@
             border: 1px solid #333;
             padding: 1rem;
             margin: 2rem 0;
-        }
-
-        fieldset.ligne-achat:only-of-type button{
-            display:none;
         }
     }
 

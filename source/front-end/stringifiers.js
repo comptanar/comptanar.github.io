@@ -31,7 +31,14 @@ const euroFormat = Intl.NumberFormat('fr-FR', {
   style: 'currency',
   currency: 'EUR',
 })
-export const formatMontant = montant => euroFormat.format(montant)
+/**
+ *
+ * @param {number} montant
+ */
+export const formatMontant = montant => {
+  if (Number.isFinite(montant)) return euroFormat.format(montant)
+  else return '-'
+}
 
 export const formatCompte = (préfixe, suffixe) =>
   (préfixe * Math.pow(10, 6 - préfixe.toString().length) + suffixe).toString()
