@@ -20,17 +20,22 @@
     export let achats
     export let org
     export let repo
+    /** @type {Personne[] | undefined} */
+    export let personnes
 
     let formStart
     let table
     let editPromise
     /** @type {RéceptionFactureFournisseur} */
-    let achatEnÉdition
+    let achatEnÉdition = créerAchatVide()
 
     const comptesAchatsPossibles = new Map(
         [...planDeCompte.entries()].filter(([compte]) => isAchat(compte))
     )
 
+    /** @type {Personne[] | undefined} */
+    let fournisseurs
+    $: fournisseurs = personnes?.filter(({compteFournisseur}) => !!compteFournisseur)
 
     /**
      * @typedef {Object} LigneAchat
@@ -83,6 +88,9 @@
     }
     $: lignesAchatsToLignesFactures(lignesAchats)
 
+    /** @type {Personne} */
+    let fournisseur
+    $: achatEnÉdition.compteFournisseur = fournisseur?.compteFournisseur
 
     /**
      * @param {number} taux
@@ -141,7 +149,7 @@
         columns: ['Date', 'Fournisseur', 'Montant TTC', 'Montant TVA'],
         data: achats.map(a => [
             { content: displayDate(a.date), title: formatDate(a.date) },
-            { content: a.compteFournisseur },
+            { content: fournisseurs.find(f => f.compteFournisseur === a.compteFournisseur)?.nom || `client non trouvé (${a.compteFournisseur})` },
             { content: formatMontant(calculTTCFacture(a)) },
             { content: formatMontant(calculTVAFacture(a)) },
         ])
@@ -163,7 +171,17 @@
 
                 <label>
                     <div>Fournisseur</div>
-                    <input bind:value={achatEnÉdition.compteFournisseur} placeholder="Restaurant PnP">
+                    {#if !fournisseurs || fournisseurs.length === 0}
+                        <select disabled></select>
+                    {:else}
+                        <select bind:value={fournisseur}>
+                            <option> - </option>
+                            {#each fournisseurs as fournisseur}
+                                <option value={fournisseur} selected={achatEnÉdition.compteFournisseur === fournisseur.compteFournisseur}>{fournisseur.nom}</option>
+                            {/each}
+                        </select>
+                    {/if}
+                    <a href="/comptabilite/personnes?org={org}&repo={repo}">Rajouter un fournisseur</a>
                 </label>
 
                 {#each lignesAchats || [] as ligne}

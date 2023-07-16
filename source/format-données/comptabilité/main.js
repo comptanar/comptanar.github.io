@@ -18,6 +18,7 @@ import '../types/main.js'
  */
 
 const PRÉFIXE_COMPTE_CLIENT_VENTES = '4111C'
+const PRÉFIXE_COMPTE_FOURNISSEUR = '4011F'
 
 const SUFFIXE_COMPTE_POSSIBLES = ['1', '2', '3', '4', '5', '6', '7']
 
@@ -42,19 +43,30 @@ function prochainSuffixe(précédent) {
 
 /**
  *
- * @param {string[]} compteClientsExistants
+ * @param {string} préfixe
  * @returns
  */
-export function créerProchainCompteClient(compteClientsExistants) {
-  const suffixes = compteClientsExistants.map(compte =>
-    compte.slice(PRÉFIXE_COMPTE_CLIENT_VENTES.length),
-  )
-  console.log('suffixes', suffixes)
+function créerProchainCompte(préfixe) {
+  /**
+   *
+   * @param {string[]} compteExistants
+   * @returns {string}
+   */
+  return compteExistants => {
+    const suffixes = compteExistants.map(compte => compte.slice(préfixe.length))
 
-  suffixes.sort((s1, s2) => parseInt(s2) - parseInt(s1))
+    suffixes.sort((s1, s2) => parseInt(s2) - parseInt(s1))
 
-  return PRÉFIXE_COMPTE_CLIENT_VENTES + prochainSuffixe(suffixes[0])
+    return préfixe + prochainSuffixe(suffixes[0])
+  }
 }
+
+export const créerProchainCompteClient = créerProchainCompte(
+  PRÉFIXE_COMPTE_CLIENT_VENTES,
+)
+export const créerProchainCompteFournisseur = créerProchainCompte(
+  PRÉFIXE_COMPTE_FOURNISSEUR,
+)
 
 /**
  * === TVA ===

@@ -24,11 +24,8 @@
     /** @type {Personne[] | undefined} */
     export let personnes 
 
-    console.log('personnes', personnes)
-
     /** @type {Personne[] | undefined} */
     let clients
-
     $: clients = personnes?.filter(({compteClient}) => !!compteClient)
 
 

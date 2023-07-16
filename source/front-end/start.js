@@ -237,6 +237,7 @@ page('/comptabilite/achats', ({ querystring }) => {
       achats: getAchats(state) ?? [],
       org,
       repo,
+      personnes: state.personnes?.data ?? [],
     }
   }
 
