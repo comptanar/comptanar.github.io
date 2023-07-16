@@ -9,6 +9,7 @@
     import DateInput from "../DateInput.svelte";
 
     import { déduireTauxTVA, calculTVALigne, calculTTCFacture, calculTVAFacture, tauxTVAPossibles } from '../../../format-données/comptabilité/main.js'
+    import { planDeCompte, isAchat } from '../../../format-données/comptabilité/planDeCompte.js'
     import { créerAchatVide } from '../../../format-données/opérationsHautNiveau'
     import { displayDate, formatDate, formatMontant } from '../../stringifiers'
     import { envoyerAchat, supprimerOpérationHautNiveau } from '../../actions'
@@ -25,6 +26,11 @@
     let editPromise
     /** @type {RéceptionFactureFournisseur} */
     let achatEnÉdition
+
+    const comptesAchatsPossibles = new Map(
+        [...planDeCompte.entries()].filter(([compte]) => isAchat(compte))
+    )
+
 
     /**
      * @typedef {Object} LigneAchat
@@ -162,9 +168,14 @@
 
                 {#each lignesAchats || [] as ligne}
                     <fieldset class="ligne-achat">
+                        
                         <label>
-                            <div>Numéro de compte</div>
-                            <input bind:value={ligne.compteProduit}>
+                            <div>Catégorie</div>
+                            <select bind:value={ligne.compteProduit}>
+                                {#each [...comptesAchatsPossibles.entries()] as [compte, nom]}
+                                    <option value={compte}>{nom}</option>
+                                {/each}
+                            </select>
                         </label>
         
                         <label>
