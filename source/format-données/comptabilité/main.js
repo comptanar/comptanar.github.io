@@ -11,7 +11,7 @@ Il s'agit de contraintes légales, ou de conventions comptables
 
 import { sum } from 'd3-array'
 
-import './types/main.js'
+import '../types/main.js'
 
 /**
  * === Plan comptable - comptes ===

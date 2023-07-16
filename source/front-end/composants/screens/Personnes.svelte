@@ -8,7 +8,7 @@
     import SaveButton from "../SaveButton.svelte";
     import { créerPersonneVide } from "../../../format-données/personnes";
     import { envoyerPersonne, supprimerPersonne } from "../../actions";
-    import { créerProchainCompteClient } from '../../../format-données/comptabilité.js'
+    import { créerProchainCompteClient } from '../../../format-données/comptabilité/main.js'
 
     export let login;
     export let logout;

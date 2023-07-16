@@ -8,7 +8,7 @@
     import SaveButton from '../SaveButton.svelte'
     import DateInput from "../DateInput.svelte";
 
-    import { déduireTauxTVA, calculTVALigne, calculTTCFacture, calculTVAFacture, tauxTVAPossibles } from '../../../format-données/comptabilité.js'
+    import { déduireTauxTVA, calculTVALigne, calculTTCFacture, calculTVAFacture, tauxTVAPossibles } from '../../../format-données/comptabilité/main.js'
     import { créerAchatVide } from '../../../format-données/opérationsHautNiveau'
     import { displayDate, formatDate, formatMontant } from '../../stringifiers'
     import { envoyerAchat, supprimerOpérationHautNiveau } from '../../actions'

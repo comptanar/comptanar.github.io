@@ -11,7 +11,7 @@
     import { displayDate, formatMontant } from '../../stringifiers'
     import { supprimerOpérationHautNiveau, sauvegarderEnvoiFactureÀClient } from '../../actions'
     import { créerEnvoiFactureÀClientVide } from '../../../format-données/opérationsHautNiveau';
-    import { calculTTCFacture, calculHTFacture, calculTVALigne, calculTTCLigne, tauxTVAPossibles } from '../../../format-données/comptabilité.js'
+    import { calculTTCFacture, calculHTFacture, calculTVALigne, calculTTCLigne, tauxTVAPossibles } from '../../../format-données/comptabilité/main.js'
 
     import '../../../format-données/types/main.js'
     
