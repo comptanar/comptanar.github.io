@@ -93,15 +93,18 @@
     $: achatEnÉdition.compteFournisseur = fournisseur?.compteFournisseur
 
     /**
-     * @param {number} taux
+     * @param {LigneAchat} ligneAchat
      * @returns {boolean}
     */
-    function tauxDeTVAEstChelou(taux){
+    function tauxDeTVAEstChelou({montantTVA, montantTTC}){
+        const montantHT = montantTTC - montantTVA;
+        const tauxTVA = déduireTauxTVA(montantHT, montantTVA)
+
         /** @type {number[]} */
         // @ts-ignore
         const tauxTVANombres = [...tauxTVAPossibles].filter(t => typeof t === 'number')
 
-        if(tauxTVANombres.every(t => (Math.abs(taux - t) >= 0.2)))
+        if(tauxTVANombres.every(t => (Math.abs(tauxTVA - t) >= 0.2)))
             return true
 
         return false
@@ -205,8 +208,8 @@
                             <div>Montant TVA (€) (à récupérer)</div>
                             <input bind:value={ligne.montantTVA} step="0.01" min="0" type="number">
                         </label>
-                        {#if tauxDeTVAEstChelou(ligneAchatToLigneFacture(ligne).tauxTVA)}
-                            ⚠️ attontion, ça fait un taux de TVA chelou: {ligneAchatToLigneFacture(ligne).tauxTVA}%
+                        {#if tauxDeTVAEstChelou(ligne)}
+                            ⚠️ attontion, ça fait un taux de TVA chelou ({ligneAchatToLigneFacture(ligne).tauxTVA}%)
                         {/if}
 
                         {#if lignesAchats.length >= 2}
