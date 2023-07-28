@@ -50,7 +50,7 @@ export function créerEnvoiFactureÀClientVide() {
       {
         compteProduit: '',
         montantHT: 0,
-        tauxTVA: 0,
+        tauxTVA: 'Non applicable',
       },
     ],
   }
@@ -79,18 +79,17 @@ export function créerFicheDePaieVide() {
  * @returns {RéceptionFactureFournisseur}
  */
 export function créerAchatVide() {
-  const date = new Date()
   return {
     type: 'Réception facture fournisseur',
+    identifiantOpération: Math.random().toString(32).slice(2),
     compteFournisseur: '',
-    date,
-    opérations: [
+    date: new Date(),
+    lignes: [
       {
-        compte: '',
-        montant: 0,
-        sens: 'Crédit',
+        compteProduit: '',
+        montantHT: 0,
+        tauxTVA: 'Non applicable',
       },
     ],
-    identifiantOpération: Math.random().toString(32).slice(2),
   }
 }

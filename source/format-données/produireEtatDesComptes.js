@@ -1,44 +1,14 @@
-/**
- * Cette fonction retourne un résultat faux (certains comptes 5 sont des passifs)
- * mais suffisamment vrai
- *
- * @param {string} compte
- */
-function isActif(compte) {
-  return (
-    compte.startsWith('2') || compte.startsWith('3') || compte.startsWith('5')
-  )
-}
+//@ts-check
 
-/**
- * Cette fonction retourne un résultat faux (certains comptes 1 sont des actifs)
- * mais suffisamment vrai
- *
- * @param {string} compte
- */
-function isPassif(compte) {
-  return compte.startsWith('1')
-}
+import {
+  isActif,
+  isPassif,
+  isCompteDeTiers,
+  isCharge,
+  isProduit,
+} from './comptabilité/planDeCompte.js'
 
-/**
- * @param {string} compte
- */
-function isCompteDeTiers(compte) {
-  return compte.startsWith('4')
-}
-
-/**
- * @param {string} compte
- */
-function isProduit(compte) {
-  return compte.startsWith('7')
-}
-/**
- * @param {string} compte
- */
-function isCharge(compte) {
-  return compte.startsWith('6')
-}
+import '../format-données/types/main.js'
 
 /**
  * 

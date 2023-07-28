@@ -253,32 +253,19 @@ export function envoyerFicheDePaie(émissionFicheDePaie, salarié·e) {
   )
 }
 
-export function envoyerAchat({ identifiantOpération, compte, date, montant }) {
-  const parsedDate = new Date(date)
-  /** @type {RéceptionFactureFournisseur} */
-  const achat = {
-    identifiantOpération,
-    type: 'Réception facture fournisseur',
-    date: parsedDate,
-    compteFournisseur: compte,
-    opérations: [
-      {
-        compte,
-        montant,
-        sens: 'Crédit',
-      },
-    ],
-  }
+/**
+ * @param {RéceptionFactureFournisseur} réceptionFactureFournisseur
+ * @returns
+ */
+export function envoyerAchat(réceptionFactureFournisseur) {
+  const date = réceptionFactureFournisseur.date
+  const formattedDate = formatDate(date)
 
   return envoyerOpérationHautNiveau(
-    parsedDate.getFullYear(),
-    achat,
-    `Création de l'achat du ${format(parsedDate, 'd MMMM yyyy', {
-      locale: fr,
-    })}`,
-    `Modification de l'achat du ${format(parsedDate, 'd MMMM yyyy', {
-      locale: fr,
-    })}`,
+    date.getFullYear(),
+    réceptionFactureFournisseur,
+    `Création de l'achat du ${formattedDate}`,
+    `Modification de l'achat du ${formattedDate}`,
   )
 }
 

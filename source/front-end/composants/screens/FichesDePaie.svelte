@@ -150,6 +150,7 @@
                     disabled={editPromise &&
                         editPromise[Symbol.toStringTag] === "Promise"}
                 >
+                    <!-- svelte-ignore a11y-label-has-associated-control -->
                     <label>
                         <div>Date d'émission de la fiche de paie</div>
                         <DateInput bind:date={ficheEnModification.date}/>
@@ -180,10 +181,12 @@
                     </div>
 
                     <div class="input-group">
+                        <!-- svelte-ignore a11y-label-has-associated-control -->
                         <label>
                             <div>Début de la période</div>
                             <DateInput bind:date={ficheEnModification.débutPériode}/>
                         </label>
+                        <!-- svelte-ignore a11y-label-has-associated-control -->
                         <label>
                             <div>Fin de la période</div>
                             <DateInput bind:date={ficheEnModification.finPériode}/>

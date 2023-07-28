@@ -8,7 +8,7 @@
     import SaveButton from "../SaveButton.svelte";
     import { créerPersonneVide } from "../../../format-données/personnes";
     import { envoyerPersonne, supprimerPersonne } from "../../actions";
-    import { créerProchainCompteClient } from '../../../format-données/comptabilité.js'
+    import { créerProchainCompteClient, créerProchainCompteFournisseur } from '../../../format-données/comptabilité/main.js'
 
     export let login;
     export let logout;
@@ -27,9 +27,14 @@
     let tableConfig;
     let type;
 
-    function clientClick(e){
+    function enFaireUnClient(e){
         const prochainCompteClient = créerProchainCompteClient(personnes.map(({compteClient}) => compteClient).filter(x => !!x))
         personneEnModification.compteClient = prochainCompteClient
+    }
+
+    function enFaireUnFournisseur(e){
+        const prochainCompteFournisseur = créerProchainCompteFournisseur(personnes.map(({compteFournisseur}) => compteFournisseur).filter(x => !!x))
+        personneEnModification.compteFournisseur = prochainCompteFournisseur
     }
 
     function sauvegarderFormulaire() {
@@ -106,10 +111,19 @@
                     <section>
                         {#if personneEnModification.compteClient}
                             <div>Cette personne est un.e client.e</div>
-                            <p>compte client: <code>{personneEnModification.compteClient}</p>
+                            <p>Compte client: <code>{personneEnModification.compteClient}</p>
                         {:else}
                             <div>Cette personne n'est pas un.e client.e</div>
-                            <button type="button" on:click={clientClick}>En faire un.e client.e</button>
+                            <button type="button" on:click={enFaireUnClient}>En faire un.e client.e</button>
+                        {/if}
+                    </section>
+                    <section>
+                        {#if personneEnModification.compteFournisseur}
+                            <div>Cette personne est un fournisseur</div>
+                            <p>Compte fournisseur: <code>{personneEnModification.compteFournisseur}</p>
+                        {:else}
+                            <div>Cette personne n'est pas un fournisseur</div>
+                            <button type="button" on:click={enFaireUnFournisseur}>En faire un fournisseur</button>
                         {/if}
                     </section>
 

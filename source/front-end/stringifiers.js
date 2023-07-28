@@ -27,17 +27,18 @@ export function displayDate(date) {
   return formatDate(date)
 }
 
-/** @type {(ops: OpérationDeCompte[]) => number} */
-const sommeOpérations = ops => sum(ops.map(({ montant }) => montant))
-
 const euroFormat = Intl.NumberFormat('fr-FR', {
   style: 'currency',
   currency: 'EUR',
 })
-export const formatMontant = montant => euroFormat.format(montant)
-
-export const afficherSommeOpérations = ops =>
-  formatMontant(sommeOpérations(ops))
+/**
+ *
+ * @param {number} montant
+ */
+export const formatMontant = montant => {
+  if (Number.isFinite(montant)) return euroFormat.format(montant)
+  else return '-'
+}
 
 export const formatCompte = (préfixe, suffixe) =>
   (préfixe * Math.pow(10, 6 - préfixe.toString().length) + suffixe).toString()
