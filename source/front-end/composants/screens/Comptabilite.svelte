@@ -30,6 +30,10 @@
       <h2>Achats</h2>
     </a>
 
+    <a href="/comptabilite/import-banque?org={org}&repo={repo}">
+      <h2>Import bancaire</h2>
+    </a>
+
     <a href="/comptabilite/compte-resultat?org={org}&repo={repo}">
       <h2>Compte de résultat et bilan comptable</h2>
     </a>

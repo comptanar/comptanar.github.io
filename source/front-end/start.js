@@ -12,6 +12,7 @@ import Personnes from './composants/screens/Personnes.svelte'
 import Salariats from './composants/screens/Salariats.svelte'
 import Achats from './composants/screens/Achats.svelte'
 import CompteResultat from './composants/screens/CompteResultat.svelte'
+import ImportBanque from './composants/screens/ImportBanque.svelte'
 
 import store, {
   getAchats,
@@ -293,12 +294,38 @@ page('/comptabilite/compte-resultat', ({ querystring }) => {
     }
   }
 
-  const composant = new CompteResultat({
+  const compteRésultat = new CompteResultat({
     target: svelteTarget,
     props: mapStateToProps(store.state),
   })
 
-  replaceComponent(composant, mapStateToProps)
+  replaceComponent(compteRésultat, mapStateToProps)
+})
+
+page('/comptabilite/import-banque', ({ querystring }) => {
+  const params = new URLSearchParams(querystring)
+
+  const org = params.get('org')
+  const repo = params.get('repo')
+
+  selectOrgAndRepo(org, repo)
+
+  function mapStateToProps(state) {
+    return {
+      login: state.login,
+      logout: logoutAndRedirect,
+      org,
+      repo,
+      opHautNiveau: state.opérationsHautNiveauByYear,
+    }
+  }
+
+  const importBanque = new ImportBanque({
+    target: svelteTarget,
+    props: mapStateToProps(store.state),
+  })
+
+  replaceComponent(importBanque, mapStateToProps)
 })
 
 /**
