@@ -1,13 +1,14 @@
 //@ts-check
 
 /** @typedef {number} Montant */
+/** @typedef {string} Compte */
 
 /** @typedef { {identifiant: string} } Identifiable */
 /** @typedef { {commentaire?: string} } Commentable */
 
 /**
  * @typedef {Object} OpérationDeCompte
- * @property {string} compte
+ * @property {Compte} compte
  * @property {Montant} montant
  * @property {'Crédit' | 'Débit'} sens
  * @property {OpérationHautNiveau["identifiant"]} [opérationHautNiveauCorrespondante]
@@ -32,7 +33,7 @@
 
 /**
  * @typedef {Object} LigneFacture
- * @property {string} compteProduit
+ * @property {Compte} compteProduit
  * @property {Montant} montantHT
  * @property {TauxTVA} tauxTVA
  */
@@ -41,7 +42,7 @@
  * @typedef {Object} SpécifiqueEnvoiFactureÀClient
  * @property {'Envoi facture à client'} type
  * @property {string} numéroFacture
- * @property {string} compteClient
+ * @property {Compte} compteClient
  * @property {LigneFacture[]} lignes
  *
  * @typedef {BaseOpérationHautNiveau & SpécifiqueEnvoiFactureÀClient} EnvoiFactureÀClient
@@ -58,7 +59,7 @@
 /**
  * @typedef {Object} SpécifiqueRéceptionFactureFournisseur
  * @property {'Réception facture fournisseur'} type
- * @property {string} compteFournisseur
+ * @property {Compte} compteFournisseur
  * @property {LigneFacture[]} lignes
  *
  * @typedef {BaseOpérationHautNiveau & SpécifiqueRéceptionFactureFournisseur} RéceptionFactureFournisseur
@@ -67,7 +68,7 @@
 /**
  * @typedef {Object} SpécifiquePaiementFactureFournisseur
  * @property {'Paiement facture fournisseur'} type
- * @property {string} compteBancaire
+ * @property {Compte} compteBancaire
  *
  * @typedef {BaseOpérationHautNiveau & SpécifiquePaiementFactureFournisseur} PaiementFactureFournisseur
  */
@@ -89,7 +90,7 @@
 /**
  * @typedef {Object} SpécifiqueLigneBancaire
  * @property {'Ligne bancaire'} type
- * @property {string} compteBancaire
+ * @property {Compte} compteBancaire
  * @property {Montant} montant
  * @property {Date} date
  * @property {string} description
@@ -114,9 +115,9 @@
  * @property {'Physique' | 'Morale'} type
  * @property {string} [adresse]
  * @property {number} [siret]
- * @property {string} [compteAssocié·e]
- * @property {string} [compteFournisseur]
- * @property {string} [compteClient]
+ * @property {Compte} [compteAssocié·e]
+ * @property {Compte} [compteFournisseur]
+ * @property {Compte} [compteClient]
  */
 
 /** @typedef {_Personne & Identifiable & Commentable} Personne */
