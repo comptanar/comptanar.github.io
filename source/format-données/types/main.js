@@ -78,13 +78,25 @@
  * @typedef {BaseOpérationHautNiveau & SpécifiqueÉmissionFicheDePaie} ÉmissionFicheDePaie
  */
 
+/**
+ * @typedef {Object} SpécifiqueLigneBancaire
+ * @property {'Ligne bancaire'} type
+ * @property {string} compteBancaire
+ * @property {string} montant
+ * @property {Date} date
+ * @property {string} description
+ *
+ * @typedef {BaseOpérationHautNiveau & SpécifiqueLigneBancaire} LigneBancaire
+ */
+
 /** 
     @typedef {
         EnvoiFactureÀClient | 
         PaiementFactureClient |
         RéceptionFactureFournisseur |
         PaiementFactureFournisseur |
-        ÉmissionFicheDePaie
+        ÉmissionFicheDePaie |
+        LigneBancaire
     } OpérationHautNiveau
 */
 
