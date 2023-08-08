@@ -10,7 +10,7 @@
  * @property {string} compte
  * @property {Montant} montant
  * @property {'Crédit' | 'Débit'} sens
- * @property {string} [opérationHautNiveauCorrespondante] // identifiant OpérationHautNiveau
+ * @property {OpérationHautNiveau["identifiant"]} [opérationHautNiveauCorrespondante]
  * @property {any} [détails]
  */
 
@@ -75,7 +75,7 @@
 /**
  * @typedef {Object} SpécifiqueÉmissionFicheDePaie
  * @property {'Fiche de paie'} type
- * @property {string} salarié·e // identifiant de personne
+ * @property {Personne["identifiant"]} salarié·e
  * @property {Date} débutPériode
  * @property {Date} finPériode
  * @property {Montant} rémunération
@@ -123,7 +123,7 @@
 
 /**
  * @typedef {Object} _Salariat
- * @property {string} idPersonne
+ * @property {Personne["identifiant"]} idPersonne
  * @property {Date} débutContrat
  * @property {Date} [finContrat]
  */
@@ -132,7 +132,7 @@
 
 /**
  * @typedef {Object} _Membre
- * @property {string} idPersonne
+ * @property {Personne["identifiant"]} idPersonne
  * @property {Date} débutPériode
  * @property {Date} [finPériode]
  */
