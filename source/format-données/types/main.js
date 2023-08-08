@@ -2,6 +2,9 @@
 
 /** @typedef {number} Montant */
 
+/** @typedef { {identifiant: string} } Identifiable */
+/** @typedef { {commentaire?: string} } Commentable */
+
 /**
  * @typedef {Object} OpérationDeCompte
  * @property {string} compte
@@ -12,8 +15,7 @@
  */
 
 /**
- * @typedef {Object} BaseOpérationHautNiveau
- * @property {string} identifiant
+ * @typedef {Object} _BaseOpérationHautNiveau
  * @property {string} type
  * @property {Date} date
  * @property {OpérationDeCompte[]} [opérations]
@@ -22,6 +24,10 @@
 // https://www.economie.gouv.fr/cedef/taux-tva-france-et-union-europeenne
 /**
  * @typedef { 'Non applicable' | 0 | 5.5 | 10 | 20 } TauxTVA
+ */
+
+/**
+ * @typedef {_BaseOpérationHautNiveau & Identifiable & Commentable} BaseOpérationHautNiveau
  */
 
 /**
@@ -103,9 +109,8 @@
 */
 
 /**
- * @typedef Personne
+ * @typedef _Personne
  * @property {string} nom
- * @property {string} identifiant
  * @property {'Physique' | 'Morale'} type
  * @property {string} [adresse]
  * @property {number} [siret]
@@ -114,21 +119,25 @@
  * @property {string} [compteClient]
  */
 
+/** @typedef {_Personne & Identifiable & Commentable} Personne */
+
 /**
- * @typedef {Object} Salariat
+ * @typedef {Object} _Salariat
  * @property {string} idPersonne
- * @property {string} identifiant
  * @property {Date} débutContrat
  * @property {Date} [finContrat]
  */
 
+/** @typedef {_Salariat & Identifiable & Commentable} Salariat */
+
 /**
- * @typedef {Object} Membre
+ * @typedef {Object} _Membre
  * @property {string} idPersonne
- * @property {string} identifiant
  * @property {Date} débutPériode
  * @property {Date} [finPériode]
  */
+
+/** @typedef {_Membre & Identifiable & Commentable} Membre */
 
 /**
  * @template T
