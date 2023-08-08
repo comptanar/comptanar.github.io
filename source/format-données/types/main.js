@@ -114,7 +114,7 @@
  * @property {string} nom
  * @property {'Physique' | 'Morale'} type
  * @property {string} [adresse]
- * @property {number} [siret]
+ * @property {string} [siret]
  * @property {Compte} [compteAssocié·e]
  * @property {Compte} [compteFournisseur]
  * @property {Compte} [compteClient]
