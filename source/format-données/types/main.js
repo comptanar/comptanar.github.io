@@ -1,9 +1,11 @@
 //@ts-check
 
+/** @typedef {number} Montant */
+
 /**
  * @typedef {Object} OpérationDeCompte
  * @property {string} compte
- * @property {number} montant
+ * @property {Montant} montant
  * @property {'Crédit' | 'Débit'} sens
  * @property {string} [opérationHautNiveauCorrespondante] // identifiant OpérationHautNiveau
  * @property {any} [détails]
@@ -25,7 +27,7 @@
 /**
  * @typedef {Object} LigneFacture
  * @property {string} compteProduit
- * @property {number} montantHT
+ * @property {Montant} montantHT
  * @property {TauxTVA} tauxTVA
  */
 
@@ -70,9 +72,9 @@
  * @property {string} salarié·e // identifiant de personne
  * @property {Date} débutPériode
  * @property {Date} finPériode
- * @property {number} rémunération
- * @property {number} cotisations
- * @property {number} prélèvementÀLaSource
+ * @property {Montant} rémunération
+ * @property {Montant} cotisations
+ * @property {Montant} prélèvementÀLaSource
  *
  *
  * @typedef {BaseOpérationHautNiveau & SpécifiqueÉmissionFicheDePaie} ÉmissionFicheDePaie
@@ -82,7 +84,7 @@
  * @typedef {Object} SpécifiqueLigneBancaire
  * @property {'Ligne bancaire'} type
  * @property {string} compteBancaire
- * @property {string} montant
+ * @property {Montant} montant
  * @property {Date} date
  * @property {string} description
  *
