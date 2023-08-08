@@ -93,3 +93,19 @@ export function créerAchatVide() {
     ],
   }
 }
+
+/**
+ *
+ * @returns {LigneBancaire}
+ */
+export function créerLigneBancaireVide() {
+  const date = new Date()
+  return {
+    identifiant: Math.random().toString(32).slice(2),
+    type: 'Ligne bancaire',
+    date,
+    compteBancaire: '',
+    description: '',
+    montant: 0,
+  }
+}
