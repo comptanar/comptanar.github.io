@@ -10,7 +10,7 @@ import './types.js'
 let op1 = {
   type: 'Envoi facture à client',
   date: new Date(),
-  identifiantOpération: 'azer',
+  identifiant: 'azer',
   numéroFacture: 'F2022-10-001',
   compteClient: '402563',
   opérations: [
@@ -31,7 +31,7 @@ let op1 = {
 let op2 = {
   type: 'Paiement facture client',
   date: new Date(),
-  identifiantOpération: 'azer',
+  identifiant: 'azer',
   opérations: [
     {
       compte: '402505161',
@@ -45,7 +45,7 @@ let op2 = {
 let op3 = {
   type: 'Réception facture fournisseur',
   date: new Date(),
-  identifiantOpération: 'azuji,yhf,er',
+  identifiant: 'azuji,yhf,er',
   compteFournisseur: '402505161',
   opérations: [
     {
@@ -65,7 +65,7 @@ let op3 = {
 let op4 = {
   type: 'Paiement facture fournisseur',
   date: new Date(),
-  identifiantOpération: 'azuji,yhf,er',
+  identifiant: 'azuji,yhf,er',
   compteBancaire: '58756',
   opérations: [
     {

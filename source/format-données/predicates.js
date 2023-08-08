@@ -23,7 +23,7 @@ export function isOpérationDeCompte(op) {
 function isBaseOpérationHautNiveau(op) {
   return (
     (Object(op) === op &&
-      typeof op.identifiantOpération === 'string' &&
+      typeof op.identifiant === 'string' &&
       typeof op.type === 'string' &&
       op.date instanceof Date && // maybe weak, but it's complicated to find a better test for now
       !op.opérations) ||

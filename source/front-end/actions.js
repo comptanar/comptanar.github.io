@@ -140,7 +140,7 @@ function envoyerOpérationHautNiveau(year, op, messageCréation, messageÉdition
   const creation =
     !opérationsHautNiveauWithSha ||
     !opérationsHautNiveauWithSha.opérationsHautNiveau.some(
-      o => o.identifiantOpération === op.identifiantOpération,
+      o => o.identifiant === op.identifiant,
     )
 
   let writePromise
@@ -182,13 +182,13 @@ function envoyerOpérationHautNiveau(year, op, messageCréation, messageÉdition
   )
 }
 
-/** @type {({ identifiantOpération, date }: { identifiantOpération: string, date: Date }) => Promise<void>} */
+/** @type {({ identifiant, date }: { identifiant: string, date: Date }) => Promise<void>} */
 export const supprimerOpérationHautNiveau = ajouterRéessai(
-  ({ identifiantOpération, date }) => {
+  ({ identifiant, date }) => {
     const year = date.getFullYear()
     const formattedDate = format(date, 'd MMMM yyyy', { locale: fr })
 
-    store.mutations.supprimerOpérationHautNiveau(year, identifiantOpération)
+    store.mutations.supprimerOpérationHautNiveau(year, identifiant)
     const opérationsHautNiveauWithSha =
       store.state.opérationsHautNiveauByYear.get(year)
 

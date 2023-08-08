@@ -112,10 +112,9 @@
 
     function sauvegarderAchat() {
         editPromise = envoyerAchat(achatEnÉdition)
-
         editPromise.then(() => {
             editPromise = undefined
-            table.edit(achats.findIndex(a => a.identifiantOpération === achatEnÉdition.identifiantOpération))
+            table.edit(achats.findIndex(a => a.identifiant === achatEnÉdition.identifiant))
         })
     }
 

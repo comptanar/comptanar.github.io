@@ -72,7 +72,7 @@ const store = Store({
       state.opérationsHautNiveauByYear.set(year, {
         sha,
         opérationsHautNiveau: opérationsHautNiveau.filter(
-          op => op.identifiantOpération !== idOpération,
+          op => op.identifiant !== idOpération,
         ),
       })
       // le sha et le contenu de opérationsHautNiveau sont désynchronisés temporairement
@@ -109,8 +109,7 @@ const store = Store({
       const { sha, opérationsHautNiveau } =
         state.opérationsHautNiveauByYear.get(year)
       const index = opérationsHautNiveau.findIndex(
-        o =>
-          o.identifiantOpération === opérationHautNiveau.identifiantOpération,
+        o => o.identifiant === opérationHautNiveau.identifiant,
       )
 
       opérationsHautNiveau[index] = opérationHautNiveau

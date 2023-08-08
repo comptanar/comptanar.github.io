@@ -90,7 +90,7 @@
         factureSent.then(() => {
             factureSent = undefined
             // Nécessaire pour que la facture soit bien marquée comme sélectionnée dans le tableau
-            table.edit(envoiFactureàClients.findIndex(f => f.identifiantOpération === factureEnModification.identifiantOpération))
+            table.edit(envoiFactureàClients.findIndex(f => f.identifiant === factureEnModification.identifiant))
         })
     }
 
