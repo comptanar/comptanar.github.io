@@ -44,7 +44,7 @@
 /**
  * @typedef {Object} SpécifiquePaiementFactureClient
  * @property {'Paiement facture client'} type
- * @property {string=} numéroFacture
+ * @property {string} [numéroFacture]
  *
  * @typedef {BaseOpérationHautNiveau & SpécifiquePaiementFactureClient} PaiementFactureClient
  */
@@ -107,11 +107,11 @@
  * @property {string} nom
  * @property {string} identifiant
  * @property {'Physique' | 'Morale'} type
- * @property {string?} adresse
- * @property {number?} siret
- * @property {string?} compteAssocié·e
- * @property {string?} compteFournisseur
- * @property {string?} compteClient
+ * @property {string} [adresse]
+ * @property {number} [siret]
+ * @property {string} [compteAssocié·e]
+ * @property {string} [compteFournisseur]
+ * @property {string} [compteClient]
  */
 
 /**
@@ -119,7 +119,7 @@
  * @property {string} idPersonne
  * @property {string} identifiant
  * @property {Date} débutContrat
- * @property {Date?} finContrat
+ * @property {Date} [finContrat]
  */
 
 /**
@@ -127,7 +127,7 @@
  * @property {string} idPersonne
  * @property {string} identifiant
  * @property {Date} débutPériode
- * @property {Date?} finPériode
+ * @property {Date} [finPériode]
  */
 
 /**
