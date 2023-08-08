@@ -11,7 +11,7 @@
 
 /**
  * @typedef {Object} BaseOpérationHautNiveau
- * @property {string} identifiantOpération
+ * @property {string} identifiant
  * @property {string} type
  * @property {Date} date
  * @property {OpérationDeCompte[]} [opérations]
