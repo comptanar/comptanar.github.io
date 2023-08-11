@@ -348,8 +348,8 @@ export function envoyerPersonne(personne) {
   )
   let writePromise
   if (creation) {
+    store.mutations.addPersonne(personne)
     const action = ajouterRéessai(() => {
-      store.mutations.addPersonne(personne)
       const sha = store.state.personnes.sha
       return githubAsDatabase.writePersonnes(
         sha,
@@ -415,8 +415,8 @@ export function envoyerSalariat(sal) {
   )
   let writePromise
   if (creation) {
+    store.mutations.addSalariat(sal)
     const action = ajouterRéessai(() => {
-      store.mutations.addSalariat(sal)
       const sha = store.state.salariats.sha
       return githubAsDatabase.writeSalariats(sha, store.state.salariats.data)
     }, syncPersonnes)
