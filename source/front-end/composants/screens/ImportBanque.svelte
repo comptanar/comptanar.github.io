@@ -2,14 +2,15 @@
     // @ts-check
     import Skeleton from "../Skeleton.svelte";
     import DateInput from "../DateInput.svelte";
-    import { displayDate, formatMontant } from '../../stringifiers'
 
     import {créerLigneBancaireVide} from '../../../format-données/opérationsHautNiveau.js'
+    import { sauvegarderLignesBancaires } from '../../actions.js'
 
     export let login;
     export let logout;
     export let org;
     export let repo;
+    export let lignesBancairesParAnnée;
 
     /** @type {LigneBancaire[]} */
     let lignesBancairesEnCours = []
@@ -23,19 +24,33 @@
 
         lignesBancairesEnCours = lignesBancairesEnCours; // pour le refresh svelte
     }
-
-    throw `PPP
-        faire la fonction supprimer
-        faire une fonction de sauvegarde
-        montrer les lignes bancaires
-        faire un espace pour assigner une ligne à une opération haut niveau
-    `
-
+    /**
+     * 
+     * @param {LigneBancaire} ligne
+     */
     function supprimerLigne(ligne){
+        const index = lignesBancairesEnCours.indexOf(ligne);
 
+        if (index >= 0) { 
+            lignesBancairesEnCours.splice(index, 1);
+            lignesBancairesEnCours = lignesBancairesEnCours; // re-render component
+        }
     }
 
 
+    async function sauvegarder(){
+        await sauvegarderLignesBancaires(lignesBancairesEnCours)
+        lignesBancairesEnCours = []
+    }
+
+
+    throw `PPP
+        faire une fonction de sauvegarde
+        montrer les lignes bancaires
+            par année
+        
+        Cette première PR s'arrête là, parce que c'est déjà assez
+    `
 
 </script>
 
@@ -45,8 +60,19 @@
     <p>Pour le moment, y'a que un import Anytime qui fonctionne. L'idée, c'est d'ouvrir un pdf et de copier/coller le tableau en texte</p>
     <p>Ensuite, ça convertit en tableau et on valide le tableau</p>    
     
+    <!--
+    <h2>Lignes de compte historiques</h2>
+    {#each lignesBancairesParAnnée as [année, lignesBancairesExistantes]}
+        PPP par année, nia nia nia
+    {/each}
+    -->
 
-    <h2>Pré-visualisation</h2>
+    <!--
+    <h2>Lignes de compte non-assignée</h2>
+    <p>un tableau que l'on peut éditer direct</p>
+    -->
+
+    <h2>Ajout de lignes de compte</h2>
     <p>Ce qui a été compris automatiquement</p>
     <table>
         <thead>
@@ -54,6 +80,7 @@
                 <th>Date</th>
                 <th>Montant</th>
                 <th>Description (sur le relevé bancaire)</th>
+                <th>Commentaire (libre)</th>
                 <th>Supprimer</th>
             </tr>
         </thead>
@@ -63,13 +90,14 @@
                     <td><DateInput bind:date={ligneBancaire.date}/></td>
                     <td><input type="number" bind:value={ligneBancaire.montant}></td>
                     <td><input type="text" bind:value={ligneBancaire.description}></td>
+                    <td><input type="text" bind:value={ligneBancaire.commentaire}></td>
                     <td><button on:click={() => supprimerLigne(ligneBancaire)}>Supprimer</button></td>
                 </tr>
             {/each}
         </tbody>
     </table>
     <button on:click={ajouterLigne}>Ajouter une ligne</button>
-    <button on:click={ajouterLigne}>Sauvegarder</button>
+    <button on:click={sauvegarder}>Sauvegarder</button>
 
     <!--
     <h2>Zone d'import</h2>

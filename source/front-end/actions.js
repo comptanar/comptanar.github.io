@@ -182,7 +182,7 @@ function envoyerOpérationHautNiveau(year, op, messageCréation, messageÉdition
   )
 }
 
-/** @type {({ identifiant, date }: { identifiant: string, date: Date }) => Promise<void>} */
+/** @type {(_: OpérationHautNiveau) => Promise<void>} */
 export const supprimerOpérationHautNiveau = ajouterRéessai(
   ({ identifiant, date }) => {
     const year = date.getFullYear()
@@ -233,6 +233,39 @@ export function sauvegarderEnvoiFactureÀClient(envoiFactureÀClient) {
     envoiFactureÀClient,
     `Création de la facture ${envoiFactureÀClient.numéroFacture} envoyée au client ${envoiFactureÀClient.compteClient} le ${formattedDate}`,
     `Modification de la facture ${envoiFactureÀClient.numéroFacture} envoyée au client ${envoiFactureÀClient.compteClient} le ${formattedDate}`,
+  )
+}
+
+/**
+ *
+ * @param {LigneBancaire[]} lignes
+ * @returns {Promise<any>} // Résout quand l'opération a bien été sauvegardée
+ */
+export function sauvegarderLignesBancaires(lignes) {
+  const lignesParAnnée = new Map()
+
+  for (const ligne of lignes) {
+    const année = ligne.date.getFullYear()
+    let lignesDeCetteAnnée = lignesParAnnée.get(année)
+
+    if (lignesDeCetteAnnée) {
+      lignesDeCetteAnnée.push(ligne)
+    } else {
+      lignesParAnnée.set(année, [ligne])
+    }
+  }
+
+  throw `PPP créer la fonction envoyerOpérationsHautNiveau`
+
+  return Promise.all(
+    [...lignesParAnnée].map(([année, lignes]) => {
+      return envoyerOpérationsHautNiveau(
+        année,
+        lignes,
+        `Création de ${lignes.length} lignes bancaires pour l'année ${année}`,
+        `Modification de ${lignes.length} lignes bancaires pour l'année ${année}`,
+      )
+    }),
   )
 }
 
