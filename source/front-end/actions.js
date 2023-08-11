@@ -145,8 +145,8 @@ function envoyerOpérationHautNiveau(year, op, messageCréation, messageÉdition
 
   let writePromise
   if (creation) {
+    store.mutations.addOpérationsHautNiveau(year, op)
     const action = ajouterRéessai(() => {
-      store.mutations.addOpérationsHautNiveau(year, op)
       const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
       return githubAsDatabase.writeExercice(
         year,
