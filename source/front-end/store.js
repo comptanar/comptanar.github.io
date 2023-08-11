@@ -80,22 +80,33 @@ const store = Store({
     supprimerAnnéeOpérationHautNiveau(state, année) {
       state.opérationsHautNiveauByYear.delete(année)
     },
-    addOpérationHautNiveau(state, year, opérationHautNiveau) {
+    /**
+     * @param {any} state
+     * @param {number} année
+     * @param {OpérationHautNiveau | OpérationHautNiveau[]} nouvellesOpérationsHautNiveau
+     */
+    addOpérationsHautNiveau(state, année, nouvellesOpérationsHautNiveau) {
       let opérationsHautNiveauWithSha =
-        state.opérationsHautNiveauByYear.get(year)
+        state.opérationsHautNiveauByYear.get(année)
 
       if (!opérationsHautNiveauWithSha) {
         opérationsHautNiveauWithSha = {
           sha: undefined,
           opérationsHautNiveau: [],
         }
-        state.opérationsHautNiveauByYear.set(year, opérationsHautNiveauWithSha)
+        state.opérationsHautNiveauByYear.set(année, opérationsHautNiveauWithSha)
       }
 
-      const { sha, opérationsHautNiveau } = opérationsHautNiveauWithSha
-      opérationsHautNiveau.push(opérationHautNiveau)
+      if (!Array.isArray(nouvellesOpérationsHautNiveau)) {
+        nouvellesOpérationsHautNiveau = [nouvellesOpérationsHautNiveau]
+      }
 
-      state.opérationsHautNiveauByYear.set(year, { sha, opérationsHautNiveau })
+      let { sha, opérationsHautNiveau } = opérationsHautNiveauWithSha
+      opérationsHautNiveau = opérationsHautNiveau.concat(
+        nouvellesOpérationsHautNiveau,
+      )
+
+      state.opérationsHautNiveauByYear.set(année, { sha, opérationsHautNiveau })
       // le sha et le contenu de opérationsHautNiveau sont désynchronisés temporairement
     },
     /**

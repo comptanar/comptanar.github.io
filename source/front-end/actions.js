@@ -146,7 +146,7 @@ function envoyerOpérationHautNiveau(year, op, messageCréation, messageÉdition
   let writePromise
   if (creation) {
     const action = ajouterRéessai(() => {
-      store.mutations.addOpérationHautNiveau(year, op)
+      store.mutations.addOpérationsHautNiveau(year, op)
       const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
       return githubAsDatabase.writeExercice(
         year,
@@ -172,6 +172,46 @@ function envoyerOpérationHautNiveau(year, op, messageCréation, messageÉdition
   }
 
   return writePromise.then(
+    ({
+      data: {
+        content: { sha },
+      },
+    }) => {
+      return store.mutations.updateOpérationsHautNiveauSha(year, sha)
+    },
+  )
+}
+
+/**
+ * Enregistre plusieurs opérations haut niveau dans la base de donnée.
+ *
+ * En cas de conflit, on retentera la création d'une nouvelle opération,
+ * mais pas l'édition d'une opération déjà existante (une `ConflictError`
+ * sera alors lancée).
+ *
+ * @param {number} year
+ * @param {OpérationHautNiveau[]} ops
+ * @param {string} messageCréation
+ * @returns
+ */
+export function envoyerPlusieursOpérationsHautNiveau(
+  year,
+  ops,
+  messageCréation,
+) {
+  store.mutations.addOpérationsHautNiveau(year, ops)
+
+  const écrireNouvelExercice = ajouterRéessai(() => {
+    const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
+    return githubAsDatabase.writeExercice(
+      year,
+      yearSha,
+      store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
+      messageCréation,
+    )
+  }, syncExercices)
+
+  return écrireNouvelExercice().then(
     ({
       data: {
         content: { sha },
