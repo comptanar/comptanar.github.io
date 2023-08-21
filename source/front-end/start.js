@@ -19,6 +19,7 @@ import store, {
   getEnvoiFactureÀClients,
   getFichesDePaie,
 } from './store.js'
+
 import {
   logout,
   saveToken,
@@ -311,12 +312,27 @@ page('/comptabilite/import-banque', ({ querystring }) => {
   selectOrgAndRepo(org, repo)
 
   function mapStateToProps(state) {
+    const lignesBancairesParAnnée =
+      state.opérationsHautNiveauByYear &&
+      new Map(
+        [...state.opérationsHautNiveauByYear]
+          .map(([année, { opérationsHautNiveau }]) => [
+            année,
+            opérationsHautNiveau.filter(
+              ({ type }) => type === 'Ligne bancaire',
+            ),
+          ])
+          .filter(([année, lignesBancaires]) => lignesBancaires.length >= 1)
+          // @ts-ignore feature récente, pas encore dans lib.d.ts (août 2023)
+          .toSorted(([année1], [année2]) => année2 - année1),
+      )
+
     return {
       login: state.login,
       logout: logoutAndRedirect,
       org,
       repo,
-      opHautNiveau: state.opérationsHautNiveauByYear,
+      lignesBancairesParAnnée,
     }
   }
 

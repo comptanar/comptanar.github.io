@@ -13,7 +13,7 @@ import '../format-données/types/main.js'
  *      userOrgs: any,
  *      org: string,
  *      repo: string,
- *      opérationsHautNiveauByYear: Map<number, OpérationHautNiveau[]> | undefined,
+ *      opérationsHautNiveauByYear: Map<number, WithSha<OpérationHautNiveau[]>> | undefined,
  *      personnes: WithSha<Personne[]> | undefined,
  *      salariats: WithSha<Salariat[]> | undefined,
  * }} State
@@ -229,7 +229,7 @@ export default store
 /**
  *
  * @param {OpérationHautNiveau["type"]} opType
- * @returns {Function}
+ * @returns {(state: any) => any}
  */
 const getSpecificOp = opType => state => {
   const { opérationsHautNiveauByYear } = state

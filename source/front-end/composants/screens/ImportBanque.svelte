@@ -5,12 +5,14 @@
 
     import {créerLigneBancaireVide} from '../../../format-données/opérationsHautNiveau.js'
     import { sauvegarderLignesBancaires } from '../../actions.js'
+    import { displayDate, formatMontant } from '../../stringifiers'
+
 
     export let login;
     export let logout;
     export let org;
     export let repo;
-    export let lignesBancairesParAnnée;
+    export let lignesBancairesParAnnée = new Map();
 
     /** @type {LigneBancaire[]} */
     let lignesBancairesEnCours = []
@@ -60,12 +62,29 @@
     <p>Pour le moment, y'a que un import Anytime qui fonctionne. L'idée, c'est d'ouvrir un pdf et de copier/coller le tableau en texte</p>
     <p>Ensuite, ça convertit en tableau et on valide le tableau</p>    
     
-    <!--
+    
     <h2>Lignes de compte historiques</h2>
-    {#each lignesBancairesParAnnée as [année, lignesBancairesExistantes]}
-        PPP par année, nia nia nia
+    {#each [...(lignesBancairesParAnnée || [])] as [année, lignesBancairesExistantes]}
+        <details>
+            <summary>{année} ({lignesBancairesExistantes.length})</summary>
+            <table>
+                <thead><th>Date</th><th>Montant</th><th>Description (relevé)</th><th>Commentaire (nous)</th></thead>
+                <tbody>
+                    {#each lignesBancairesExistantes as {date, montant, description, commentaire}}
+                    <tr>
+                        <td>{displayDate(date)}</td>
+                        <td>{formatMontant(montant)}</td>
+                        <td>{description}</td>
+                        <td>{commentaire}</td>
+                    </tr>
+                    {/each}
+                </tbody>
+
+            </table>
+        
+        </details>
     {/each}
-    -->
+    
 
     <!--
     <h2>Lignes de compte non-assignée</h2>
