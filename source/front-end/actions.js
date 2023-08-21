@@ -295,15 +295,12 @@ export function sauvegarderLignesBancaires(lignes) {
     }
   }
 
-  throw `PPP créer la fonction envoyerOpérationsHautNiveau`
-
   return Promise.all(
     [...lignesParAnnée].map(([année, lignes]) => {
-      return envoyerOpérationsHautNiveau(
+      return envoyerPlusieursOpérationsHautNiveau(
         année,
         lignes,
         `Création de ${lignes.length} lignes bancaires pour l'année ${année}`,
-        `Modification de ${lignes.length} lignes bancaires pour l'année ${année}`,
       )
     }),
   )

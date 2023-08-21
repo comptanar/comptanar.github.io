@@ -44,13 +44,13 @@
     }
 
 
-    throw `PPP
+    /*throw `PPP
         faire une fonction de sauvegarde
         montrer les lignes bancaires
             par année
         
         Cette première PR s'arrête là, parce que c'est déjà assez
-    `
+    `*/
 
 </script>
 
