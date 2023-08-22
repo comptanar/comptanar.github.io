@@ -45,7 +45,7 @@ export function créerEnvoiFactureÀClientVide() {
     numéroFacture: '',
     date: new Date(),
     compteClient: '',
-    identifiantOpération: Math.random().toString(32).slice(2),
+    identifiant: Math.random().toString(32).slice(2),
     lignes: [
       {
         compteProduit: '',
@@ -66,7 +66,7 @@ export function créerFicheDePaieVide() {
     date,
     débutPériode: date,
     finPériode: date,
-    identifiantOpération: Math.random().toString(32).slice(2),
+    identifiant: Math.random().toString(32).slice(2),
     salarié·e: '',
     rémunération: NaN,
     cotisations: NaN,
@@ -81,7 +81,7 @@ export function créerFicheDePaieVide() {
 export function créerAchatVide() {
   return {
     type: 'Réception facture fournisseur',
-    identifiantOpération: Math.random().toString(32).slice(2),
+    identifiant: Math.random().toString(32).slice(2),
     compteFournisseur: '',
     date: new Date(),
     lignes: [
@@ -91,5 +91,21 @@ export function créerAchatVide() {
         tauxTVA: 'Non applicable',
       },
     ],
+  }
+}
+
+/**
+ *
+ * @returns {LigneBancaire}
+ */
+export function créerLigneBancaireVide() {
+  const date = new Date()
+  return {
+    identifiant: Math.random().toString(32).slice(2),
+    type: 'Ligne bancaire',
+    date,
+    compteBancaire: '',
+    description: '',
+    montant: 0,
   }
 }

@@ -90,8 +90,8 @@
             table.edit(
                 fichesDePaie.findIndex(
                     (f) =>
-                        f.identifiantOpération ===
-                        ficheEnModification.identifiantOpération
+                        f.identifiant ===
+                        ficheEnModification.identifiant
                 )
             );
         });

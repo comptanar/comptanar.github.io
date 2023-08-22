@@ -140,13 +140,13 @@ function envoyerOpérationHautNiveau(year, op, messageCréation, messageÉdition
   const creation =
     !opérationsHautNiveauWithSha ||
     !opérationsHautNiveauWithSha.opérationsHautNiveau.some(
-      o => o.identifiantOpération === op.identifiantOpération,
+      o => o.identifiant === op.identifiant,
     )
 
   let writePromise
   if (creation) {
+    store.mutations.addOpérationsHautNiveau(year, op)
     const action = ajouterRéessai(() => {
-      store.mutations.addOpérationHautNiveau(year, op)
       const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
       return githubAsDatabase.writeExercice(
         year,
@@ -182,13 +182,53 @@ function envoyerOpérationHautNiveau(year, op, messageCréation, messageÉdition
   )
 }
 
-/** @type {({ identifiantOpération, date }: { identifiantOpération: string, date: Date }) => Promise<void>} */
+/**
+ * Enregistre plusieurs opérations haut niveau dans la base de donnée.
+ *
+ * En cas de conflit, on retentera la création d'une nouvelle opération,
+ * mais pas l'édition d'une opération déjà existante (une `ConflictError`
+ * sera alors lancée).
+ *
+ * @param {number} year
+ * @param {OpérationHautNiveau[]} ops
+ * @param {string} messageCréation
+ * @returns
+ */
+export function envoyerPlusieursOpérationsHautNiveau(
+  year,
+  ops,
+  messageCréation,
+) {
+  store.mutations.addOpérationsHautNiveau(year, ops)
+
+  const écrireNouvelExercice = ajouterRéessai(() => {
+    const yearSha = store.state.opérationsHautNiveauByYear.get(year).sha
+    return githubAsDatabase.writeExercice(
+      year,
+      yearSha,
+      store.state.opérationsHautNiveauByYear.get(year).opérationsHautNiveau,
+      messageCréation,
+    )
+  }, syncExercices)
+
+  return écrireNouvelExercice().then(
+    ({
+      data: {
+        content: { sha },
+      },
+    }) => {
+      return store.mutations.updateOpérationsHautNiveauSha(year, sha)
+    },
+  )
+}
+
+/** @type {(_: OpérationHautNiveau) => Promise<void>} */
 export const supprimerOpérationHautNiveau = ajouterRéessai(
-  ({ identifiantOpération, date }) => {
+  ({ identifiant, date }) => {
     const year = date.getFullYear()
     const formattedDate = format(date, 'd MMMM yyyy', { locale: fr })
 
-    store.mutations.supprimerOpérationHautNiveau(year, identifiantOpération)
+    store.mutations.supprimerOpérationHautNiveau(year, identifiant)
     const opérationsHautNiveauWithSha =
       store.state.opérationsHautNiveauByYear.get(year)
 
@@ -237,6 +277,36 @@ export function sauvegarderEnvoiFactureÀClient(envoiFactureÀClient) {
 }
 
 /**
+ *
+ * @param {LigneBancaire[]} lignes
+ * @returns {Promise<any>} // Résout quand l'opération a bien été sauvegardée
+ */
+export function sauvegarderLignesBancaires(lignes) {
+  const lignesParAnnée = new Map()
+
+  for (const ligne of lignes) {
+    const année = ligne.date.getFullYear()
+    let lignesDeCetteAnnée = lignesParAnnée.get(année)
+
+    if (lignesDeCetteAnnée) {
+      lignesDeCetteAnnée.push(ligne)
+    } else {
+      lignesParAnnée.set(année, [ligne])
+    }
+  }
+
+  return Promise.all(
+    [...lignesParAnnée].map(([année, lignes]) => {
+      return envoyerPlusieursOpérationsHautNiveau(
+        année,
+        lignes,
+        `Création de ${lignes.length} lignes bancaires pour l'année ${année}`,
+      )
+    }),
+  )
+}
+
+/**
  * @param {ÉmissionFicheDePaie} émissionFicheDePaie
  * @param {Personne} salarié·e
  * @returns
@@ -275,8 +345,8 @@ export function envoyerPersonne(personne) {
   )
   let writePromise
   if (creation) {
+    store.mutations.addPersonne(personne)
     const action = ajouterRéessai(() => {
-      store.mutations.addPersonne(personne)
       const sha = store.state.personnes.sha
       return githubAsDatabase.writePersonnes(
         sha,
@@ -342,8 +412,8 @@ export function envoyerSalariat(sal) {
   )
   let writePromise
   if (creation) {
+    store.mutations.addSalariat(sal)
     const action = ajouterRéessai(() => {
-      store.mutations.addSalariat(sal)
       const sha = store.state.salariats.sha
       return githubAsDatabase.writeSalariats(sha, store.state.salariats.data)
     }, syncPersonnes)
