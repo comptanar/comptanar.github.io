@@ -1,6 +1,6 @@
 {
   "name": "comptanar",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "un produit pour faire des bilans officiels",
   "type": "module",
   "browser": "source/front-end/start.js",
@@ -8,7 +8,7 @@
     "node": ">=16"
   },
   "scripts": {
-    "start": "echo 'http://localhost:8080/' && http-server -a localhost -s",
+    "start": "echo 'http://localhost:8080/' && http-server -a localhost -s -c-1",
     "test": "ava tests",
     "build": "rollup -c",
     "dev": "rollup -c -w",
@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pntbr/comptanar.git"
+    "url": "git+https://github.com/comptanar/comptanar.github.io.git"
   },
   "keywords": [
     "comptabilité",
@@ -32,9 +32,9 @@
   "author": "collectif",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pntbr/comptanar/issues"
+    "url": "https://github.com/comptanar/comptanar.github.io/issues"
   },
-  "homepage": "https://github.com/pntbr/comptanar#readme",
+  "homepage": "https://github.com/comptanar/comptanar.github.io#readme",
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
   },
