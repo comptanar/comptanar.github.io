@@ -93,6 +93,41 @@ page('/', () => {
   replaceComponent(welcome, mapStateToProps)
 })
 
+page('/after-oauth-login', () => {
+  console.info('/after-oauth-login', location.href.toString())
+  const TOCTOCTOC_TOKEN_SEARCH_PARAM = 'access_token'
+
+  // Store access token in URL into browser localStorage and replace URL to the same without the token
+  const url = new URL(location.href)
+
+  const urlToken = url.searchParams.get(TOCTOCTOC_TOKEN_SEARCH_PARAM)
+  console.log('urlToken', urlToken)
+
+  if (urlToken) {
+    saveToken(urlToken)
+      .then(initDance)
+      .then(() => {
+        url.searchParams.delete(TOCTOCTOC_TOKEN_SEARCH_PARAM)
+        if (store.state.login) {      
+          Promise.resolve(store.state.login).then(login => {
+            console.info('Logged in as', login, 'Moving to /choose-organisation')
+            page('/choose-organisation')
+          })
+        }
+      })
+      .catch(err => {
+        page('/')
+        // PPP add error notif
+        console.error('Saving token failed', err)
+      })
+  }
+  else{
+    page('/')
+    // PPP add error notif
+  }
+})
+
+
 page('/choose-organisation', () => {
   console.info('route', '/choose-organisation')
 
@@ -348,24 +383,6 @@ page('/comptabilite/import-banque', ({ querystring }) => {
  * Init script
  */
 
-const GITHUB_TOKEN_SEARCH_PARAM = 'access_token'
-
-// Store access token in URL into browser localStorage and replace URL to the same without the token
-const url = new URL(location.href)
-
-const urlToken = url.searchParams.get(GITHUB_TOKEN_SEARCH_PARAM)
-
-if (urlToken) {
-  saveToken(urlToken)
-    .then(() => {
-      url.searchParams.delete(GITHUB_TOKEN_SEARCH_PARAM)
-      history.replaceState(undefined, '', url)
-    })
-    .catch(err => {
-      console.error('Saving token failed', err)
-    })
-}
-
 initDance()
   .catch(error => {
     console.error('init dance error', error)
@@ -380,3 +397,5 @@ initDance()
       page.start()
     }
   })
+
+page.start()

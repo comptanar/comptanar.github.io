@@ -10,9 +10,9 @@
     const scopesList = ["public_repo", "read:org"];
     const scopes = scopesList.join(",");
 
-    const toctoctoc_origin = "https://ttt.olibri.us";
-    const client_id = "fe09b09c65edef4ec9cc";
-    const destination = `${location.origin}/`;
+    const toctoctoc_origin = "https://toctoctoc.lechappeebelle.team";
+    const client_id = "64ecce0b01397c2499a6";
+    const destination = `${location.origin}/after-oauth-login`;
     const redirect_uri = `${toctoctoc_origin}/github-callback?destination=${destination}`;
 
     const href = `https://github.com/login/oauth/authorize?client_id=${client_id}&scope=${scopes}&redirect_uri=${redirect_uri}`;
