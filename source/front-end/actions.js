@@ -32,26 +32,6 @@ export function logout() {
   return forgetToken()
 }
 
-export async function initDance() {
-  if (store.state.githubToken) {
-    githubAsDatabase.token = store.state.githubToken
-
-    // Retrieve logged in user from access token
-    const loginP = githubAsDatabase
-      .getAuthenticatedUser()
-      // @ts-ignore
-      .then(({ login }) => {
-        store.mutations.setLogin(login)
-        return login
-      })
-
-    store.mutations.setLogin(loginP)
-
-    return loginP
-  } else {
-    return Promise.resolve(undefined)
-  }
-}
 
 const syncExercices = () =>
   githubAsDatabase

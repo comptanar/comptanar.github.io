@@ -2,14 +2,13 @@
 
 import Store from 'baredux'
 
-import { rememberToken } from './localStorage.js'
 
 import '../format-données/types/main.js'
 
 /**
  * @typedef {{
  *      githubToken: string,
- *      login: Promise<string> | string,
+ *      login: string,
  *      userOrgs: any,
  *      org: string,
  *      repo: string,
@@ -22,8 +21,8 @@ import '../format-données/types/main.js'
 const store = Store({
   state: {
     // @ts-ignore
-    githubToken: await rememberToken(),
-    login: undefined, // Promise<string> | string
+    githubToken: undefined,
+    login: undefined,
     userOrgs: undefined,
     org: undefined,
     repo: undefined,

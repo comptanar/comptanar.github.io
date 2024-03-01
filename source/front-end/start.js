@@ -2,6 +2,9 @@
 
 import page from 'page'
 
+import { rememberToken } from './localStorage.js'
+import githubAsDatabase from './githubAsDatabase.js'
+
 import Welcome from './composants/screens/Welcome.svelte'
 import ChooseOrganisation from './composants/screens/ChooseOrganisation.svelte'
 import Comptabilite from './composants/screens/Comptabilite.svelte'
@@ -23,7 +26,6 @@ import store, {
 import {
   logout,
   saveToken,
-  initDance,
   getUserOrgChoices,
   selectOrgAndRepo,
 } from './actions.js'
@@ -62,6 +64,35 @@ store.subscribe(render)
 function logoutAndRedirect() {
   logout().then(() => page('/'))
 }
+
+
+function loginMiddleware(_, next){
+  if(store.state.githubToken){
+    next()
+  }
+  else{
+    return rememberToken().then(token => {
+      if(token){
+        store.mutations.setToken(token)
+        githubAsDatabase.token = token
+        return githubAsDatabase.getAuthenticatedUser()
+        .then(({ login }) => {
+          console.log('getAuthenticatedUser', login)
+          store.mutations.setLogin(login)
+          next()
+        })
+        .catch(() => {
+          // PPP store error in store for informative message
+          logoutAndRedirect()
+        })
+      }
+      else{
+        page('/')
+      }
+    })
+  }
+}
+
 
 /**
  * Routes
@@ -105,15 +136,13 @@ page('/after-oauth-login', () => {
 
   if (urlToken) {
     saveToken(urlToken)
-      .then(initDance)
       .then(() => {
         url.searchParams.delete(TOCTOCTOC_TOKEN_SEARCH_PARAM)
-        if (store.state.login) {      
-          Promise.resolve(store.state.login).then(login => {
-            console.info('Logged in as', login, 'Moving to /choose-organisation')
-            page('/choose-organisation')
-          })
-        }
+        return githubAsDatabase.getAuthenticatedUser()
+        .then(({ login }) => {
+          store.mutations.setLogin(login)
+          page('/choose-organisation')
+        })
       })
       .catch(err => {
         page('/')
@@ -124,11 +153,12 @@ page('/after-oauth-login', () => {
   else{
     page('/')
     // PPP add error notif
+    console.error(`Expected a ${TOCTOCTOC_TOKEN_SEARCH_PARAM} param in URL and found none`, url)
   }
 })
 
 
-page('/choose-organisation', () => {
+page('/choose-organisation', loginMiddleware, () => {
   console.info('route', '/choose-organisation')
 
   getUserOrgChoices()
@@ -149,7 +179,7 @@ page('/choose-organisation', () => {
   replaceComponent(chooseOrganisation, mapStateToProps)
 })
 
-page('/comptabilite/', ({ querystring }) => {
+page('/comptabilite/', loginMiddleware, ({ querystring }) => {
   console.info('route', '/comptabilite/', querystring)
 
   const params = new URLSearchParams(querystring)
@@ -176,7 +206,7 @@ page('/comptabilite/', ({ querystring }) => {
   replaceComponent(comptabilite, mapStateToProps)
 })
 
-page('/comptabilite/ventes', ({ querystring }) => {
+page('/comptabilite/ventes', loginMiddleware, ({ querystring }) => {
   console.info('route', '/comptabilite/ventes', querystring)
   const params = new URLSearchParams(querystring)
 
@@ -204,7 +234,7 @@ page('/comptabilite/ventes', ({ querystring }) => {
   replaceComponent(factures, mapStateToProps)
 })
 
-page('/comptabilite/fiches-de-paie', ({ querystring }) => {
+page('/comptabilite/fiches-de-paie', loginMiddleware, ({ querystring }) => {
   const params = new URLSearchParams(querystring)
 
   const org = params.get('org')
@@ -232,7 +262,7 @@ page('/comptabilite/fiches-de-paie', ({ querystring }) => {
   replaceComponent(fichesDePaie, mapStateToProps)
 })
 
-page('/comptabilite/personnes', ({ querystring }) => {
+page('/comptabilite/personnes', loginMiddleware, ({ querystring }) => {
   const params = new URLSearchParams(querystring)
 
   const org = params.get('org')
@@ -259,7 +289,7 @@ page('/comptabilite/personnes', ({ querystring }) => {
   replaceComponent(personnes, mapStateToProps)
 })
 
-page('/comptabilite/achats', ({ querystring }) => {
+page('/comptabilite/achats', loginMiddleware, ({ querystring }) => {
   const params = new URLSearchParams(querystring)
 
   const org = params.get('org')
@@ -286,7 +316,7 @@ page('/comptabilite/achats', ({ querystring }) => {
   replaceComponent(achats, mapStateToProps)
 })
 
-page('/comptabilite/salariats', ({ querystring }) => {
+page('/comptabilite/salariats', loginMiddleware, ({ querystring }) => {
   const params = new URLSearchParams(querystring)
 
   const org = params.get('org')
@@ -311,7 +341,7 @@ page('/comptabilite/salariats', ({ querystring }) => {
   replaceComponent(composant, mapStateToProps)
 })
 
-page('/comptabilite/compte-resultat', ({ querystring }) => {
+page('/comptabilite/compte-resultat', loginMiddleware, ({ querystring }) => {
   const params = new URLSearchParams(querystring)
 
   const org = params.get('org')
@@ -338,7 +368,7 @@ page('/comptabilite/compte-resultat', ({ querystring }) => {
   replaceComponent(compteRésultat, mapStateToProps)
 })
 
-page('/comptabilite/import-banque', ({ querystring }) => {
+page('/comptabilite/import-banque', loginMiddleware, ({ querystring }) => {
   const params = new URLSearchParams(querystring)
 
   const org = params.get('org')
@@ -378,24 +408,5 @@ page('/comptabilite/import-banque', ({ querystring }) => {
 
   replaceComponent(importBanque, mapStateToProps)
 })
-
-/**
- * Init script
- */
-
-initDance()
-  .catch(error => {
-    console.error('init dance error', error)
-  })
-  .then(login => {
-    if (!login) {
-      page.start({ dispatch: false })
-      console.info('no valid login found, redirected to / route')
-
-      logout().then(() => page('/'))
-    } else {
-      page.start()
-    }
-  })
 
 page.start()
