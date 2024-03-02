@@ -40,9 +40,11 @@ export const formatMontant = montant => {
   else return '-'
 }
 
-export const formatCompte = (préfixe, suffixe) =>
-  (préfixe * Math.pow(10, 6 - préfixe.toString().length) + suffixe).toString()
-
+/**
+ * 
+ * @param {string} numCompte 
+ * @returns {string}
+ */
 export function libelleCompte(numCompte) {
   if (numCompte === '44566') {
     return 'dépôt TVA'

@@ -15,7 +15,7 @@
 
     import '../../../format-données/types/main.js'
     
-    export let login
+    export let user
     export let logout
     export let org
     export let repo
@@ -119,7 +119,7 @@
     }
 </script>
 
-<Skeleton {login} {logout} {org} {repo} fullwidth>
+<Skeleton {user} {logout} {org} {repo} fullwidth>
     <Tableau bind:this={table} on:edit={(e) => { màjFormulaire(envoiFactureàClients[e.detail]) }} {...tableConfig}>
         <h1 slot="header">
             Voici la liste des factures (ventes) pour 

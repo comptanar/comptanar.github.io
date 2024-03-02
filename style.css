@@ -175,7 +175,7 @@ form > fieldset > button:not(:last-child) {
 .avatar {
   border: 1px solid black;
   background-color: aliceblue;
-  border-radius: 50%;
+  border-radius: 25%;
 }
 
 .avatar.small {

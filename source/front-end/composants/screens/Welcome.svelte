@@ -2,12 +2,12 @@
     //@ts-check
     
     import Skeleton from "../Skeleton.svelte";
-    //export let href;
-    export let login;
+    
+    export let user;
     export let logout;
 </script>
 
-<Skeleton {login} {logout}>
+<Skeleton {user} {logout}>
     <p>Bienvenue ! Comptanar, c'est pour faire sa comptabilité en toute autonomie !</p>
         <p>
             Pour le moment comptanar est en alpha ultra-privée, ultra-select, 

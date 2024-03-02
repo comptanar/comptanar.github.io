@@ -8,7 +8,7 @@
     import { displayDate, formatMontant } from '../../stringifiers'
 
 
-    export let login;
+    export let user;
     export let logout;
     export let org;
     export let repo;
@@ -56,7 +56,7 @@
 
 </script>
 
-<Skeleton {login} {logout} {org} {repo}>
+<Skeleton {user} {logout} {org} {repo}>
     <h1>Import bancaire</h1>
     <p>Par ici, on importe les données bancaires et on essaye de les classifier</p>
     <p>Pour le moment, y'a que un import Anytime qui fonctionne. L'idée, c'est d'ouvrir un pdf et de copier/coller le tableau en texte</p>

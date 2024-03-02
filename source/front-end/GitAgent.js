@@ -15,7 +15,6 @@ import FS from '@isomorphic-git/lightning-fs'
 import git from 'isomorphic-git'
 import http from 'isomorphic-git/http/web/index.js'
 
-import './types.js'
 
 
 const DEFAULT_CORS_PROXY_URL = 'https://cors.isomorphic-git.org'
@@ -64,6 +63,8 @@ export default class GitAgent {
     this.#hostname = new URL(this.#origin).hostname
     // filesystem directory
     this.#repoDirectory = `/${this.#hostname}/${this.#repoId}`
+
+    Object.freeze(this)
   }
 
   
@@ -487,6 +488,19 @@ export default class GitAgent {
    */
   listFiles(dir) {
     return this.#fs.promises.readdir(this.#path(dir))
+  }
+
+  /**
+   *
+   * @param {string} [ref]
+   * @returns
+   */
+  listAllFiles(ref = 'HEAD') {
+    return git.listFiles({
+      fs: this.#fs,
+      ref,
+      dir: this.#repoDirectory,
+    })
   }
 
   /**

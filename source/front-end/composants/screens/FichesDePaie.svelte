@@ -19,7 +19,7 @@
     } from "../../actions";
     import { créerFicheDePaieVide } from "../../../format-données/opérationsHautNiveau";
 
-    export let login;
+    export let user;
     export let logout;
     export let org;
     export let repo;
@@ -135,7 +135,7 @@
     };
 </script>
 
-<Skeleton {login} {logout} {org} {repo} fullwidth>
+<Skeleton {user} {logout} {org} {repo} fullwidth>
     <Tableau
         {...tableConfig}
         bind:this={table}

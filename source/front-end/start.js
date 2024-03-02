@@ -27,10 +27,11 @@ import {
   logout,
   saveToken,
   getUserOrgChoices,
-  selectOrgAndRepo,
+  setOrgAndRepo,
 } from './actions.js'
 
 console.info('start')
+
 
 /**
  * Component rendering loop
@@ -67,7 +68,7 @@ function logoutAndRedirect() {
 
 
 function loginMiddleware(_, next){
-  if(store.state.githubToken){
+  if(store.state.githubToken && store.state.user){
     next()
   }
   else{
@@ -75,10 +76,12 @@ function loginMiddleware(_, next){
       if(token){
         store.mutations.setToken(token)
         githubAsDatabase.token = token
+        
+        // this gets the authenticated user, and is also the occasion to check token validity
         return githubAsDatabase.getAuthenticatedUser()
-        .then(({ login }) => {
-          console.log('getAuthenticatedUser', login)
-          store.mutations.setLogin(login)
+        .then(user => {
+          console.log('getAuthenticatedUser', user)
+          store.mutations.setUser(user)
           next()
         })
         .catch(() => {
@@ -99,18 +102,18 @@ function loginMiddleware(_, next){
  */
 page('/', () => {
   console.info('route', '/')
-  if (store.state.login) {
+  if (store.state.user) {
     const repoName = store.state.repoName
 
-    Promise.resolve(store.state.login).then(login => {
-      console.info('Logged in as', login, 'Moving to /choose-organisation')
+    Promise.resolve(store.state.user).then(user => {
+      console.info('Logged in as', user.login, 'Moving to /choose-organisation')
       page('/choose-organisation')
     })
   }
 
   function mapStateToProps(state) {
     return {
-      login: state.login,
+      user: state.user,
       logout: logoutAndRedirect,
     }
   }
@@ -139,8 +142,8 @@ page('/after-oauth-login', () => {
       .then(() => {
         url.searchParams.delete(TOCTOCTOC_TOKEN_SEARCH_PARAM)
         return githubAsDatabase.getAuthenticatedUser()
-        .then(({ login }) => {
-          store.mutations.setLogin(login)
+        .then(user => {
+          store.mutations.setUser(user)
           page('/choose-organisation')
         })
       })
@@ -165,7 +168,7 @@ page('/choose-organisation', loginMiddleware, () => {
 
   function mapStateToProps(state) {
     return {
-      login: state.login,
+      user: state.user,
       logout: logoutAndRedirect,
       possibleOrganisations: state.userOrgs,
     }
@@ -187,11 +190,11 @@ page('/comptabilite/', loginMiddleware, ({ querystring }) => {
   const org = params.get('org')
   const repo = params.get('repo')
 
-  selectOrgAndRepo(org, repo)
+  setOrgAndRepo(org, repo)
 
   function mapStateToProps(state) {
     return {
-      login: state.login,
+      user: state.user,
       logout: logoutAndRedirect,
       org,
       repo,
@@ -213,11 +216,11 @@ page('/comptabilite/ventes', loginMiddleware, ({ querystring }) => {
   const org = params.get('org')
   const repo = params.get('repo')
 
-  selectOrgAndRepo(org, repo)
+  setOrgAndRepo(org, repo)
 
   function mapStateToProps(state) {
     return {
-      login: state.login,
+      user: state.user,
       logout: logoutAndRedirect,
       org,
       repo,
@@ -240,11 +243,11 @@ page('/comptabilite/fiches-de-paie', loginMiddleware, ({ querystring }) => {
   const org = params.get('org')
   const repo = params.get('repo')
 
-  selectOrgAndRepo(org, repo)
+  setOrgAndRepo(org, repo)
 
   function mapStateToProps(state) {
     return {
-      login: state.login,
+      user: state.user,
       logout: logoutAndRedirect,
       org,
       repo,
@@ -268,11 +271,11 @@ page('/comptabilite/personnes', loginMiddleware, ({ querystring }) => {
   const org = params.get('org')
   const repo = params.get('repo')
 
-  selectOrgAndRepo(org, repo)
+  setOrgAndRepo(org, repo)
 
   function mapStateToProps(state) {
     return {
-      login: state.login,
+      user: state.user,
       logout: logoutAndRedirect,
       org,
       repo,
@@ -295,11 +298,11 @@ page('/comptabilite/achats', loginMiddleware, ({ querystring }) => {
   const org = params.get('org')
   const repo = params.get('repo')
 
-  selectOrgAndRepo(org, repo)
+  setOrgAndRepo(org, repo)
 
   function mapStateToProps(state) {
     return {
-      login: state.login,
+      user: state.user,
       logout: logoutAndRedirect,
       achats: getAchats(state) ?? [],
       org,
@@ -322,10 +325,10 @@ page('/comptabilite/salariats', loginMiddleware, ({ querystring }) => {
   const org = params.get('org')
   const repo = params.get('repo')
 
-  selectOrgAndRepo(org, repo)
+  setOrgAndRepo(org, repo)
   function mapStateToProps(state) {
     return {
-      login: state.login,
+      user: state.user,
       logout: logoutAndRedirect,
       org,
       repo,
@@ -347,11 +350,11 @@ page('/comptabilite/compte-resultat', loginMiddleware, ({ querystring }) => {
   const org = params.get('org')
   const repo = params.get('repo')
 
-  selectOrgAndRepo(org, repo)
+  setOrgAndRepo(org, repo)
 
   function mapStateToProps(state) {
     return {
-      login: state.login,
+      user: state.user,
       logout: logoutAndRedirect,
       achats: getAchats(state) ?? [],
       org,
@@ -374,7 +377,7 @@ page('/comptabilite/import-banque', loginMiddleware, ({ querystring }) => {
   const org = params.get('org')
   const repo = params.get('repo')
 
-  selectOrgAndRepo(org, repo)
+  setOrgAndRepo(org, repo)
 
   function mapStateToProps(state) {
     const lignesBancairesParAnnée =
@@ -393,7 +396,7 @@ page('/comptabilite/import-banque', loginMiddleware, ({ querystring }) => {
       )
 
     return {
-      login: state.login,
+      user: state.user,
       logout: logoutAndRedirect,
       org,
       repo,

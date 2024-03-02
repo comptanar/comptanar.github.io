@@ -3,14 +3,14 @@
     
     import Header from "./Header.svelte";
     import Footer from "./Footer.svelte";
-    export let login = undefined;
+    export let user = undefined;
     export let logout = undefined;
     export let fullwidth = false;
     export let repo = undefined
     export let org = undefined;
 </script>
 
-<Header {login} {logout} {org} {repo}/>
+<Header {user} {logout} {org} {repo}/>
 
 <main class:fullwidth={fullwidth}>
 <slot></slot>

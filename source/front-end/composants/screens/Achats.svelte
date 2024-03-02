@@ -14,7 +14,7 @@
     import { displayDate, formatDate, formatMontant } from '../../stringifiers'
     import { envoyerAchat, supprimerOpérationHautNiveau } from '../../actions'
 
-    export let login
+    export let user
     export let logout
     /** @type {RéceptionFactureFournisseur[]} */
     export let achats
@@ -158,7 +158,7 @@
     }
 </script>
 
-<Skeleton {login} {logout} {org} {repo} fullwidth>
+<Skeleton {user} {logout} {org} {repo} fullwidth>
     <Tableau bind:this={table} on:edit={e => màjFormulaire(achats[e.detail])} {...tableConfig}>
         <h1 slot="header">Achats réalisés par {org}</h1>
         <h2 slot="form-header">Achat</h2>

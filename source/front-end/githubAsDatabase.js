@@ -1,6 +1,7 @@
 //@ts-check
 
 import { request } from '@octokit/request'
+import {Octokit} from 'octokit'
 
 import {
   parseOpérationsHautNiveauYaml,
@@ -25,6 +26,8 @@ const initialRequestDefaults = {
 }
 
 let theRequest = request.defaults(initialRequestDefaults)
+/** @type {Octokit} */
+let octokit;
 
 function opérationsHautNiveauPath(year) {
   return `exercices/${year}/operationsHautNiveau.yml`
@@ -43,6 +46,7 @@ export default {
         authorization: `token ${token}`,
       },
     })
+    octokit = new Octokit({auth: token})
   },
   set owner(owner) {
     theRequest = theRequest.defaults({ owner })
@@ -50,12 +54,20 @@ export default {
   set repo(repo) {
     theRequest = theRequest.defaults({ repo })
   },
-  getAuthenticatedUser() {
-    return theRequest('/user').then(({ data }) => {
-      const login = data.login
+  async getAuthenticatedUser() {
+    const { viewer: { login, email, avatarUrl } } = await octokit.graphql(`{
+      viewer {
+        login
+        email
+        avatarUrl
+      }
+    }`);
 
-      return data
-    })
+    // PPP add organizations
+    // https://docs.github.com/en/graphql/reference/objects#user
+    // https://docs.github.com/en/graphql/reference/objects#organizationconnection
+
+    return {login, email, avatarUrl}
   },
   getOrgs() {
     return theRequest('/user/orgs').then(({ data: organisations }) => {
@@ -75,7 +87,7 @@ export default {
       name,
     })
   },
-  getExercices() {
+  /*getExercices() {
     return theRequest(`/repos/{owner}/{repo}/contents/exercices`).then(
       ({ data: exercicesDir }) => {
         const promisesToWait = []
@@ -130,14 +142,14 @@ export default {
         )
       },
     )
-  },
+  },*/
   /**
    * @param {number} year
    * @param {string?} sha
    * @param {OpérationHautNiveau[]} opérationsHautNiveau
    * @param {string} [message]
    */
-  writeExercice(year, sha, opérationsHautNiveau, message) {
+  /*writeExercice(year, sha, opérationsHautNiveau, message) {
     return theRequest(
       `/repos/{owner}/{repo}/contents/${opérationsHautNiveauPath(year)}`,
       {
@@ -151,13 +163,13 @@ export default {
         ),
       },
     )
-  },
+  },*/
   /**
    * @param {number} year
    * @param {string} sha
    * @param {string} [message]
    */
-  deleteExercice(year, sha, message) {
+  /*deleteExercice(year, sha, message) {
     return theRequest(
       `/repos/{owner}/{repo}/contents/${opérationsHautNiveauPath(year)}`,
       {
@@ -166,19 +178,19 @@ export default {
         message: message || `Suppression de l'exercice ${year}`,
       },
     )
-  },
+  },*/
   /**
    * Renvoie la liste des personnes stockée sur GitHub
    * @type {() => Promise<WithSha<Personne[]>>}
    */
-  getPersonnes: fileReader(personnesPath, parsePersonnes),
+  //getPersonnes: fileReader(personnesPath, parsePersonnes),
   /**
    * Sauvegarde une liste de personnes dans le dépôt GitHub
    * @param {string} sha
    * @param {Personne[]} personnes
    * @param {string} message
    */
-  writePersonnes: fileWriter(
+  /*writePersonnes: fileWriter(
     personnesPath,
     'Mise à jour des personnes',
     stringifyPersonnesYaml,
@@ -188,7 +200,7 @@ export default {
     salariatsPath,
     'Mise à jour des salarié⋅es',
     stringifySalariatsYaml,
-  ),
+  ),*/
 }
 
 // Quelques fonctions utilitaires :

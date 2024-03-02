@@ -1,13 +1,13 @@
 <script>
     //@ts-check
 
-    export let login = undefined;
+    export let user = undefined;
     export let repo = undefined;
     export let org = undefined;
 
     export let logout;
 
-    const scopesList = ["public_repo", "read:org"];
+    const scopesList = ["public_repo", "read:org", "user:email"];
     const scopes = scopesList.join(",");
 
     const toctoctoc_origin = "https://toctoctoc.lechappeebelle.team";
@@ -30,18 +30,18 @@
     {/if}
 
     <div>
-        {#if login}
-            {#await login}
+        {#if user}
+            {#await user}
                 ... recherche du nom d'utilisateur.rice Github ...
-            {:then l}
+            {:then user}
                 <div class="user">
                     <div>
-                        <p>{l}</p>
+                        <p>{user.login}</p>
                         <button on:click={logout}>Se déconnecter</button>
                     </div>
                     <img
                         class="avatar small"
-                        src={`https://github.com/${l}.png`}
+                        src={user.avatarUrl}
                         alt=""
                     />
                 </div>

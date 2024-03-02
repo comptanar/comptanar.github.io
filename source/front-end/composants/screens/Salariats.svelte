@@ -11,7 +11,7 @@
     import { fr } from "date-fns/locale";
     import { envoyerSalariat, supprimerSalariat } from "../../actions";
 
-    export let login
+    export let user
     export let logout
     export let org
     export let repo
@@ -87,7 +87,7 @@
     }
 </script>
 
-<Skeleton {login} {logout} {org} {repo} fullwidth>
+<Skeleton {user} {logout} {org} {repo} fullwidth>
     <Tableau {...tableConfig} bind:this={table} on:edit={(e) => màjFormulaire(salariats[e.detail])}>
         <h1 slot="header">Liste des salariats</h1>
         <svelte:fragment slot="form-header">

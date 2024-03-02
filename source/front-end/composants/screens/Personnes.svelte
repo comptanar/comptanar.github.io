@@ -10,7 +10,7 @@
     import { envoyerPersonne, supprimerPersonne } from "../../actions";
     import { créerProchainCompteClient, créerProchainCompteFournisseur } from '../../../format-données/comptabilité/main.js'
 
-    export let login;
+    export let user;
     export let logout;
     export let org;
     export let repo;
@@ -78,7 +78,7 @@
     $: console.log(personnes);
 </script>
 
-<Skeleton {login} {logout} {org} {repo} fullwidth>
+<Skeleton {user} {logout} {org} {repo} fullwidth>
     <Tableau
         {...tableConfig}
         bind:this={table}

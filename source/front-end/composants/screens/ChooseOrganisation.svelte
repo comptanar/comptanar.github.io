@@ -7,7 +7,7 @@
 
     import githubAsDatabase from "../../githubAsDatabase.js";
 
-    export let login;
+    export let user;
     export let logout;
     export let possibleOrganisations = [];
 
@@ -49,10 +49,10 @@
     }
 </script>
 
-<Skeleton {login} {logout}>
+<Skeleton {user} {logout}>
     {#if !chosenOrg}
         <h1 transition:fade>
-            Yello {login}, tu veux faire de la comptabilité sur quelle
+            Yello {user.login}, tu veux faire de la comptabilité sur quelle
             organisation ?
         </h1>
 

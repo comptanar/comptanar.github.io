@@ -4,14 +4,16 @@ import Store from 'baredux'
 
 
 import '../format-données/types/main.js'
+import GitAgent from './GitAgent.js'
 
 /**
  * @typedef {{
  *      githubToken: string,
- *      login: string,
+ *      user: string,
  *      userOrgs: any,
  *      org: string,
  *      repo: string,
+ *      gitAgent: GitAgent,
  *      opérationsHautNiveauByYear: Map<number, WithSha<OpérationHautNiveau[]>> | undefined,
  *      personnes: WithSha<Personne[]> | undefined,
  *      salariats: WithSha<Salariat[]> | undefined,
@@ -22,10 +24,11 @@ const store = Store({
   state: {
     // @ts-ignore
     githubToken: undefined,
-    login: undefined,
+    user: undefined,
     userOrgs: undefined,
     org: undefined,
     repo: undefined,
+    gitAgent: undefined,
     opérationsHautNiveauByYear: undefined,
     personnes: undefined,
     salariats: undefined,
@@ -36,20 +39,29 @@ const store = Store({
     setToken(state, githubToken) {
       state.githubToken = githubToken
     },
-    setLogin(state, login) {
-      state.login = login
+    setUser(state, user) {
+      state.user = user
     },
     setUserOrgs(state, orgs) {
       state.userOrgs = orgs
     },
     logout(state) {
       state.githubToken = undefined
-      state.login = undefined
+      state.user = undefined
       state.userOrgs = undefined
+      state.org = undefined
+      state.repo = undefined
+      state.gitAgent = undefined
+      state.opérationsHautNiveauByYear = undefined
+      state.personnes = undefined
+      state.salariats = undefined
     },
     setOrgAndRepo(state, org, repo) {
       state.org = org
       state.repo = repo
+    },
+    setGitAgent(state, gitAgent){
+      state.gitAgent = gitAgent
     },
     setOpérationsHautNiveauByYear(state, opérationsHautNiveauByYear) {
       console.log('opérationsHautNiveauByYear', opérationsHautNiveauByYear)

@@ -6,7 +6,7 @@
   import OpHautNiveauVersOpDeCompte from "../../../format-données/traduireOpérationsHautNiveauEnOpérationsDeCompte";
   import { formatMontant, libelleCompte } from "../../stringifiers";
 
-  export let login;
+  export let user;
   export let logout;
   export let opHautNiveau;
 
@@ -39,7 +39,7 @@
   }
 </script>
 
-<Skeleton {login} {logout} fullwidth>
+<Skeleton {user} {logout} fullwidth>
   <label>
     <div>Année</div>
     <select bind:value={annee}>

@@ -3,14 +3,17 @@
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
-import githubAsDatabase from './githubAsDatabase.js'
 import { rememberToken, forgetToken } from './localStorage.js'
+
+import githubAsDatabase from './githubAsDatabase.js'
+import GitAgent from './GitAgent.js'
 
 import store from './store.js'
 
-import { formatCompte, formatDate } from './stringifiers.js'
+import { formatDate } from './stringifiers.js'
 
 import '../format-données/types/main.js'
+
 
 export class ConflictError extends Error {}
 
@@ -33,14 +36,6 @@ export function logout() {
 }
 
 
-const syncExercices = () =>
-  githubAsDatabase
-    .getExercices()
-    .then(store.mutations.setOpérationsHautNiveauByYear)
-const syncPersonnes = () =>
-  githubAsDatabase.getPersonnes().then(store.mutations.setPersonnes)
-const syncSalariats = () =>
-  githubAsDatabase.getSalariats().then(store.mutations.setSalariats)
 
 /**
  * Crée une fonction qui tente de faire une action un première fois,
@@ -76,17 +71,94 @@ function makeConflictError(err) {
   }
 }
 
-export function selectOrgAndRepo(org, repo) {
+/**
+ *
+ * @param {string} owner // may be an individual Github user or an organisation
+ * @param {string} repoName
+ * @returns {string}
+ */
+export function makeRepoId(owner, repoName) {
+  return `${owner}/${repoName}`
+}
+
+
+const syncPersonnes = () =>
+  githubAsDatabase.getPersonnes().then(store.mutations.setPersonnes)
+const syncSalariats = () =>
+  githubAsDatabase.getSalariats().then(store.mutations.setSalariats)
+
+const EXERCICES_DIR = 'exercices'
+
+async function getExercices(){
+  const {gitAgent} = store.state
+  // lister les fichiers du dossier exercices
+
+  if(!gitAgent)
+    throw new TypeError('Missing gitAgent')
+
+  console.time('listAllFiles')
+  const allFiles = await gitAgent.listAllFiles()
+  console.timeEnd('listAllFiles')
+  console.log('allFiles', allFiles)
+  const exerciceFiles = allFiles.filter(f => f.startsWith(EXERCICES_DIR+'/'))
+
+  console.log('exerciceFiles', exerciceFiles)
+
+  throw `PPP 
+   - recup l'année dans le nom de dossier
+   - recupz le contenu avec gitAgent.getFile && parseOpérationsHautNiveauYaml` 
+
+}
+
+const syncExercices = () => getExercices()
+    .then(store.mutations.setOpérationsHautNiveauByYear)
+
+export function syncRepoToStore(){
+  return Promise.all([syncExercices()/*, syncPersonnes(), syncSalariats()*/])
+}
+
+/**
+ * 
+ * @param {string} org 
+ * @param {string} repo 
+ * @returns 
+ */
+export async function setOrgAndRepo(org, repo) {
+  const previousOrg = store.state.org
+  const previousRepo = store.state.repo
+
+  if(previousOrg === org && previousRepo === repo){
+    return 
+  }
+  // org and repo are new
+
   store.mutations.setOrgAndRepo(org, repo)
 
   githubAsDatabase.owner = org
   githubAsDatabase.repo = repo
 
-  const exercicesP = syncExercices()
-  const personnesP = syncPersonnes()
-  const salariatsP = syncSalariats()
+  const repoId = makeRepoId(org, repo)
 
-  return Promise.all([exercicesP, personnesP, salariatsP])
+  const gitAgent = new GitAgent({
+    repoId,
+    remoteURL: `https://github.com/${repoId}.git`,
+    auth: {
+      username: store.state.githubToken,
+      password: 'x-oauth-basic',
+    },
+    onMergeConflict: resolutionOptions => {
+      console.error('PPP handle merge conflics')
+    },
+  })
+
+  store.mutations.setGitAgent(gitAgent)
+
+  const {login, email} = store.state.user
+
+  await gitAgent.pullOrCloneRepo()
+  await gitAgent.setAuthor(login, email)
+
+  return syncRepoToStore()
 }
 
 export function getUserOrgChoices() {
