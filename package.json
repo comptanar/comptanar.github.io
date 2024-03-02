@@ -12,7 +12,6 @@
     "test": "ava tests",
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "prepare": "husky install",
     "ts": "tsc && echo 'Tout va bien 🎉'"
   },
   "bin": {
