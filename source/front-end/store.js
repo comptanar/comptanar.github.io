@@ -14,7 +14,7 @@ import GitAgent from './GitAgent.js'
  *      org: string,
  *      repo: string,
  *      gitAgent: GitAgent,
- *      opérationsHautNiveauByYear: Map<number, WithSha<OpérationHautNiveau[]>> | undefined,
+ *      opérationsHautNiveauByYear: Map<number, OpérationHautNiveau[]> | undefined,
  *      personnes: WithSha<Personne[]> | undefined,
  *      salariats: WithSha<Salariat[]> | undefined,
  * }} State

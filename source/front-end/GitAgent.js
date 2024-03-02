@@ -441,20 +441,33 @@ export default class GitAgent {
   }
 
   /**
-   * @summary Get file informations
+   * @summary Get file content as Uint8Array
+   *
+   * @param {string} fileName
+   * @returns {Promise<Uint8Array>}
+   */
+  async getFileAsUint8Array(fileName) {
+    //@ts-expect-error not enough precise types, but when no encoding is passed, 
+    // readFile should return a Uint8Array
+    return this.#fs.promises.readFile(
+      this.#path(fileName)
+    )
+  }
+
+
+  /**
+   * @summary Get file content as string
    *
    * @param {string} fileName
    * @returns {Promise<string>}
    */
   async getFile(fileName) {
-    const content = await this.#fs.promises.readFile(
+    //@ts-expect-error not enough precise types, but when no encoding is passed, 
+    // readFile should return a Uint8Array
+    return this.#fs.promises.readFile(
       this.#path(fileName),
-      { encoding: 'utf8' },
+      { encoding: 'utf8' }
     )
-    if (content instanceof Uint8Array) {
-      return content.toString()
-    }
-    return content
   }
 
   /**

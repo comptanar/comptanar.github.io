@@ -11,8 +11,24 @@ import GitAgent from './GitAgent.js'
 import store from './store.js'
 
 import { formatDate } from './stringifiers.js'
+import {
+  parseOpérationsHautNiveauYaml,
+  stringifyOpérationsHautNiveauYaml,
+} from '../format-données/opérationsHautNiveau.js'
+import {
+  parsePersonnes,
+  stringifyPersonnesYaml,
+} from '../format-données/personnes.js'
+import {
+  parseSalariat,
+  stringifySalariatsYaml,
+} from '../format-données/salariat.js'
 
 import '../format-données/types/main.js'
+
+
+const personnesPath = 'personnes.yml'
+const salariatsPath = 'salariats.yml'
 
 
 export class ConflictError extends Error {}
@@ -91,22 +107,26 @@ const EXERCICES_DIR = 'exercices'
 
 async function getExercices(){
   const {gitAgent} = store.state
-  // lister les fichiers du dossier exercices
 
   if(!gitAgent)
     throw new TypeError('Missing gitAgent')
 
-  console.time('listAllFiles')
   const allFiles = await gitAgent.listAllFiles()
-  console.timeEnd('listAllFiles')
-  console.log('allFiles', allFiles)
-  const exerciceFiles = allFiles.filter(f => f.startsWith(EXERCICES_DIR+'/'))
+  const exerciceFiles = allFiles.filter(f => f.startsWith(EXERCICES_DIR+'/') && f.includes('operationsHautNiveau.yml'))
 
-  console.log('exerciceFiles', exerciceFiles)
+  const exerciceEntriesPs = exerciceFiles.map(async filename => {
+    const yearMatch = filename.match(/\d{4}/)
+    if(!yearMatch)
+      throw new TypeError(`No year found in ${filename}`)
 
-  throw `PPP 
-   - recup l'année dans le nom de dossier
-   - recupz le contenu avec gitAgent.getFile && parseOpérationsHautNiveauYaml` 
+    const year = Number(yearMatch[0])
+    const fileContent = await gitAgent.getFile(filename)
+    const opérationsHautNiveau = parseOpérationsHautNiveauYaml(fileContent)
+    
+    return [year, opérationsHautNiveau]
+  })
+
+  return Promise.all(exerciceEntriesPs).then(exerciceEntries => new Map(exerciceEntries))
 
 }
 
