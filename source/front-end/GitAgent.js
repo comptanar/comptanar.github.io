@@ -12,7 +12,7 @@
  */
 
 import FS from '@isomorphic-git/lightning-fs'
-import git from 'isomorphic-git'
+import {listFiles, add, setConfig, remove, commit, merge, checkout, log, fetch, push, listBranches, listRemotes, branch, currentBranch, clone} from 'isomorphic-git'
 import http from 'isomorphic-git/http/web/index.js'
 
 
@@ -94,7 +94,7 @@ export default class GitAgent {
    */
   clone() {
     console.info('clone', this.#remoteURL)
-    return git.clone({
+    return clone({
       fs: this.#fs,
       dir: this.#repoDirectory,
       http,
@@ -111,7 +111,7 @@ export default class GitAgent {
    * @returns {ReturnType<isomorphicGit["currentBranch"]>}
    */
   currentBranch() {
-    return git.currentBranch({
+    return currentBranch({
       fs: this.#fs,
       dir: this.#repoDirectory,
     })
@@ -119,16 +119,16 @@ export default class GitAgent {
 
   /**
    *
-   * @param {string} branch
+   * @param {string} branchName
    * @param {boolean} [force]
    * @param {boolean} [checkout]
    * @returns {ReturnType<isomorphicGit["branch"]>}
    */
-  branch(branch, force = false, checkout = true) {
-    return git.branch({
+  branch(branchName, force = false, checkout = true) {
+    return branch({
       fs: this.#fs,
       dir: this.#repoDirectory,
-      ref: branch,
+      ref: branchName,
       force,
       checkout,
     })
@@ -141,7 +141,7 @@ export default class GitAgent {
    * @returns {ReturnType<isomorphicGit["listRemotes"]>}
    */
   listRemotes() {
-    return git.listRemotes({
+    return listRemotes({
       fs: this.#fs,
       dir: this.#repoDirectory,
     })
@@ -153,7 +153,7 @@ export default class GitAgent {
    * @returns {ReturnType<isomorphicGit["listBranches"]>}
    */
   listBranches(remote) {
-    return git.listBranches({
+    return listBranches({
       fs: this.#fs,
       dir: this.#repoDirectory,
       remote,
@@ -168,7 +168,7 @@ export default class GitAgent {
    */
   falliblePush() {
     console.info('falliblePush')
-    return git.push({
+    return push({
       fs: this.#fs,
       http,
       // ref is purposefully omitted to get the default (checked out branch)
@@ -215,7 +215,7 @@ export default class GitAgent {
    */
   forcePush() {
     console.info('forcePush')
-    return git.push({
+    return push({
       fs: this.#fs,
       http,
       // ref is purposefully omitted to get the default (checked out branch)
@@ -232,7 +232,7 @@ export default class GitAgent {
    * @returns {ReturnType<isomorphicGit["fetch"]>}
    */
   async fetch() {
-    return git.fetch({
+    return fetch({
       fs: this.#fs,
       http,
       // ref is purposefully omitted to get the default (checked out branch)
@@ -248,8 +248,7 @@ export default class GitAgent {
    * @returns {Promise<import('isomorphic-git').CommitObject>}
    */
   currentCommit(ref = undefined) {
-    return git
-      .log({
+    return log({
         fs: this.#fs,
         dir: this.#repoDirectory,
         ref,
@@ -264,7 +263,7 @@ export default class GitAgent {
    * @returns {ReturnType<isomorphicGit["checkout"]>}
    */
   checkout(ref = undefined) {
-    return git.checkout({
+    return checkout({
       fs: this.#fs,
       dir: this.#repoDirectory,
       ref,
@@ -292,8 +291,7 @@ export default class GitAgent {
     const localBranch = currentBranch
     const remoteBranch = this.#createRemoteRef(remotes[0].remote, localBranch)
 
-    return git
-      .merge({
+    return merge({
         fs: this.#fs,
         dir: this.#repoDirectory,
         // ours is purposefully omitted to get the default behavior (current branch)
@@ -351,7 +349,7 @@ export default class GitAgent {
    * @returns {ReturnType<isomorphicGit["commit"]>} sha of the commit
    */
   commit(message) {
-    return git.commit({
+    return commit({
       fs: this.#fs,
       dir: this.#repoDirectory,
       message,
@@ -367,7 +365,7 @@ export default class GitAgent {
   async removeFile(fileName) {
     const path = this.#path(fileName)
     await this.#fs.promises.unlink(path)
-    return await git.remove({
+    return remove({
       fs: this.#fs,
       dir: this.#repoDirectory,
       filepath: fileName,
@@ -426,13 +424,13 @@ export default class GitAgent {
       return
     }
 
-    await git.setConfig({
+    await setConfig({
       fs: this.#fs,
       dir: this.#repoDirectory,
       path: 'user.name',
       value: login,
     })
-    return await git.setConfig({
+    return setConfig({
       fs: this.#fs,
       dir: this.#repoDirectory,
       path: 'user.email',
@@ -487,7 +485,7 @@ export default class GitAgent {
     }
 
     await this.#fs.promises.writeFile(this.#path(fileName), content)
-    await git.add({
+    await add({
       fs: this.#fs,
       filepath: fileName,
       dir: this.#repoDirectory,
@@ -509,7 +507,7 @@ export default class GitAgent {
    * @returns
    */
   listAllFiles(ref = 'HEAD') {
-    return git.listFiles({
+    return listFiles({
       fs: this.#fs,
       ref,
       dir: this.#repoDirectory,

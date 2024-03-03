@@ -3,7 +3,7 @@ import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import terser from '@rollup/plugin-terser'
-
+//import analyze from 'rollup-plugin-analyzer'
 import css from 'rollup-plugin-css-only'
 import sveltePreprocess from 'svelte-preprocess'
 
@@ -17,6 +17,7 @@ export default {
     file: 'build/rollup-bundle.js'
   },
   plugins: [
+    //analyze(),
     svelte({
       compilerOptions: {
         // enable run-time checks when not in production
