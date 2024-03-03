@@ -9,7 +9,7 @@
 <script>
     // @ts-check
 
-    import Keybinding from "keybinding";
+    //import Keybinding from "keybinding";
     import { createEventDispatcher, tick } from "svelte";
     import Loader from "./Loader.svelte";
 
@@ -77,7 +77,10 @@
 
     // Gestion des raccourcis clavier
 
-    const keybinder = new Keybinding({ filterEditable: false });
+    // PPP pour le moment, cette question clavier dérange l'édition, donc elle est désactivée pour le moment
+
+
+    /*const keybinder = new Keybinding({ filterEditable: false });
     for (const action of globalActions) {
         if (action.shortcut) {
             keybinder.on(action.shortcut, action);
@@ -100,7 +103,7 @@
         }
 
         edit(item);
-    });
+    });*/
 </script>
 
 <div class="tableau-editable">

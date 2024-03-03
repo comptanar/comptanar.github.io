@@ -4,7 +4,7 @@
     import DateInput from "../DateInput.svelte";
 
     import {créerLigneBancaireVide} from '../../../format-données/opérationsHautNiveau.js'
-    import { sauvegarderLignesBancaires } from '../../actions.js'
+    import { sauvegarderLignesBancaires } from '../../actions/exercices.js'
     import { displayDate, formatMontant } from '../../stringifiers'
 
 

@@ -9,7 +9,7 @@
 
     import Tableau, { action } from '../Tableau.svelte';
     import { displayDate, formatMontant } from '../../stringifiers'
-    import { supprimerOpérationHautNiveau, sauvegarderEnvoiFactureÀClient } from '../../actions'
+    import { supprimerOpérationHautNiveau, sauvegarderEnvoiFactureÀClient } from '../../actions/exercices.js'
     import { créerEnvoiFactureÀClientVide } from '../../../format-données/opérationsHautNiveau';
     import { calculTTCFacture, calculHTFacture, calculTVALigne, calculTTCLigne, tauxTVAPossibles } from '../../../format-données/comptabilité/main.js'
 

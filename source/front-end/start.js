@@ -28,7 +28,7 @@ import {
   saveToken,
   getUserOrgChoices,
   setOrgAndRepo,
-} from './actions.js'
+} from './actions/index.js'
 
 console.info('start')
 
@@ -224,7 +224,7 @@ page('/comptabilite/ventes', loginMiddleware, ({ querystring }) => {
       logout: logoutAndRedirect,
       org,
       repo,
-      personnes: state.personnes?.data ?? [],
+      personnes: state.personnes || [],
       envoiFactureàClients: getEnvoiFactureÀClients(state),
     }
   }
@@ -251,8 +251,8 @@ page('/comptabilite/fiches-de-paie', loginMiddleware, ({ querystring }) => {
       logout: logoutAndRedirect,
       org,
       repo,
-      personnes: state.personnes?.data ?? [],
-      salariats: state.salariats?.data ?? [],
+      personnes: state.personnes || [],
+      salariats: state.salariats || [],
       fichesDePaie: getFichesDePaie(state),
     }
   }
@@ -279,8 +279,7 @@ page('/comptabilite/personnes', loginMiddleware, ({ querystring }) => {
       logout: logoutAndRedirect,
       org,
       repo,
-      personnes: state.personnes?.data ?? [],
-      fichesDePaie: getFichesDePaie(state),
+      personnes: state.personnes || []
     }
   }
 
@@ -307,7 +306,7 @@ page('/comptabilite/achats', loginMiddleware, ({ querystring }) => {
       achats: getAchats(state) ?? [],
       org,
       repo,
-      personnes: state.personnes?.data ?? [],
+      personnes: state.personnes || [],
     }
   }
 
@@ -332,8 +331,8 @@ page('/comptabilite/salariats', loginMiddleware, ({ querystring }) => {
       logout: logoutAndRedirect,
       org,
       repo,
-      personnes: state.personnes?.data ?? [],
-      salariats: state.salariats?.data ?? [],
+      personnes: state.personnes || [],
+      salariats: state.salariats || [],
     }
   }
 
@@ -384,7 +383,7 @@ page('/comptabilite/import-banque', loginMiddleware, ({ querystring }) => {
       state.opérationsHautNiveauByYear &&
       new Map(
         [...state.opérationsHautNiveauByYear]
-          .map(([année, { opérationsHautNiveau }]) => [
+          .map(([année, opérationsHautNiveau]) => [
             année,
             opérationsHautNiveau.filter(
               ({ type }) => type === 'Ligne bancaire',

@@ -493,6 +493,32 @@ export default class GitAgent {
   }
 
   /**
+   * @param {string} fileName
+   * @param {string|Uint8Array} content
+   * @param {string} [commitMessage]
+   *
+   * @returns {Promise<string>}
+   */
+  writeFileAndCommit(fileName, content, commitMessage = `Modification du fichier ${fileName}`) {
+    return this.writeFile(fileName, content).then(() => {
+      return this.commit(commitMessage)
+    })
+  }
+
+  /**
+ * @param {string} fileName
+ * @param {string|Uint8Array} content
+ * @param {string} [commitMessage]
+ *
+ * @returns {ReturnType<typeof GitAgent.prototype.safePush>}
+ */
+  writeFileAndPushChanges(fileName, content, commitMessage){
+    return this.writeFileAndCommit(fileName, content, commitMessage)
+      .then(() => this.safePush())
+  }
+
+
+  /**
    *
    * @param {string} dir
    * @returns

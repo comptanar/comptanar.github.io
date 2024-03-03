@@ -1,6 +1,5 @@
 // @ts-check
 
-import { sum } from 'd3-array'
 import { differenceInDays, format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import store from './store.js'
@@ -49,7 +48,7 @@ export function libelleCompte(numCompte) {
   if (numCompte === '44566') {
     return 'dépôt TVA'
   }
-  for (const personne of store.state.personnes.data) {
+  for (const personne of store.state.personnes) {
     if (numCompte === personne.compteAssocié·e) {
       return personne.nom
     }

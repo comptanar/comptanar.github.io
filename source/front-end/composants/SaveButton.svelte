@@ -1,14 +1,9 @@
 <script>
     import Loader from "./Loader.svelte";
-    import { ConflictError } from "../actions";
 
     export let promise;
 
     function displayErr(e) {
-        if (e instanceof ConflictError) {
-            return "Une autre personne a modifié ces données entre temps. Recharge la page pour voir la nouvelle version.";
-        }
-
         return e.toString();
     }
 </script>

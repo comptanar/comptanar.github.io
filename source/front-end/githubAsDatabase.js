@@ -16,7 +16,6 @@ let theRequest = request.defaults(initialRequestDefaults)
 let octokit;
 
 
-
 export default {
   reset() {
     theRequest = request.defaults(initialRequestDefaults)
@@ -68,63 +67,5 @@ export default {
       name,
     })
   },
-
-  /**
-   * @param {number} year
-   * @param {string?} sha
-   * @param {OpérationHautNiveau[]} opérationsHautNiveau
-   * @param {string} [message]
-   */
-  /*writeExercice(year, sha, opérationsHautNiveau, message) {
-    return theRequest(
-      `/repos/{owner}/{repo}/contents/${opérationsHautNiveauPath(year)}`,
-      {
-        method: 'PUT',
-        message:
-          message ||
-          `Mise à jour des opérations haut niveau de l'exercice ${year}`,
-        sha,
-        content: UTF8ToB64(
-          stringifyOpérationsHautNiveauYaml(opérationsHautNiveau),
-        ),
-      },
-    )
-  },*/
-  /**
-   * @param {number} year
-   * @param {string} sha
-   * @param {string} [message]
-   */
-  /*deleteExercice(year, sha, message) {
-    return theRequest(
-      `/repos/{owner}/{repo}/contents/${opérationsHautNiveauPath(year)}`,
-      {
-        method: 'DELETE',
-        sha,
-        message: message || `Suppression de l'exercice ${year}`,
-      },
-    )
-  },*/
-  /**
-   * Renvoie la liste des personnes stockée sur GitHub
-   * @type {() => Promise<WithSha<Personne[]>>}
-   */
-  //getPersonnes: fileReader(personnesPath, parsePersonnes),
-  /**
-   * Sauvegarde une liste de personnes dans le dépôt GitHub
-   * @param {string} sha
-   * @param {Personne[]} personnes
-   * @param {string} message
-   */
-  /*writePersonnes: fileWriter(
-    personnesPath,
-    'Mise à jour des personnes',
-    stringifyPersonnesYaml,
-  ),
-  getSalariats: fileReader(salariatsPath, parseSalariat),
-  writeSalariats: fileWriter(
-    salariatsPath,
-    'Mise à jour des salarié⋅es',
-    stringifySalariatsYaml,
-  ),*/
+  
 }

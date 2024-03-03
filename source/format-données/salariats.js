@@ -5,7 +5,7 @@ import { stringify } from 'yaml'
 import { estSalariat } from './predicates'
 import { parseYamlArray } from './utils'
 
-export const parseSalariat = str =>
+export const parseSalariats = str =>
   parseYamlArray(
     str,
     'une liste de contrats de salariat',

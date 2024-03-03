@@ -6,8 +6,8 @@
     import Skeleton from "../Skeleton.svelte";
     import Tableau, { action } from "../Tableau.svelte";
     import SaveButton from "../SaveButton.svelte";
-    import { créerPersonneVide } from "../../../format-données/personnes";
-    import { envoyerPersonne, supprimerPersonne } from "../../actions";
+    import { créerPersonneVide } from "../../../format-données/personnes.js";
+    import { envoyerPersonne, supprimerPersonne } from "../../actions/personnes.js";
     import { créerProchainCompteClient, créerProchainCompteFournisseur } from '../../../format-données/comptabilité/main.js'
 
     export let user;
@@ -19,30 +19,26 @@
 
     let editPromise;
     /** @type {Personne} */
-    let personneEnModification;
-    let nom;
+    let personneEnModification = créerPersonneVide();
 
     let formStart;
     let table;
     let tableConfig;
-    let type;
 
     function enFaireUnClient(e){
+        //@ts-expect-error TypeScript doesn't understand that after .filter(x => !!x), all values are strings
         const prochainCompteClient = créerProchainCompteClient(personnes.map(({compteClient}) => compteClient).filter(x => !!x))
         personneEnModification.compteClient = prochainCompteClient
     }
 
     function enFaireUnFournisseur(e){
+        //@ts-expect-error TypeScript doesn't understand that after .filter(x => !!x), all values are strings
         const prochainCompteFournisseur = créerProchainCompteFournisseur(personnes.map(({compteFournisseur}) => compteFournisseur).filter(x => !!x))
         personneEnModification.compteFournisseur = prochainCompteFournisseur
     }
 
     function sauvegarderFormulaire() {
-        editPromise = envoyerPersonne({
-            ...personneEnModification,
-            type,
-            nom,
-        });
+        editPromise = envoyerPersonne(personneEnModification);
 
         editPromise.then(() => {
             editPromise = undefined;
@@ -56,8 +52,6 @@
 
     async function màjFormulaire(personne) {
         personneEnModification = personne ?? créerPersonneVide();
-
-        nom = personneEnModification.nom;
 
         await tick();
         formStart?.focus();
@@ -97,13 +91,13 @@
                         <div>Nom</div>
                         <input
                             bind:this={formStart}
-                            bind:value={nom}
+                            bind:value={personneEnModification.nom}
                             type="text"
                         />
                     </label>
                     <label>
                         <div>Type</div>
-                        <select bind:value={type}>
+                        <select bind:value={personneEnModification.type}>
                             <option value="Morale">Morale</option>
                             <option value="Physique">Physique</option>
                         </select>

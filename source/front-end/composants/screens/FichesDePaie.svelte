@@ -12,11 +12,11 @@
         displayDate,
         formatDate,
         formatMontant
-    } from "../../stringifiers";
+    } from "../../stringifiers.js";
     import {
         envoyerFicheDePaie,
         supprimerOpérationHautNiveau
-    } from "../../actions";
+    } from "../../actions/exercices.js";
     import { créerFicheDePaieVide } from "../../../format-données/opérationsHautNiveau";
 
     export let user;
@@ -119,7 +119,7 @@
         globalActions: [
             action(() => table.edit(-1), "Nouvelle fiche", "Alt+N"),
         ],
-        data: fichesDePaie?.map((fiche) => [
+        data: fichesDePaie?.sort((a, b) => b.date.getTime() - a.date.getTime()).map((fiche) => [
             {
                 content: displayDate(fiche.date),
                 title: formatDate(fiche.date),

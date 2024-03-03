@@ -4,12 +4,13 @@
     import Skeleton from "../Skeleton.svelte"
     import Tableau, { action } from "../Tableau.svelte"
     import SaveButton from "../SaveButton.svelte"
-    import { créerSalariatVide } from '../../../format-données/salariat'
+    import DateInput from "../DateInput.svelte"
+    import { créerSalariatVide } from '../../../format-données/salariats'
     import { tick } from "svelte";
     import { format } from "date-fns";
     import { displayDate } from "../../stringifiers";
     import { fr } from "date-fns/locale";
-    import { envoyerSalariat, supprimerSalariat } from "../../actions";
+    import { envoyerSalariat, supprimerSalariat } from "../../actions/salariats";
 
     export let user
     export let logout
@@ -28,20 +29,14 @@
     let tableConfig
     let formStart
 
-    let salariatEnÉdition
+    let salariatEnÉdition = créerSalariatVide()
     let editPromise
 
     let personne
-    let débutContrat
-    let finContrat
+    $: salariatEnÉdition.idPersonne = personne?.identifiant || undefined
 
     function sauvegarderSalariat() {
-        editPromise = envoyerSalariat({
-            identifiant: salariatEnÉdition.identifiant,
-            idPersonne: personne.identifiant,
-            débutContrat: new Date(débutContrat),
-            finContrat: new Date(finContrat)
-        })
+        editPromise = envoyerSalariat(salariatEnÉdition)
 
         editPromise.then(() => {
             editPromise = undefined
@@ -53,8 +48,6 @@
         salariatEnÉdition = sal ?? créerSalariatVide()
         
         personne = personnePour(salariatEnÉdition)
-        débutContrat = format(salariatEnÉdition.débutContrat, 'yyyy-MM-dd')
-        finContrat = !salariatEnÉdition.finContrat ? undefined : format(sal.finContrat, 'yyyy-MM-dd')
 
         await tick()
         formStart?.focus()
@@ -109,11 +102,11 @@
                 </label>
                 <label>
                     <div>Début du contrat</div>
-                    <input bind:value={débutContrat} type="date">
+                    <DateInput bind:date={salariatEnÉdition.débutContrat} />
                 </label>
                 <label>
                     <div>Fin du contrat</div>
-                    <input bind:value={finContrat} type="date">
+                    <DateInput bind:date={salariatEnÉdition.finContrat} />
                 </label>
 
                 <SaveButton bind:promise={editPromise} />

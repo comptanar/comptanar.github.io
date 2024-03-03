@@ -10,9 +10,9 @@
 
     import { déduireTauxTVA, calculTVALigne, calculTTCFacture, calculTVAFacture, tauxTVAPossibles } from '../../../format-données/comptabilité/main.js'
     import { planDeCompte, isAchat } from '../../../format-données/comptabilité/planDeCompte.js'
-    import { créerAchatVide } from '../../../format-données/opérationsHautNiveau'
-    import { displayDate, formatDate, formatMontant } from '../../stringifiers'
-    import { envoyerAchat, supprimerOpérationHautNiveau } from '../../actions'
+    import { créerAchatVide } from '../../../format-données/opérationsHautNiveau.js'
+    import { displayDate, formatDate, formatMontant } from '../../stringifiers.js'
+    import { envoyerAchat, supprimerOpérationHautNiveau } from '../../actions/exercices.js'
 
     export let user
     export let logout
@@ -149,7 +149,7 @@
         globalActions: [ action(() => table.edit(-1), 'Nouvel achat', 'Alt+N') ],
         placeholder: 'Sélectionne un achat dans la liste pour en voir le détail ou le modifier',
         columns: ['Date', 'Fournisseur', 'Montant TTC', 'Montant TVA'],
-        data: achats.map(a => [
+        data: achats.sort((a, b) => b.date.getTime() - a.date.getTime()).map(a => [
             { content: displayDate(a.date), title: formatDate(a.date) },
             { content: fournisseurs.find(f => f.compteFournisseur === a.compteFournisseur)?.nom || `client non trouvé (${a.compteFournisseur})` },
             { content: formatMontant(calculTTCFacture(a)) },

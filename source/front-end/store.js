@@ -2,7 +2,6 @@
 
 import Store from 'baredux'
 
-
 import '../format-données/types/main.js'
 import GitAgent from './GitAgent.js'
 
@@ -15,8 +14,8 @@ import GitAgent from './GitAgent.js'
  *      repo: string,
  *      gitAgent: GitAgent,
  *      opérationsHautNiveauByYear: Map<number, OpérationHautNiveau[]> | undefined,
- *      personnes: WithSha<Personne[]> | undefined,
- *      salariats: WithSha<Salariat[]> | undefined,
+ *      personnes: Personne[] | undefined,
+ *      salariats: Salariat[] | undefined,
  * }} State
  */
 
@@ -67,26 +66,12 @@ const store = Store({
       console.log('opérationsHautNiveauByYear', opérationsHautNiveauByYear)
       state.opérationsHautNiveauByYear = opérationsHautNiveauByYear
     },
-    updateOpérationsHautNiveauSha(state, year, newSha) {
-      const { sha, opérationsHautNiveau } =
-        state.opérationsHautNiveauByYear.get(year)
-      state.opérationsHautNiveauByYear.set(year, {
-        sha: newSha,
-        opérationsHautNiveau,
-      })
-      // hopefully the opérationsHautNiveau and sha are now sychronized
-    },
     supprimerOpérationHautNiveau(state, year, idOpération) {
-      const { sha, opérationsHautNiveau } =
-        state.opérationsHautNiveauByYear.get(year)
+      const opérationsHautNiveau = state.opérationsHautNiveauByYear.get(year)
 
-      state.opérationsHautNiveauByYear.set(year, {
-        sha,
-        opérationsHautNiveau: opérationsHautNiveau.filter(
-          op => op.identifiant !== idOpération,
-        ),
-      })
-      // le sha et le contenu de opérationsHautNiveau sont désynchronisés temporairement
+      state.opérationsHautNiveauByYear.set(year, opérationsHautNiveau.filter(
+        op => op.identifiant !== idOpération,
+      ))
     },
     supprimerAnnéeOpérationHautNiveau(state, année) {
       state.opérationsHautNiveauByYear.delete(année)
@@ -97,28 +82,23 @@ const store = Store({
      * @param {OpérationHautNiveau | OpérationHautNiveau[]} nouvellesOpérationsHautNiveau
      */
     addOpérationsHautNiveau(state, année, nouvellesOpérationsHautNiveau) {
-      let opérationsHautNiveauWithSha =
+      let opérationsHautNiveau =
         state.opérationsHautNiveauByYear.get(année)
 
-      if (!opérationsHautNiveauWithSha) {
-        opérationsHautNiveauWithSha = {
-          sha: undefined,
-          opérationsHautNiveau: [],
-        }
-        state.opérationsHautNiveauByYear.set(année, opérationsHautNiveauWithSha)
+      if (!opérationsHautNiveau) {
+        opérationsHautNiveau = []
+        state.opérationsHautNiveauByYear.set(année, opérationsHautNiveau)
       }
 
       if (!Array.isArray(nouvellesOpérationsHautNiveau)) {
         nouvellesOpérationsHautNiveau = [nouvellesOpérationsHautNiveau]
       }
 
-      let { sha, opérationsHautNiveau } = opérationsHautNiveauWithSha
       opérationsHautNiveau = opérationsHautNiveau.concat(
         nouvellesOpérationsHautNiveau,
       )
 
-      state.opérationsHautNiveauByYear.set(année, { sha, opérationsHautNiveau })
-      // le sha et le contenu de opérationsHautNiveau sont désynchronisés temporairement
+      state.opérationsHautNiveauByYear.set(année, opérationsHautNiveau)
     },
     /**
      * Met à jour une opération de haut niveau dans la liste.
@@ -128,15 +108,14 @@ const store = Store({
      * @param {OpérationHautNiveau} opérationHautNiveau
      */
     updateOpérationHautNiveau(state, year, opérationHautNiveau) {
-      const { sha, opérationsHautNiveau } =
-        state.opérationsHautNiveauByYear.get(year)
+      const opérationsHautNiveau = state.opérationsHautNiveauByYear.get(year)
       const index = opérationsHautNiveau.findIndex(
         o => o.identifiant === opérationHautNiveau.identifiant,
       )
 
       opérationsHautNiveau[index] = opérationHautNiveau
 
-      state.opérationsHautNiveauByYear.set(year, { sha, opérationsHautNiveau })
+      state.opérationsHautNiveauByYear.set(year, opérationsHautNiveau )
     },
     /**
      * @param {State} state
@@ -147,12 +126,10 @@ const store = Store({
     },
     addPersonne(state, personne) {
       if (state.personnes) {
-        const { sha, data: personnes } = state.personnes
+        const personnes = state.personnes
         personnes.push(personne)
 
-        // Le SHA et le tableau sont temporairement désynchronisés, il faut penser à appeler
-        // updatePersonnesSha avec le nouveau SHA ensuite
-        state.personnes = { sha, data: personnes }
+        state.personnes = personnes
       }
     },
     /**
@@ -161,20 +138,15 @@ const store = Store({
      */
     updatePersonne(state, personne) {
       if (state.personnes) {
-        const { sha, data: personnes } = state.personnes
+        const personnes = state.personnes
         const index = personnes.findIndex(
           p => p.identifiant === personne.identifiant,
         )
 
         personnes[index] = personne
 
-        // Le SHA et le tableau sont temporairement désynchronisés, il faut penser à appeler
-        // updatePersonnesSha avec le nouveau SHA ensuite
-        state.personnes = { sha, data: personnes }
+        state.personnes = personnes 
       }
-    },
-    updatePersonnesSha(state, newSha) {
-      state.personnes.sha = newSha
     },
     /**
      * @param {State} state
@@ -182,11 +154,8 @@ const store = Store({
      */
     supprimerPersonne(state, personne) {
       if (state.personnes) {
-        const { sha, data: personnes } = state.personnes
-        state.personnes = {
-          sha,
-          data: personnes.filter(p => p.identifiant !== personne.identifiant),
-        }
+        const personnes = state.personnes
+        state.personnes = personnes.filter(p => p.identifiant !== personne.identifiant)
       }
     },
 
@@ -195,12 +164,9 @@ const store = Store({
     },
     addSalariat(state, salariat) {
       if (state.salariats) {
-        const { sha, data: salariats } = state.salariats
+        const salariats = state.salariats
         salariats.push(salariat)
-
-        // Le SHA et le tableau sont temporairement désynchronisés, il faut penser à appeler
-        // updateSalariatsSha avec le nouveau SHA ensuite
-        state.salariats = { sha, data: salariats }
+        state.salariats = salariats 
       }
     },
     /**
@@ -210,24 +176,19 @@ const store = Store({
      */
     updateSalariat(state, salariat) {
       if (state.salariats) {
-        const { sha, data: salariats } = state.salariats
+        const salariats = state.salariats
         const index = salariats.findIndex(
           s => s.identifiant === salariat.identifiant,
         )
 
         salariats[index] = salariat
 
-        // Le SHA et le tableau sont temporairement désynchronisés, il faut penser à appeler
-        // updateSalariatsSha avec le nouveau SHA ensuite
-        state.salariats = { sha, data: salariats }
+        state.salariats = salariats 
       }
-    },
-    updateSalariatsSha(state, newSha) {
-      state.salariats.sha = newSha
     },
     supprimerSalariat(state, salariat) {
       if (state.salariats) {
-        state.salariats.data = state.salariats.data.filter(
+        state.salariats = state.salariats.filter(
           s => s.identifiant !== salariat.identifiant,
         )
       }
@@ -247,7 +208,7 @@ const getSpecificOp = opType => state => {
 
   return opérationsHautNiveauByYear
     ? [...opérationsHautNiveauByYear.values()]
-        .map(({ opérationsHautNiveau }) =>
+        .map(opérationsHautNiveau =>
           opérationsHautNiveau.filter(op => op.type === opType),
         )
         .flat(Infinity)
