@@ -29,6 +29,7 @@ export default class GitAgent {
   #corsProxyURL;
   #onAuth;
   #onMergeConflict;
+  #onMergeSuccessful;
 
   // computed
   #origin;
@@ -42,13 +43,15 @@ export default class GitAgent {
    * @param { string } [_.corsProxyURL]
    * @param { GitAuth } _.auth
    * @param { any } [_.onMergeConflict]
+   * @param { any } [_.onMergeSuccessful]
    */
   constructor({
     repoId,
     remoteURL,
     corsProxyURL = DEFAULT_CORS_PROXY_URL,
     auth,
-    onMergeConflict
+    onMergeConflict,
+    onMergeSuccessful
   }) {
     this.#fs = new FS('comptanar')
 
@@ -56,6 +59,7 @@ export default class GitAgent {
     this.#remoteURL = remoteURL
     this.#onAuth = () => auth
     this.#onMergeConflict = onMergeConflict
+    this.#onMergeSuccessful = onMergeSuccessful
     this.#corsProxyURL = corsProxyURL
 
     // computed
@@ -304,6 +308,16 @@ export default class GitAgent {
       .then(() => {
         // this checkout is necessary to update FS files
         return this.checkout()
+      })
+      .then(() => {
+        try{
+          if(this.#onMergeSuccessful){
+            this.#onMergeSuccessful()
+          }
+        }
+        catch(e){
+          // ignore this.#onMergeSuccessful error
+        }
       })
       .catch(err => {
         console.log('merge error', err)

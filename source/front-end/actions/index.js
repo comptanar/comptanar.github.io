@@ -79,6 +79,7 @@ export async function setOrgAndRepo(org, repo) {
     onMergeConflict: resolutionOptions => {
       store.mutations.setConflict(resolutionOptions)
     },
+    onMergeSuccessful: syncRepoToStore
   })
 
   store.mutations.setGitAgent(gitAgent)
