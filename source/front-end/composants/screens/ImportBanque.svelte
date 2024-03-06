@@ -12,6 +12,7 @@
     export let logout;
     export let org;
     export let repo;
+    export let conflict
     export let lignesBancairesParAnnée = new Map();
 
     /** @type {LigneBancaire[]} */
@@ -56,7 +57,7 @@
 
 </script>
 
-<Skeleton {user} {logout} {org} {repo}>
+<Skeleton {user} {logout} {org} {conflict} {repo}>
     <h1>Import bancaire</h1>
     <p>Par ici, on importe les données bancaires et on essaye de les classifier</p>
     <p>Pour le moment, y'a que un import Anytime qui fonctionne. L'idée, c'est d'ouvrir un pdf et de copier/coller le tableau en texte</p>

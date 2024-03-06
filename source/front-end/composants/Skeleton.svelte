@@ -8,9 +8,10 @@
     export let fullwidth = false;
     export let repo = undefined
     export let org = undefined;
+    export let conflict = undefined;
 </script>
 
-<Header {user} {logout} {org} {repo}/>
+<Header {user} {logout} {org} {repo} {conflict}/>
 
 <main class:fullwidth={fullwidth}>
 <slot></slot>

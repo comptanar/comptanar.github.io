@@ -19,6 +19,7 @@
     export let logout
     export let org
     export let repo
+    export let conflict
     /** @type {EnvoiFactureÀClient[]} */
     export let envoiFactureàClients
     /** @type {Personne[] | undefined} */
@@ -119,7 +120,7 @@
     }
 </script>
 
-<Skeleton {user} {logout} {org} {repo} fullwidth>
+<Skeleton {user} {logout} {org} {repo} {conflict} fullwidth>
     <Tableau bind:this={table} on:edit={(e) => { màjFormulaire(envoiFactureàClients[e.detail]) }} {...tableConfig}>
         <h1 slot="header">
             Voici la liste des factures (ventes) pour 

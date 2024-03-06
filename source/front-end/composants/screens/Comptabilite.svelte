@@ -5,9 +5,10 @@
   export let logout;
   export let org;
   export let repo;
+  export let conflict
 </script>
 
-<Skeleton {user} {logout} {org} {repo}>
+<Skeleton {user} {logout} {org} {repo} {conflict}>
   <h1>Voici la comptabilité de l'organisation <code>{org}</code></h1>
   <section>
     <a href="/comptabilite/personnes?org={org}&repo={repo}">

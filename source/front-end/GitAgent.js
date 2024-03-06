@@ -311,7 +311,7 @@ export default class GitAgent {
         this.#onMergeConflict &&
           this.#onMergeConflict([
             {
-              message: `Garder la version actuelle du site web en ligne (et perdre les changements récents dans l'atelier)`,
+              message: `Garder la version actuelle collective de la comptabilité (et perdre les changements récents stockés uniquement sur cet ordinateur)`,
               resolution: async () => {
                 const currentBranch = await this.currentBranch()
                 if (!currentBranch) {
@@ -332,7 +332,7 @@ export default class GitAgent {
               },
             },
             {
-              message: `Garder la version actuelle de l'atelier (et perdre la version en actuellement ligne)`,
+              message: `Garder la version actuelle de cet ordinateur (et perdre la version collective de la comptabilité)`,
               resolution: () => {
                 return this.forcePush()
               },

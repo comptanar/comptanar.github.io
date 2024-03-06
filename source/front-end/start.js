@@ -16,6 +16,7 @@ import Salariats from './composants/screens/Salariats.svelte'
 import Achats from './composants/screens/Achats.svelte'
 import CompteResultat from './composants/screens/CompteResultat.svelte'
 import ImportBanque from './composants/screens/ImportBanque.svelte'
+import ResolutionDesynchronisation from './composants/screens/ResolutionDesynchronisation.svelte'
 
 import store, {
   getAchats,
@@ -198,6 +199,7 @@ page('/comptabilite/', loginMiddleware, ({ querystring }) => {
       logout: logoutAndRedirect,
       org,
       repo,
+      conflict: state.conflict
     }
   }
 
@@ -224,6 +226,7 @@ page('/comptabilite/ventes', loginMiddleware, ({ querystring }) => {
       logout: logoutAndRedirect,
       org,
       repo,
+      conflict: state.conflict,
       personnes: state.personnes || [],
       envoiFactureàClients: getEnvoiFactureÀClients(state),
     }
@@ -251,6 +254,7 @@ page('/comptabilite/fiches-de-paie', loginMiddleware, ({ querystring }) => {
       logout: logoutAndRedirect,
       org,
       repo,
+      conflict: state.conflict,
       personnes: state.personnes || [],
       salariats: state.salariats || [],
       fichesDePaie: getFichesDePaie(state),
@@ -279,6 +283,7 @@ page('/comptabilite/personnes', loginMiddleware, ({ querystring }) => {
       logout: logoutAndRedirect,
       org,
       repo,
+      conflict: state.conflict,
       personnes: state.personnes || []
     }
   }
@@ -306,6 +311,7 @@ page('/comptabilite/achats', loginMiddleware, ({ querystring }) => {
       achats: getAchats(state) ?? [],
       org,
       repo,
+      conflict: state.conflict,
       personnes: state.personnes || [],
     }
   }
@@ -331,6 +337,7 @@ page('/comptabilite/salariats', loginMiddleware, ({ querystring }) => {
       logout: logoutAndRedirect,
       org,
       repo,
+      conflict: state.conflict,
       personnes: state.personnes || [],
       salariats: state.salariats || [],
     }
@@ -358,6 +365,7 @@ page('/comptabilite/compte-resultat', loginMiddleware, ({ querystring }) => {
       achats: getAchats(state) ?? [],
       org,
       repo,
+      conflict: state.conflict,
       opHautNiveau: state.opérationsHautNiveauByYear,
     }
   }
@@ -399,6 +407,7 @@ page('/comptabilite/import-banque', loginMiddleware, ({ querystring }) => {
       logout: logoutAndRedirect,
       org,
       repo,
+      conflict: state.conflict,
       lignesBancairesParAnnée,
     }
   }
@@ -409,6 +418,32 @@ page('/comptabilite/import-banque', loginMiddleware, ({ querystring }) => {
   })
 
   replaceComponent(importBanque, mapStateToProps)
+})
+
+page('/resolution-desynchronisation', loginMiddleware, ({querystring}) => {
+  const params = new URLSearchParams(querystring)
+
+  const org = params.get('org')
+  const repo = params.get('repo')
+
+  setOrgAndRepo(org, repo)
+
+  function mapStateToProps(state) {
+    return {
+      user: state.user,
+      logout: logoutAndRedirect,
+      org,
+      repo,
+      conflict: state.conflict,
+    }
+  }
+
+  const resolutionDesync = new ResolutionDesynchronisation({
+    target: svelteTarget,
+    props: mapStateToProps(store.state),
+  })
+
+  replaceComponent(resolutionDesync, mapStateToProps)
 })
 
 page.start()

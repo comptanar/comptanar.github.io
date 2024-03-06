@@ -49,7 +49,7 @@
     }
 </script>
 
-<Skeleton {user} {logout}>
+<Skeleton {user} {logout} {conflict}>
     {#if !chosenOrg}
         <h1 transition:fade>
             Yello {user.login}, tu veux faire de la comptabilité sur quelle

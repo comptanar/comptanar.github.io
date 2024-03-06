@@ -8,6 +8,7 @@
 
   export let user;
   export let logout;
+  export let conflict
   export let opHautNiveau;
 
   let data;
@@ -39,7 +40,7 @@
   }
 </script>
 
-<Skeleton {user} {logout} fullwidth>
+<Skeleton {user} {logout} {conflict} fullwidth>
   <label>
     <div>Année</div>
     <select bind:value={annee}>

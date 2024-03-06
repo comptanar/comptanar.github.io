@@ -77,7 +77,7 @@ export async function setOrgAndRepo(org, repo) {
       password: 'x-oauth-basic',
     },
     onMergeConflict: resolutionOptions => {
-      console.error('PPP handle merge conflics')
+      store.mutations.setConflict(resolutionOptions)
     },
   })
 
@@ -100,4 +100,19 @@ export function getUserOrgChoices() {
   store.mutations.setUserOrgs(orgsP)
 
   return orgsP
+}
+
+
+/**
+ *
+ * @param {import('./../store.js').ResolutionOption['resolution']} resolution
+ * @returns {import('./../store.js').ResolutionOption['resolution']}
+ */
+export function addConflictRemovalAndRedirectToResolution(resolution) {
+  return function (/** @type {any} */ ...args) {
+    return resolution(...args).then(() => {
+      store.mutations.setConflict(undefined)
+      history.back()
+    })
+  }
 }

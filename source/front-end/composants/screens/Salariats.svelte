@@ -16,6 +16,7 @@
     export let logout
     export let org
     export let repo
+    export let conflict
     /** @type {Personne[]} */
     export let personnes
     /** @type {Salariat[]} */
@@ -80,7 +81,7 @@
     }
 </script>
 
-<Skeleton {user} {logout} {org} {repo} fullwidth>
+<Skeleton {user} {logout} {org} {repo} {conflict} fullwidth>
     <Tableau {...tableConfig} bind:this={table} on:edit={(e) => màjFormulaire(salariats[e.detail])}>
         <h1 slot="header">Liste des salariats</h1>
         <svelte:fragment slot="form-header">

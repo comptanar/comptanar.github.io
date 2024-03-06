@@ -13,6 +13,7 @@ import GitAgent from './GitAgent.js'
  *      org: string,
  *      repo: string,
  *      gitAgent: GitAgent,
+ *      conflict: any,
  *      opérationsHautNiveauByYear: Map<number, OpérationHautNiveau[]> | undefined,
  *      personnes: Personne[] | undefined,
  *      salariats: Salariat[] | undefined,
@@ -31,6 +32,7 @@ const store = Store({
     opérationsHautNiveauByYear: undefined,
     personnes: undefined,
     salariats: undefined,
+    conflict: undefined
   },
   mutations: {
     // Dans un store baredux, les mutations sont des fonctions qui modifient les données de manière synchrone
@@ -58,6 +60,9 @@ const store = Store({
     setOrgAndRepo(state, org, repo) {
       state.org = org
       state.repo = repo
+    },
+    setConflict(state, conflict){
+      state.conflict = conflict
     },
     setGitAgent(state, gitAgent){
       state.gitAgent = gitAgent
@@ -119,7 +124,7 @@ const store = Store({
     },
     /**
      * @param {State} state
-     * @param {WithSha<Personne[]>} personnes
+     * @param {Personne[]} personnes
      */
     setPersonnes(state, personnes) {
       state.personnes = personnes

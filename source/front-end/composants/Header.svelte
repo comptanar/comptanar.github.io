@@ -2,10 +2,13 @@
     //@ts-check
 
     export let user = undefined;
+
+    // PPP : rajouter l'org actuelle dans le header + bouton pour changer d'org facilement
     export let repo = undefined;
     export let org = undefined;
 
     export let logout;
+    export let conflict;
 
     const scopesList = ["public_repo", "read:org", "user:email"];
     const scopes = scopesList.join(",");
@@ -17,7 +20,19 @@
 
     const href = `https://github.com/login/oauth/authorize?client_id=${client_id}&scope=${scopes}&redirect_uri=${redirect_uri}`;
 
-    // PPP : rajouter l'org actuelle dans le header + bouton pour changer d'org facilement
+    /**
+     *
+     * @param {string} org
+     * @param {string} repo
+     * @returns {string}
+     */
+    function makeResolutionDesynchronisationURL(org, repo) {
+        return `/resolution-desynchronisation?org=${org}&repo=${repo}`
+    }
+
+    /** @type {string} */
+    let resolutionURL;
+    $: resolutionURL = makeResolutionDesynchronisationURL(org || '', repo || '')
 </script>
 
 <header>
@@ -58,6 +73,15 @@
     </div>
 </header>
 
+{#if conflict}
+  <section class="warning">
+    <p>⚠️ Attention ! Cet ordinateur ne peut plus se synchroniser avec la comptabilité collective parce que les versions
+    de l'un et de l'autre sont irréconciliables. La comptabilité collective ne va plus se mettre à jour</p>
+
+    <p><a href={resolutionURL}>Aller sur la page dédiée de résolution du problème</a></p>
+  </section>
+{/if}
+
 <style lang="scss">
     header {
         display: flex;
@@ -81,6 +105,19 @@
             border: none;
             padding: 0;
             text-decoration: underline;
+        }
+    }
+
+    .warning{
+        max-width: 80%;
+        margin: 1rem auto;
+        margin-bottom: 0;
+        background-color: orange;
+        padding: 1rem;
+        border-radius: 1rem;
+
+        p{
+            margin: 0;
         }
     }
 </style>

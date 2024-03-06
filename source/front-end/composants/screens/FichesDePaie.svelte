@@ -23,6 +23,7 @@
     export let logout;
     export let org;
     export let repo;
+    export let conflict
     /** @type {Personne[]} */
     export let personnes = [];
     /** @type {Salariat[]} */
@@ -135,7 +136,7 @@
     };
 </script>
 
-<Skeleton {user} {logout} {org} {repo} fullwidth>
+<Skeleton {user} {logout} {org} {repo} {conflict} fullwidth>
     <Tableau
         {...tableConfig}
         bind:this={table}

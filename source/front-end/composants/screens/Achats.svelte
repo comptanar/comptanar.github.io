@@ -21,6 +21,7 @@
     export let org
     export let repo
     /** @type {Personne[] | undefined} */
+    export let conflict
     export let personnes
 
     let formStart
@@ -158,7 +159,7 @@
     }
 </script>
 
-<Skeleton {user} {logout} {org} {repo} fullwidth>
+<Skeleton {user} {logout} {org} {repo} {conflict} fullwidth>
     <Tableau bind:this={table} on:edit={e => màjFormulaire(achats[e.detail])} {...tableConfig}>
         <h1 slot="header">Achats réalisés par {org}</h1>
         <h2 slot="form-header">Achat</h2>
