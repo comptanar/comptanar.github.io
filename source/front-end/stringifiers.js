@@ -48,7 +48,7 @@ export function libelleCompte(numCompte) {
   if (numCompte === '44566') {
     return 'dépôt TVA'
   }
-  for (const personne of store.state.personnes) {
+  for (const personne of (store.state.personnes || [])) {
     if (numCompte === personne.compteAssocié·e) {
       return personne.nom
     }

@@ -21,6 +21,9 @@ export default {
   reset() {
     theRequest = request.defaults(initialRequestDefaults)
   },
+  /**
+   * @param {string} token 
+   */
   set token(token) {
     theRequest = theRequest.defaults({
       headers: {
@@ -29,9 +32,17 @@ export default {
     })
     octokit = new Octokit({auth: token})
   },
+
+  /**
+   * @param {string} owner 
+   */
   set owner(owner) {
     theRequest = theRequest.defaults({ owner })
   },
+
+  /**
+   * @param {string} repo 
+   */
   set repo(repo) {
     theRequest = theRequest.defaults({ repo })
   },
@@ -63,9 +74,21 @@ export default {
       return organisations
     })
   },
+  /**
+   * 
+   * @param {string} owner 
+   * @param {string} repo 
+   * @returns 
+   */
   getRepo(owner, repo) {
     return theRequest(`/repos/${owner}/${repo}`)
   },
+  /**
+   * 
+   * @param {string} owner 
+   * @param {string} name 
+   * @returns 
+   */
   createComptabilityRepo(owner, name) {
     const TEMPLATE_OWNER = 'comptanar'
     const TEMPLATE_REPO = 'comptabilite'

@@ -76,7 +76,7 @@
     "keybinding": "^1.0.0-beta.4",
     "octokit": "^3.1.2",
     "page": "^1.11.6",
-    "remember": "github:DavidBruant/remember#v1.0.1",
+    "remember": "github:DavidBruant/remember#v1.0.2",
     "yaml": "^2.4.0"
   }
 }
