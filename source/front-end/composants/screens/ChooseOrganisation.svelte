@@ -7,16 +7,23 @@
 
     import githubAsDatabase from "../../githubAsDatabase.js";
 
+    /** @type {GithubUserForComptanar} */
     export let user;
     export let logout;
+    /** @type {GithubUserOrgForComptanar[]} */
     export let possibleOrganisations = [];
 
     const DEFAULT_REPO_NAME = "comptabilite";
 
+    /** @type {GithubUserOrgForComptanar | undefined} */
     let chosenOrg = undefined;
     let chosenRepo = DEFAULT_REPO_NAME; // PPP hardcoded. Write selection
     let orgComptabiliteRepo;
 
+    /**
+     * 
+     * @param {GithubUserOrgForComptanar} org
+     */
     function selectOrg(org) {
         chosenOrg = org;
 
@@ -25,7 +32,7 @@
         orgComptabiliteRepo = repoP
             .then((_) => {
                 page(
-                    `/comptabilite/?org=${chosenOrg.login}&repo=${chosenRepo}`
+                    `/comptabilite/?org=${org.login}&repo=${chosenRepo}`
                 );
             })
             .catch((err) => {
@@ -39,6 +46,7 @@
             });
     }
 
+    /** @type {Promise<any> | undefined} */
     let creatingOrgComptabilite;
 
     function createComptabiliteRepo() {
@@ -66,7 +74,7 @@
                         <a href="#" on:click={() => selectOrg(org)}>
                             <img
                                 class="avatar big"
-                                src={`https://github.com/${org.login}.png`}
+                                src={org.avatar_url}
                                 alt=""
                             />
                             <span>{org.login}</span>

@@ -4,6 +4,7 @@ import { request } from '@octokit/request'
 import {Octokit} from 'octokit'
 
 import '../format-données/types/main.js'
+import './types.js'
 
 const initialRequestDefaults = {
   headers: {
@@ -34,6 +35,10 @@ export default {
   set repo(repo) {
     theRequest = theRequest.defaults({ repo })
   },
+  /**
+   * 
+   * @returns {Promise<GithubUserForComptanar>}
+   */
   async getAuthenticatedUser() {
     const { viewer: { login, email, avatarUrl } } = await octokit.graphql(`{
       viewer {
@@ -49,6 +54,10 @@ export default {
 
     return {login, email, avatarUrl}
   },
+  /**
+   * 
+   * @returns {GithubUserOrgForComptanar}
+   */
   getOrgs() {
     return theRequest('/user/orgs').then(({ data: organisations }) => {
       return organisations

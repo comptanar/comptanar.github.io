@@ -1,28 +1,28 @@
 //@ts-check
 
 import Store from 'baredux'
-
-import '../format-données/types/main.js'
 import GitAgent from './GitAgent.js'
 
+import '../format-données/types/main.js'
+import './types.js'
+
 /**
- * @typedef {{
- *      githubToken: string,
- *      user: string,
- *      userOrgs: any,
- *      org: string,
- *      repo: string,
- *      gitAgent: GitAgent,
- *      conflict: any,
- *      opérationsHautNiveauByYear: Map<number, OpérationHautNiveau[]> | undefined,
- *      personnes: Personne[] | undefined,
- *      salariats: Salariat[] | undefined,
- * }} State
+ * @typedef {Object} ComptanarState
+ * @property {string} [githubToken]
+ * @property {GithubUserForComptanar} [user]
+ * @property {GithubUserOrgForComptanar[]} [userOrgs]
+ * @property {string} [org]
+ * @property {string} [repo]
+ * @property {GitAgent} [gitAgent]
+ * @property {ResolutionOption[]} [conflict]
+ * @property {Map<number, OpérationHautNiveau[]> | undefined} opérationsHautNiveauByYear
+ * @property {Personne[]} [personnes]
+ * @property {Salariat[]} [salariats]
+ * 
  */
 
 const store = Store({
   state: {
-    // @ts-ignore
     githubToken: undefined,
     user: undefined,
     userOrgs: undefined,
@@ -67,18 +67,40 @@ const store = Store({
     setGitAgent(state, gitAgent){
       state.gitAgent = gitAgent
     },
+    /**
+     * 
+     * @param {ComptanarState} state 
+     * @param {ComptanarState['opérationsHautNiveauByYear']} opérationsHautNiveauByYear 
+     */
     setOpérationsHautNiveauByYear(state, opérationsHautNiveauByYear) {
       console.log('opérationsHautNiveauByYear', opérationsHautNiveauByYear)
       state.opérationsHautNiveauByYear = opérationsHautNiveauByYear
     },
+    /**
+     * @param {ComptanarState} state 
+     * @param {number} year 
+     * @param {OpérationHautNiveau["identifiant"]} idOpération 
+     */
     supprimerOpérationHautNiveau(state, year, idOpération) {
-      const opérationsHautNiveau = state.opérationsHautNiveauByYear.get(year)
+      if(state.opérationsHautNiveauByYear === undefined){
+        throw new TypeError('opérationsHautNiveauByYear is undefined')
+      }
+
+      const opérationsHautNiveau = state.opérationsHautNiveauByYear.get(year) || []
 
       state.opérationsHautNiveauByYear.set(year, opérationsHautNiveau.filter(
         op => op.identifiant !== idOpération,
       ))
     },
+    /**
+     * @param {ComptanarState} state 
+     * @param {number} année
+     */
     supprimerAnnéeOpérationHautNiveau(state, année) {
+      if(state.opérationsHautNiveauByYear === undefined){
+        throw new TypeError('opérationsHautNiveauByYear is undefined')
+      }
+
       state.opérationsHautNiveauByYear.delete(année)
     },
     /**
@@ -108,12 +130,16 @@ const store = Store({
     /**
      * Met à jour une opération de haut niveau dans la liste.
      *
-     * @param {any} state
+     * @param {ComptanarState} state
      * @param {number} year
      * @param {OpérationHautNiveau} opérationHautNiveau
      */
     updateOpérationHautNiveau(state, year, opérationHautNiveau) {
-      const opérationsHautNiveau = state.opérationsHautNiveauByYear.get(year)
+      if(state.opérationsHautNiveauByYear === undefined){
+        throw new TypeError('opérationsHautNiveauByYear is undefined')
+      }
+
+      const opérationsHautNiveau = state.opérationsHautNiveauByYear.get(year) || []
       const index = opérationsHautNiveau.findIndex(
         o => o.identifiant === opérationHautNiveau.identifiant,
       )
@@ -123,12 +149,16 @@ const store = Store({
       state.opérationsHautNiveauByYear.set(year, opérationsHautNiveau )
     },
     /**
-     * @param {State} state
+     * @param {ComptanarState} state
      * @param {Personne[]} personnes
      */
     setPersonnes(state, personnes) {
       state.personnes = personnes
     },
+    /**
+     * @param {ComptanarState} state
+     * @param {Personne} personne
+     */
     addPersonne(state, personne) {
       if (state.personnes) {
         const personnes = state.personnes
@@ -138,7 +168,7 @@ const store = Store({
       }
     },
     /**
-     * @param {State} state
+     * @param {ComptanarState} state
      * @param {Personne} personne
      */
     updatePersonne(state, personne) {
@@ -154,7 +184,7 @@ const store = Store({
       }
     },
     /**
-     * @param {State} state
+     * @param {ComptanarState} state
      * @param {Personne} personne
      */
     supprimerPersonne(state, personne) {
@@ -167,6 +197,11 @@ const store = Store({
     setSalariats(state, salariats) {
       state.salariats = salariats
     },
+
+    /**
+     * @param {ComptanarState} state
+     * @param {Salariat} salariat
+     */
     addSalariat(state, salariat) {
       if (state.salariats) {
         const salariats = state.salariats
@@ -175,8 +210,7 @@ const store = Store({
       }
     },
     /**
-     *
-     * @param {State} state
+     * @param {ComptanarState} state
      * @param {Salariat} salariat
      */
     updateSalariat(state, salariat) {
@@ -191,6 +225,11 @@ const store = Store({
         state.salariats = salariats 
       }
     },
+
+    /**
+     * @param {ComptanarState} state
+     * @param {Salariat} salariat
+     */
     supprimerSalariat(state, salariat) {
       if (state.salariats) {
         state.salariats = state.salariats.filter(
@@ -206,7 +245,7 @@ export default store
 /**
  *
  * @param {OpérationHautNiveau["type"]} opType
- * @returns {(state: any) => any}
+ * @returns {(state: ComptanarState) => any}
  */
 const getSpecificOp = opType => state => {
   const { opérationsHautNiveauByYear } = state

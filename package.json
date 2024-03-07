@@ -12,7 +12,9 @@
     "test": "ava tests",
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "ts": "tsc && echo 'Tout va bien 🎉'"
+    "types": "npm-run-all types:* && echo 'Tout va bien 🎉'",
+    "types:ts": "tsc",
+    "types:svelte-check": "svelte-check"
   },
   "bin": {
     "état-des-comptes": "executables/état-des-comptes.js",
@@ -56,6 +58,7 @@
     "rollup-plugin-svelte": "^7.1.6",
     "sass": "^1.32.8",
     "svelte": "^3.58.0",
+    "svelte-check": "^3.6.6",
     "svelte-preprocess": "^5.1.3",
     "tmp": "^0.2.1",
     "typescript": "^5.3.3"
@@ -63,7 +66,7 @@
   "dependencies": {
     "@isomorphic-git/lightning-fs": "^4.6.0",
     "@octokit/request": "^6.2.3",
-    "baredux": "github:DavidBruant/baredux",
+    "baredux": "github:DavidBruant/baredux#v1.0.8",
     "d3-array": "^3.2.3",
     "d3-dsv": "^3.0.1",
     "d3-fetch": "^3.0.1",
