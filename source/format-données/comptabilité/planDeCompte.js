@@ -48,6 +48,11 @@ export function isCharge(compte) {
   return compte.startsWith('6')
 }
 
+/**
+ * 
+ * @param {string} compte 
+ * @returns {boolean}
+ */
 export function isAchat(compte) {
   return (
     compte.startsWith('60') ||

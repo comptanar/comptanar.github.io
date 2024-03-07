@@ -22,10 +22,20 @@ const PRÉFIXE_COMPTE_FOURNISSEUR = '4011F'
 
 const SUFFIXE_COMPTE_POSSIBLES = ['1', '2', '3', '4', '5', '6', '7']
 
+/**
+ * 
+ * @param {string} str 
+ * @returns {boolean}
+ */
 function suffixeEstValide(str) {
   return [...str].every(char => SUFFIXE_COMPTE_POSSIBLES.includes(char))
 }
 
+/**
+ * 
+ * @param {string} précédent 
+ * @returns {string}
+ */
 function prochainSuffixe(précédent) {
   if (!précédent) {
     return SUFFIXE_COMPTE_POSSIBLES[0]
@@ -38,7 +48,7 @@ function prochainSuffixe(précédent) {
     candidat++
   }
 
-  return candidat
+  return candidat.toString()
 }
 
 /**
@@ -90,6 +100,11 @@ export function tauxTVAEnNombre(tva) {
   throw new TypeError(`Taux de TVA non géré: ${tva} (${typeof tva})`)
 }
 
+/**
+ * 
+ * @param {number} montant 
+ * @returns {number}
+ */
 export function arrondirMontant(montant) {
   return Math.round(montant * 100) / 100
 }
