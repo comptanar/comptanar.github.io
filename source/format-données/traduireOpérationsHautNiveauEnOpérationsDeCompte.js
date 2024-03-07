@@ -3,10 +3,20 @@
 import { sum } from 'd3-array'
 import './types/main.js'
 
+/**
+ * 
+ * @param {LigneFacture[]} lignes 
+ * @returns {number}
+ */
 const calculMontantHT = lignes => sum(lignes.map(l => l.montantHT))
 
+/**
+ * 
+ * @param {LigneFacture[]} lignes 
+ * @returns {number}
+ */
 const calculTVA = lignes =>
-  sum(lignes.map(l => (l.montantHT * l.tauxTVA) / 100))
+  sum(lignes.map(l => (l.montantHT * (l.tauxTVA === 'Non applicable' ? 0 : l.tauxTVA) / 100)))
 
 /**
  * @param {EnvoiFactureÀClient} efc
@@ -43,7 +53,7 @@ function traduireRécéptionFactureFournisseurEnOpérationsDeCompte(rff) {
   /** @type {OpérationDeCompte} */
   const op = {
     compte: rff.compteFournisseur,
-    montant: sum(rff.opérations.map(op => op.montant)),
+    montant: sum((rff.opérations || []).map(op => op.montant)),
     sens: 'Crédit',
   }
 
@@ -58,11 +68,11 @@ function traduirePaiementFactureFournisseurEnOpérationsDeCompte(rff) {
   /** @type {OpérationDeCompte} */
   const op = {
     compte: rff.compteBancaire,
-    montant: sum(rff.opérations.map(op => op.montant)),
+    montant: sum((rff.opérations || []).map(op => op.montant)),
     sens: 'Crédit',
   }
 
-  return [op].concat(rff.opérations)
+  return [op].concat(rff.opérations || [])
 }
 
 /**
@@ -70,18 +80,14 @@ function traduirePaiementFactureFournisseurEnOpérationsDeCompte(rff) {
  * @returns {OpérationDeCompte[]}
  */
 function traduireÉmissionFicheDePaieEnOpérationsDeCompte(efp) {
-  let res = []
-  efp.opérations?.forEach(ligneOp => {
+  return (efp.opérations || []).map(ligneOp => {
     /** @type {OpérationDeCompte} */
-    const op = {
+    return {
       compte: ligneOp.compte,
       montant: ligneOp.montant,
       sens: 'Crédit',
     }
-
-    res.push(op)
   })
-  return res
 }
 
 /**
@@ -110,7 +116,8 @@ export default opérationsHautNiveau => {
       case 'Fiche de paie':
         newOps = traduireÉmissionFicheDePaieEnOpérationsDeCompte(ophn)
         break
-
+      case 'Ligne bancaire':
+        throw `PPP Ligne bancaire non gérée`
       default:
         /** @type {never} */
         const _exhaustiveCheck = ophn
