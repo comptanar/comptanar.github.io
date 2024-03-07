@@ -5,6 +5,8 @@ import page from 'page'
 import { rememberToken } from './localStorage.js'
 import githubAsDatabase from './githubAsDatabase.js'
 
+import {replaceComponent} from './routeComponentLifeCycle.js'
+
 import Welcome from './composants/screens/Welcome.svelte'
 import ChooseOrganisation from './composants/screens/ChooseOrganisation.svelte'
 import Comptabilite from './composants/screens/Comptabilite.svelte'
@@ -31,6 +33,11 @@ import {
   setOrgAndRepo,
 } from './actions/index.js'
 
+import './types.js'
+
+/** @typedef {import("./store.js").ComptanarState} ComptanarState */
+
+
 console.info('start')
 
 
@@ -39,35 +46,12 @@ console.info('start')
  */
 const svelteTarget = document.body
 
-let currentComponent
-let currentMapStateToProps = _ => {}
-
-function replaceComponent(newComponent, newMapStateToProps) {
-  if (!newMapStateToProps) {
-    throw new Error('Missing _mapStateToProps in replaceComponent')
-  }
-
-  if (currentComponent) currentComponent.$destroy()
-
-  currentComponent = newComponent
-  currentMapStateToProps = newMapStateToProps
-}
-
-function render(state) {
-  const props = currentMapStateToProps(state)
-  // @ts-ignore
-  if (props) {
-    currentComponent.$set(props)
-  }
-}
-
-store.subscribe(render)
 
 function logoutAndRedirect() {
   logout().then(() => page('/'))
 }
 
-
+/** @type {import('page').Callback} */
 function loginMiddleware(_, next){
   if(store.state.githubToken && store.state.user){
     next()
@@ -104,7 +88,6 @@ function loginMiddleware(_, next){
 page('/', () => {
   console.info('route', '/')
   if (store.state.user) {
-    const repoName = store.state.repoName
 
     Promise.resolve(store.state.user).then(user => {
       console.info('Logged in as', user.login, 'Moving to /choose-organisation')
@@ -112,6 +95,9 @@ page('/', () => {
     })
   }
 
+  /**
+   * @param {ComptanarState} state  
+   */
   function mapStateToProps(state) {
     return {
       user: state.user,
@@ -167,6 +153,9 @@ page('/choose-organisation', loginMiddleware, () => {
 
   getUserOrgChoices()
 
+  /**
+   * @param {ComptanarState} state  
+   */
   function mapStateToProps(state) {
     return {
       user: state.user,
@@ -191,8 +180,18 @@ page('/comptabilite/', loginMiddleware, ({ querystring }) => {
   const org = params.get('org')
   const repo = params.get('repo')
 
+  if(!org){
+    throw new TypeError(`Missing org param in url`)
+  }
+  if(!repo){
+    throw new TypeError(`Missing org param in url`)
+  }
+
   setOrgAndRepo(org, repo)
 
+  /**
+   * @param {ComptanarState} state  
+   */
   function mapStateToProps(state) {
     return {
       user: state.user,
@@ -218,8 +217,18 @@ page('/comptabilite/ventes', loginMiddleware, ({ querystring }) => {
   const org = params.get('org')
   const repo = params.get('repo')
 
+  if(!org){
+    throw new TypeError(`Missing org param in url`)
+  }
+  if(!repo){
+    throw new TypeError(`Missing org param in url`)
+  }
+
   setOrgAndRepo(org, repo)
 
+  /**
+   * @param {ComptanarState} state  
+   */
   function mapStateToProps(state) {
     return {
       user: state.user,
@@ -245,9 +254,19 @@ page('/comptabilite/fiches-de-paie', loginMiddleware, ({ querystring }) => {
 
   const org = params.get('org')
   const repo = params.get('repo')
+  
+  if(!org){
+    throw new TypeError(`Missing org param in url`)
+  }
+  if(!repo){
+    throw new TypeError(`Missing org param in url`)
+  }
 
   setOrgAndRepo(org, repo)
 
+  /**
+   * @param {ComptanarState} state  
+   */
   function mapStateToProps(state) {
     return {
       user: state.user,
@@ -274,9 +293,19 @@ page('/comptabilite/personnes', loginMiddleware, ({ querystring }) => {
 
   const org = params.get('org')
   const repo = params.get('repo')
+  
+  if(!org){
+    throw new TypeError(`Missing org param in url`)
+  }
+  if(!repo){
+    throw new TypeError(`Missing org param in url`)
+  }
 
   setOrgAndRepo(org, repo)
 
+  /**
+   * @param {ComptanarState} state  
+   */
   function mapStateToProps(state) {
     return {
       user: state.user,
@@ -301,9 +330,19 @@ page('/comptabilite/achats', loginMiddleware, ({ querystring }) => {
 
   const org = params.get('org')
   const repo = params.get('repo')
+  
+  if(!org){
+    throw new TypeError(`Missing org param in url`)
+  }
+  if(!repo){
+    throw new TypeError(`Missing org param in url`)
+  }
 
   setOrgAndRepo(org, repo)
 
+  /**
+   * @param {ComptanarState} state  
+   */
   function mapStateToProps(state) {
     return {
       user: state.user,
@@ -329,8 +368,19 @@ page('/comptabilite/salariats', loginMiddleware, ({ querystring }) => {
 
   const org = params.get('org')
   const repo = params.get('repo')
+  
+  if(!org){
+    throw new TypeError(`Missing org param in url`)
+  }
+  if(!repo){
+    throw new TypeError(`Missing org param in url`)
+  }
 
   setOrgAndRepo(org, repo)
+
+  /**
+   * @param {ComptanarState} state  
+   */
   function mapStateToProps(state) {
     return {
       user: state.user,
@@ -355,9 +405,19 @@ page('/comptabilite/compte-resultat', loginMiddleware, ({ querystring }) => {
 
   const org = params.get('org')
   const repo = params.get('repo')
+  
+  if(!org){
+    throw new TypeError(`Missing org param in url`)
+  }
+  if(!repo){
+    throw new TypeError(`Missing org param in url`)
+  }
 
   setOrgAndRepo(org, repo)
 
+  /**
+   * @param {ComptanarState} state  
+   */
   function mapStateToProps(state) {
     return {
       user: state.user,
@@ -383,21 +443,32 @@ page('/comptabilite/import-banque', loginMiddleware, ({ querystring }) => {
 
   const org = params.get('org')
   const repo = params.get('repo')
+  
+  if(!org){
+    throw new TypeError(`Missing org param in url`)
+  }
+  if(!repo){
+    throw new TypeError(`Missing org param in url`)
+  }
 
   setOrgAndRepo(org, repo)
 
+  /**
+   * @param {ComptanarState} state  
+   */
   function mapStateToProps(state) {
     const lignesBancairesParAnnée =
       state.opérationsHautNiveauByYear &&
       new Map(
         [...state.opérationsHautNiveauByYear]
-          .map(([année, opérationsHautNiveau]) => [
+          .map(/** @type { (_: [number, OpérationHautNiveau[]]) => [number, LigneBancaire[]]} */ ([année, opérationsHautNiveau]) => [
             année,
+            //@ts-expect-error nah, that's correct based on the 'type' property
             opérationsHautNiveau.filter(
               ({ type }) => type === 'Ligne bancaire',
             ),
           ])
-          .filter(([année, lignesBancaires]) => lignesBancaires.length >= 1)
+          .filter(([_, lignesBancaires]) => lignesBancaires.length >= 1)
           // @ts-ignore feature récente, pas encore dans lib.d.ts (août 2023)
           .toSorted(([année1], [année2]) => année2 - année1),
       )
@@ -425,9 +496,19 @@ page('/resolution-desynchronisation', loginMiddleware, ({querystring}) => {
 
   const org = params.get('org')
   const repo = params.get('repo')
+  
+  if(!org){
+    throw new TypeError(`Missing org param in url`)
+  }
+  if(!repo){
+    throw new TypeError(`Missing org param in url`)
+  }
 
   setOrgAndRepo(org, repo)
 
+  /**
+   * @param {ComptanarState} state  
+   */
   function mapStateToProps(state) {
     return {
       user: state.user,
