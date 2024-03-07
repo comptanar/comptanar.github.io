@@ -76,6 +76,9 @@ export async function setOrgAndRepo(org, repo) {
       username: store.state.githubToken,
       password: 'x-oauth-basic',
     },
+    /**
+     * @param {ResolutionOption[]} resolutionOptions 
+     */
     onMergeConflict: resolutionOptions => {
       store.mutations.setConflict(resolutionOptions)
     },
@@ -84,6 +87,9 @@ export async function setOrgAndRepo(org, repo) {
 
   store.mutations.setGitAgent(gitAgent)
 
+  if(!store.state.user){
+    throw new TypeError(`state.user is undefined`)
+  }
   const {login, email} = store.state.user
 
   await gitAgent.pullOrCloneRepo()
@@ -93,21 +99,17 @@ export async function setOrgAndRepo(org, repo) {
 }
 
 export function getUserOrgChoices() {
-  const orgsP = githubAsDatabase.getOrgs().then(orgs => {
+  return githubAsDatabase.getOrgs().then(orgs => {
     store.mutations.setUserOrgs(orgs)
     return orgs
   })
-
-  store.mutations.setUserOrgs(orgsP)
-
-  return orgsP
 }
 
 
 /**
  *
- * @param {import('./../store.js').ResolutionOption['resolution']} resolution
- * @returns {import('./../store.js').ResolutionOption['resolution']}
+ * @param {ResolutionOption['resolution']} resolution
+ * @returns {ResolutionOption['resolution']}
  */
 export function addConflictRemovalAndRedirectToResolution(resolution) {
   return function (/** @type {any} */ ...args) {

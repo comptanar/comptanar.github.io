@@ -42,7 +42,9 @@ async function getExercicesFromRepo() {
     const fileContent = await gitAgent.getFile(filename)
     const opérationsHautNiveau = parseOpérationsHautNiveauYaml(fileContent)
 
-    return [year, opérationsHautNiveau]
+    /** @type { [number, OpérationHautNiveau[]] } */
+    const res = [year, opérationsHautNiveau]
+    return res;
   })
 
   return Promise.all(exerciceEntriesPs).then(exerciceEntries => new Map(exerciceEntries))
@@ -60,10 +62,15 @@ export const exercicesRepoToStore = () => getExercicesFromRepo()
 function exerciceStoreToRepo(year, commitMessage = `Mise à jour de l'exercice ${year}`){
   const { opérationsHautNiveauByYear, gitAgent } = store.state
 
-  const opérationsHautNiveau = opérationsHautNiveauByYear.get(year)
-
   if (!gitAgent)
     throw new TypeError('Missing gitAgent')
+  if (!opérationsHautNiveauByYear)
+    throw new TypeError('Missing opérationsHautNiveauByYear')
+
+  const opérationsHautNiveau = opérationsHautNiveauByYear.get(year)
+
+  if (!opérationsHautNiveau)
+    throw new TypeError(`Il n'y a pas d'exercice pour l'année ${year}`)
 
   return gitAgent.writeFileAndPushChanges(
     opérationsHautNiveauPath(year),
@@ -83,6 +90,10 @@ function exerciceStoreToRepo(year, commitMessage = `Mise à jour de l'exercice $
  */
 export function envoyerOpérationHautNiveau(op, messageCréation, messageÉdition) {
   const year = op.date.getFullYear()
+
+
+  if (!store.state.opérationsHautNiveauByYear)
+    throw new TypeError('Missing opérationsHautNiveauByYear')
 
   const opérationsHautNiveau = store.state.opérationsHautNiveauByYear.get(year)
 

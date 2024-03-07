@@ -33,7 +33,9 @@ function salariatsStoreToRepo(commitMessage = 'Mise à jour des salariats') {
   const { salariats, gitAgent } = store.state
 
   if (!gitAgent)
-    throw new TypeError('Missing gitAgent')
+    throw new TypeError('state.gitAgent is undefined')
+  if(!salariats)
+    throw new TypeError('state.salariats is undefined')
 
   return gitAgent.writeFileAndPushChanges(
     salariatsPath,
@@ -44,6 +46,9 @@ function salariatsStoreToRepo(commitMessage = 'Mise à jour des salariats') {
 
 /** @type {(salariat: Salariat) => Promise<void>} */
 export function envoyerSalariat(salariat) {
+  if(!store.state.salariats)
+    throw new TypeError('state.salariats is undefined')
+
   const creation = !store.state.salariats.some(
     s => s.identifiant === salariat.identifiant,
   )

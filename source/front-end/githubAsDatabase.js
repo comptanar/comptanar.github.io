@@ -56,7 +56,7 @@ export default {
   },
   /**
    * 
-   * @returns {GithubUserOrgForComptanar}
+   * @returns {Promise<GithubUserOrgForComptanar[]>}
    */
   getOrgs() {
     return theRequest('/user/orgs').then(({ data: organisations }) => {
