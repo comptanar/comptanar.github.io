@@ -5,6 +5,11 @@ import { stringify } from 'yaml'
 import { estSalariat } from './predicates'
 import { parseYamlArray } from './utils'
 
+/**
+ * 
+ * @param {string} str 
+ * @returns {Salariat[]}
+ */ 
 export const parseSalariats = str =>
   parseYamlArray(
     str,
@@ -21,6 +26,12 @@ export const parseSalariats = str =>
       return value
     },
   )
+
+/**
+ * 
+ * @param {Salariat[]} s 
+ * @returns {string}
+ */
 export const stringifySalariatsYaml = s => stringify(s)
 
 /**
@@ -31,6 +42,6 @@ export function créerSalariatVide() {
     idPersonne: '',
     identifiant: Math.random().toString(32).slice(2),
     débutContrat: new Date(),
-    finContrat: null,
+    finContrat: undefined,
   }
 }

@@ -31,10 +31,10 @@ export function créerPersonneVide() {
     identifiant: Math.random().toString(32).slice(2),
     nom: '',
     type: 'Physique',
-    adresse: null,
-    compteAssocié·e: null,
-    compteClient: null,
-    compteFournisseur: null,
-    siret: null,
+    adresse: undefined,
+    compteAssocié·e: undefined,
+    compteClient: undefined,
+    compteFournisseur: undefined,
+    siret: undefined,
   }
 }
