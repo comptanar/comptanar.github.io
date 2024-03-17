@@ -7,12 +7,20 @@
     import { sauvegarderLignesBancaires } from '../../actions/exercices.js'
     import { displayDate, formatMontant } from '../../stringifiers'
 
+    import '../../types.js'
+    
+    /** @typedef {import("../../store.js").ComptanarState} ComptanarState */
 
-    export let user;
-    export let logout;
-    export let org;
-    export let repo;
-    export let conflict
+    /** @type {ComptanarState['user']} */
+    export let user
+    /** @type {() => void} */
+    export let logout
+    /** @type {ComptanarState['org']} */
+    export let org
+    /** @type {ComptanarState['repo']} */
+    export let repo
+    /** @type {ComptanarState["conflict"]} */
+    export let conflict;
     export let lignesBancairesParAnnée = new Map();
 
     /** @type {LigneBancaire[]} */
@@ -128,10 +136,10 @@
 </Skeleton>
 
 <style>
-    textarea{
+    /*textarea{
         margin-left: 3rem;
         min-width: 50vw;
         height: 10rem;
-    }
+    }*/
 
 </style>

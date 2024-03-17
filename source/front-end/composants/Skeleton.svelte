@@ -3,12 +3,21 @@
     
     import Header from "./Header.svelte";
     import Footer from "./Footer.svelte";
-    export let user = undefined;
-    export let logout = undefined;
-    export let fullwidth = false;
+
+    /** @typedef {import("../store.js").ComptanarState} ComptanarState */
+
+    /** @type {ComptanarState['user']} */
+    export let user = undefined
+    /** @type {(() => void) | undefined} */
+    export let logout = undefined
+    /** @type {ComptanarState['org']} */
+    export let org = undefined
+    /** @type {ComptanarState['repo']} */
     export let repo = undefined
-    export let org = undefined;
+    /** @type {ComptanarState["conflict"]} */
     export let conflict = undefined;
+    
+    export let fullwidth = false;
 </script>
 
 <Header {user} {logout} {org} {repo} {conflict}/>

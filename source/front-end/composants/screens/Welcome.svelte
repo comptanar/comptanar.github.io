@@ -3,8 +3,12 @@
     
     import Skeleton from "../Skeleton.svelte";
     
-    export let user;
-    export let logout;
+    /** @typedef {import("../../store.js").ComptanarState} ComptanarState */
+
+    /** @type {ComptanarState['user']} */
+    export let user
+    /** @type {() => void} */
+    export let logout
 </script>
 
 <Skeleton {user} {logout}>

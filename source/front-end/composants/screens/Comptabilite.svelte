@@ -1,11 +1,20 @@
 <script>
   //@ts-check
   import Skeleton from "../Skeleton.svelte";
-  export let user;
-  export let logout;
-  export let org;
-  export let repo;
-  export let conflict
+  import '../../types.js'
+    
+    /** @typedef {import("../../store.js").ComptanarState} ComptanarState */
+
+    /** @type {ComptanarState['user']} */
+    export let user
+    /** @type {() => void} */
+    export let logout
+    /** @type {ComptanarState['org']} */
+    export let org
+    /** @type {ComptanarState['repo']} */
+    export let repo
+    /** @type {ComptanarState["conflict"]} */
+    export let conflict;
 </script>
 
 <Skeleton {user} {logout} {org} {repo} {conflict}>

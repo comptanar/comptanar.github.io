@@ -2,19 +2,28 @@
     import Skeleton from "../Skeleton.svelte";
     import {addConflictRemovalAndRedirectToResolution} from '../../actions/index.js'
 
+    import '../../types.js'
+    
+    /** @typedef {import("../../store.js").ComptanarState} ComptanarState */
+
+    /** @type {ComptanarState['user']} */
     export let user
+    /** @type {() => void} */
     export let logout
+    /** @type {ComptanarState['org']} */
     export let org
+    /** @type {ComptanarState['repo']} */
     export let repo
+    /** @type {ComptanarState["conflict"]} */
+    export let conflict;
 
     /** @type {string | undefined} */
     let repositoryURL
     $: repositoryURL = `https://github.com/${org}/${repo}`;
 
-    /** @type {ScribouilliState["conflict"]} */
-    export let conflict;
 
-    /** @type {ScribouilliState["conflict"]} */
+
+    /** @type {ComptanarState["conflict"]} */
     let newConflictOptions;
     $: newConflictOptions = conflict && conflict.map(({message, resolution}) => {
         return {

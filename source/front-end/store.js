@@ -8,18 +8,19 @@ import './types.js'
 
 /**
  * @typedef {Object} ComptanarState
- * @property {string} [githubToken]
- * @property {GithubUserForComptanar} [user]
- * @property {GithubUserOrgForComptanar[]} [userOrgs]
- * @property {string} [org]
- * @property {string} [repo]
- * @property {GitAgent} [gitAgent]
- * @property {ResolutionOption[]} [conflict]
+ * @property {string | undefined} githubToken
+ * @property {GithubUserForComptanar | undefined} user
+ * @property {GithubUserOrgForComptanar[] | undefined} userOrgs
+ * @property {string | undefined} org
+ * @property {string | undefined} repo
+ * @property {GitAgent | undefined} gitAgent
+ * @property {ResolutionOption[] | undefined} conflict
  * @property {Map<number, OpérationHautNiveau[]> | undefined} opérationsHautNiveauByYear
- * @property {Personne[]} [personnes]
- * @property {Salariat[]} [salariats]
+ * @property {Personne[] | undefined} personnes
+ * @property {Salariat[] | undefined} salariats
  * 
  */
+
 
 /** @type {ComptanarState} */
 const initialState = {

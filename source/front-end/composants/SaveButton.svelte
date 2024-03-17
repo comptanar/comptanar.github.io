@@ -1,11 +1,9 @@
 <script>
     import Loader from "./Loader.svelte";
 
+    /** @type {Promise<void> | undefined} */
     export let promise;
 
-    function displayErr(e) {
-        return e.toString();
-    }
 </script>
 
 <div class="button-with-loader">
@@ -14,7 +12,7 @@
         <Loader />
     {:catch err}
         <p class="error">
-            Problème avec la sauvegarde : {displayErr(err)}
+            Problème avec la sauvegarde : {err.toString()}
         </p>
     {/await}
 </div>

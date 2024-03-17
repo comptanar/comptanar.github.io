@@ -10,29 +10,40 @@
     import { envoyerPersonne, supprimerPersonne } from "../../actions/personnes.js";
     import { créerProchainCompteClient, créerProchainCompteFournisseur } from '../../../format-données/comptabilité/main.js'
 
-    export let user;
-    export let logout;
-    export let org;
-    export let repo;
-    export let conflict
+    /** @typedef {import("../../store.js").ComptanarState} ComptanarState */
+
+    /** @type {ComptanarState['user']} */
+    export let user
+    /** @type {() => void} */
+    export let logout
+    /** @type {ComptanarState['org']} */
+    export let org
+    /** @type {ComptanarState['repo']} */
+    export let repo
+    /** @type {ComptanarState["conflict"]} */
+    export let conflict;
     /** @type {Personne[]} */
     export let personnes;
 
+    /** @type {Promise<void> | undefined} */
     let editPromise;
     /** @type {Personne} */
     let personneEnModification = créerPersonneVide();
 
+    /** @type {HTMLElement} */
     let formStart;
+    /** @type {any} */
     let table;
+    /** @type {any} */
     let tableConfig;
 
-    function enFaireUnClient(e){
+    function enFaireUnClient(){
         //@ts-expect-error TypeScript doesn't understand that after .filter(x => !!x), all values are strings
         const prochainCompteClient = créerProchainCompteClient(personnes.map(({compteClient}) => compteClient).filter(x => !!x))
         personneEnModification.compteClient = prochainCompteClient
     }
 
-    function enFaireUnFournisseur(e){
+    function enFaireUnFournisseur(){
         //@ts-expect-error TypeScript doesn't understand that after .filter(x => !!x), all values are strings
         const prochainCompteFournisseur = créerProchainCompteFournisseur(personnes.map(({compteFournisseur}) => compteFournisseur).filter(x => !!x))
         personneEnModification.compteFournisseur = prochainCompteFournisseur
@@ -51,6 +62,10 @@
         });
     }
 
+    /**
+     * 
+     * @param {Personne} personne
+     */
     async function màjFormulaire(personne) {
         personneEnModification = personne ?? créerPersonneVide();
 

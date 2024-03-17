@@ -157,6 +157,10 @@ page('/choose-organisation', loginMiddleware, () => {
    * @param {ComptanarState} state  
    */
   function mapStateToProps(state) {
+    if(!state.user){
+      throw new TypeError('Missing user')
+    }
+
     return {
       user: state.user,
       logout: logoutAndRedirect,
@@ -177,8 +181,8 @@ page('/comptabilite/', loginMiddleware, ({ querystring }) => {
 
   const params = new URLSearchParams(querystring)
 
-  const org = params.get('org')
-  const repo = params.get('repo')
+  const org = params.get('org') || undefined
+  const repo = params.get('repo') || undefined
 
   if(!org){
     throw new TypeError(`Missing org param in url`)
@@ -214,8 +218,8 @@ page('/comptabilite/ventes', loginMiddleware, ({ querystring }) => {
   console.info('route', '/comptabilite/ventes', querystring)
   const params = new URLSearchParams(querystring)
 
-  const org = params.get('org')
-  const repo = params.get('repo')
+  const org = params.get('org') || undefined
+  const repo = params.get('repo') || undefined
 
   if(!org){
     throw new TypeError(`Missing org param in url`)
@@ -252,8 +256,8 @@ page('/comptabilite/ventes', loginMiddleware, ({ querystring }) => {
 page('/comptabilite/fiches-de-paie', loginMiddleware, ({ querystring }) => {
   const params = new URLSearchParams(querystring)
 
-  const org = params.get('org')
-  const repo = params.get('repo')
+  const org = params.get('org') || undefined
+  const repo = params.get('repo') || undefined
   
   if(!org){
     throw new TypeError(`Missing org param in url`)
@@ -291,8 +295,8 @@ page('/comptabilite/fiches-de-paie', loginMiddleware, ({ querystring }) => {
 page('/comptabilite/personnes', loginMiddleware, ({ querystring }) => {
   const params = new URLSearchParams(querystring)
 
-  const org = params.get('org')
-  const repo = params.get('repo')
+  const org = params.get('org') || undefined
+  const repo = params.get('repo') || undefined
   
   if(!org){
     throw new TypeError(`Missing org param in url`)
@@ -328,8 +332,8 @@ page('/comptabilite/personnes', loginMiddleware, ({ querystring }) => {
 page('/comptabilite/achats', loginMiddleware, ({ querystring }) => {
   const params = new URLSearchParams(querystring)
 
-  const org = params.get('org')
-  const repo = params.get('repo')
+  const org = params.get('org') || undefined
+  const repo = params.get('repo') || undefined
   
   if(!org){
     throw new TypeError(`Missing org param in url`)
@@ -366,8 +370,8 @@ page('/comptabilite/achats', loginMiddleware, ({ querystring }) => {
 page('/comptabilite/salariats', loginMiddleware, ({ querystring }) => {
   const params = new URLSearchParams(querystring)
 
-  const org = params.get('org')
-  const repo = params.get('repo')
+  const org = params.get('org') || undefined
+  const repo = params.get('repo') || undefined
   
   if(!org){
     throw new TypeError(`Missing org param in url`)
@@ -403,8 +407,8 @@ page('/comptabilite/salariats', loginMiddleware, ({ querystring }) => {
 page('/comptabilite/compte-resultat', loginMiddleware, ({ querystring }) => {
   const params = new URLSearchParams(querystring)
 
-  const org = params.get('org')
-  const repo = params.get('repo')
+  const org = params.get('org') || undefined
+  const repo = params.get('repo') || undefined
   
   if(!org){
     throw new TypeError(`Missing org param in url`)
@@ -426,7 +430,7 @@ page('/comptabilite/compte-resultat', loginMiddleware, ({ querystring }) => {
       org,
       repo,
       conflict: state.conflict,
-      opHautNiveau: state.opérationsHautNiveauByYear,
+      opérationsHautNiveauByYear: state.opérationsHautNiveauByYear,
     }
   }
 
@@ -441,8 +445,8 @@ page('/comptabilite/compte-resultat', loginMiddleware, ({ querystring }) => {
 page('/comptabilite/import-banque', loginMiddleware, ({ querystring }) => {
   const params = new URLSearchParams(querystring)
 
-  const org = params.get('org')
-  const repo = params.get('repo')
+  const org = params.get('org') || undefined
+  const repo = params.get('repo') || undefined
   
   if(!org){
     throw new TypeError(`Missing org param in url`)
@@ -494,15 +498,18 @@ page('/comptabilite/import-banque', loginMiddleware, ({ querystring }) => {
 page('/resolution-desynchronisation', loginMiddleware, ({querystring}) => {
   const params = new URLSearchParams(querystring)
 
-  const org = params.get('org')
-  const repo = params.get('repo')
+  const _org = params.get('org')
+  const _repo = params.get('repo')
   
-  if(!org){
+  if(!_org){
     throw new TypeError(`Missing org param in url`)
   }
-  if(!repo){
+  if(!_repo){
     throw new TypeError(`Missing org param in url`)
   }
+
+  const org = _org
+  const repo = _repo
 
   setOrgAndRepo(org, repo)
 

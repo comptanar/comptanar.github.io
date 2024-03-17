@@ -7,10 +7,15 @@
 
     import githubAsDatabase from "../../githubAsDatabase.js";
 
-    /** @type {GithubUserForComptanar} */
-    export let user;
-    export let logout;
-    /** @type {GithubUserOrgForComptanar[]} */
+    import '../../types.js'
+    
+    /** @typedef {import("../../store.js").ComptanarState} ComptanarState */
+
+    /** @type {NonNullable<ComptanarState['user']>} */
+    export let user
+    /** @type {() => void} */
+    export let logout
+    /** @type {NonNullable<ComptanarState['userOrgs']>} */
     export let possibleOrganisations = [];
 
     const DEFAULT_REPO_NAME = "comptabilite";
@@ -18,6 +23,7 @@
     /** @type {GithubUserOrgForComptanar | undefined} */
     let chosenOrg = undefined;
     let chosenRepo = DEFAULT_REPO_NAME; // PPP hardcoded. Write selection
+    /** @type {Promise<any>} */
     let orgComptabiliteRepo;
 
     /**
@@ -27,9 +33,9 @@
     function selectOrg(org) {
         chosenOrg = org;
 
-        const repoP = githubAsDatabase.getRepo(chosenOrg.login, chosenRepo);
+        orgComptabiliteRepo = githubAsDatabase.getRepo(chosenOrg.login, chosenRepo);
 
-        orgComptabiliteRepo = repoP
+        orgComptabiliteRepo
             .then((_) => {
                 page(
                     `/comptabilite/?org=${org.login}&repo=${chosenRepo}`
@@ -50,6 +56,9 @@
     let creatingOrgComptabilite;
 
     function createComptabiliteRepo() {
+        if(!chosenOrg)
+            throw new TypeError('Missing chosenOrg')
+
         creatingOrgComptabilite = githubAsDatabase.createComptabilityRepo(
             chosenOrg.login,
             DEFAULT_REPO_NAME
@@ -57,7 +66,7 @@
     }
 </script>
 
-<Skeleton {user} {logout} {conflict}>
+<Skeleton {user} {logout}>
     {#if !chosenOrg}
         <h1 transition:fade>
             Yello {user.login}, tu veux faire de la comptabilité sur quelle
@@ -127,7 +136,7 @@
                             >{chosenOrg.login}/{DEFAULT_REPO_NAME}</code
                         >...)
                     </section>
-                {:then orgs}
+                {:then}
                     <section transition:fade>
                         <p>Repo créé !</p>
                         <a

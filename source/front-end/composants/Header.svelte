@@ -1,13 +1,21 @@
 <script>
     //@ts-check
 
+    /** @typedef {import("../store.js").ComptanarState} ComptanarState */
+
+    /** @type {ComptanarState['user']} */
     export let user = undefined;
 
-    // PPP : rajouter l'org actuelle dans le header + bouton pour changer d'org facilement
-    export let repo = undefined;
+    /** @type {ComptanarState['org']} */
     export let org = undefined;
 
+    /** @type {ComptanarState['repo']} */
+    // PPP : rajouter l'org actuelle dans le header + bouton pour changer d'org facilement
+    export let repo = undefined;
+
+    /** @type {(() => void) | undefined} */
     export let logout;
+    /** @type {ComptanarState["conflict"]} */
     export let conflict;
 
     const scopesList = ["public_repo", "read:org", "user:email"];
