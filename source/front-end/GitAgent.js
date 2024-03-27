@@ -282,7 +282,6 @@ export default class GitAgent {
    * @returns {Promise<any>}
    */
   async tryMerging() {
-    console.info('tryMerging')
     const [currentBranch, remotes] = await Promise.all([
       this.currentBranch(),
       this.listRemotes(),
@@ -482,6 +481,52 @@ export default class GitAgent {
     )
   }
 
+
+  /**
+   * 
+   * @param {Error} err 
+   */
+  #getMissingDirNameFromENOENTErrorMessage(err){
+    const errorMessage = err.message
+
+    // based on lightningFS error message convention
+    const pathRegex = /:\s*(.+)/;
+
+    //@ts-ignore
+    const missingDirPath = errorMessage.match(pathRegex)[1];
+
+    return missingDirPath
+  }
+
+  /**
+   * 
+   * @param {string} dirname 
+   */
+  async #recursiveMkdir(dirname){
+    try{
+      await this.#fs.promises.mkdir(dirname)
+    }
+    catch(e){
+      //@ts-ignore
+      if(e.code === 'ENOENT'){
+        // probably means a subdirectory is missing
+        // let's try to create it
+        //@ts-ignore
+        const missingDirPath = this.#getMissingDirNameFromENOENTErrorMessage(e)
+        // prevent an infinite loop in case #getMissingDirNameFromENOENTErrorMessage is unreliable
+        if(missingDirPath.length < dirname.length){
+          await this.#recursiveMkdir(missingDirPath)
+          // try again
+          await this.#fs.promises.mkdir(dirname)
+        }
+        else
+          throw e
+      }
+      else
+        throw e
+    }
+  }
+
   /**
    * @summary Create or update a file and add it to the git staging area
    *
@@ -498,7 +543,24 @@ export default class GitAgent {
       throw new TypeError('Empty file name')
     }
 
-    await this.#fs.promises.writeFile(this.#path(fileName), content)
+    try{
+      await this.#fs.promises.writeFile(this.#path(fileName), content)
+    }
+    catch(e){
+      //@ts-ignore
+      if(e.code === 'ENOENT'){
+        // probably means a subdirectory is missing
+        // let's try to create it
+        //@ts-ignore
+        const missingDirPath = this.#getMissingDirNameFromENOENTErrorMessage(e)
+        await this.#recursiveMkdir(missingDirPath)
+        
+        // try again
+        await this.#fs.promises.writeFile(this.#path(fileName), content)
+      }
+      else
+        throw e
+    }
     await add({
       fs: this.#fs,
       filepath: fileName,
