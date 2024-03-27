@@ -19,17 +19,21 @@ const COLONNES_ATTENDUES = [`Date`, `Débit`, `Crédit`, `Libellé`]
 const parseScsv = dsvFormat(SEPARATEUR_CREDIT_MUTUEL).parse
 
 export class CreditMutuelParsingError extends Error {
+  /**
+   * @param {string[]} args
+   */
   constructor(...args) {
     super(...args)
   }
 }
 
-function hasOwn(obj, prop) {
-  return Object.prototype.hasOwnProperty.call(obj, prop)
-}
-
+/**
+ * 
+ * @param {LigneImportBancaireCSVCreditMutuel} row 
+ * @returns {string[]}
+ */
 function listerColonnesManquantes(row) {
-  return COLONNES_ATTENDUES.filter(key => !hasOwn(row, key))
+  return COLONNES_ATTENDUES.filter(key => Reflect.getOwnPropertyDescriptor(row, key))
 }
 
 /**

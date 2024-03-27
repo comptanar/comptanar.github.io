@@ -140,7 +140,3 @@
 
 /** @typedef {_Membre & Identifiable & Commentable} Membre */
 
-/**
- * @template T
- * @typedef {{ sha: string | undefined, data: T }} WithSha<T>
- */

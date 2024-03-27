@@ -6,43 +6,51 @@
     import Skeleton from "../Skeleton.svelte";
     import Tableau, { action } from "../Tableau.svelte";
     import SaveButton from "../SaveButton.svelte";
-    import { créerPersonneVide } from "../../../format-données/personnes";
-    import { envoyerPersonne, supprimerPersonne } from "../../actions";
+    import { créerPersonneVide } from "../../../format-données/personnes.js";
+    import { envoyerPersonne, supprimerPersonne } from "../../actions/personnes.js";
     import { créerProchainCompteClient, créerProchainCompteFournisseur } from '../../../format-données/comptabilité/main.js'
 
-    export let login;
-    export let logout;
-    export let org;
-    export let repo;
+    /** @typedef {import("../../store.js").ComptanarState} ComptanarState */
+
+    /** @type {ComptanarState['user']} */
+    export let user
+    /** @type {() => void} */
+    export let logout
+    /** @type {ComptanarState['org']} */
+    export let org
+    /** @type {ComptanarState['repo']} */
+    export let repo
+    /** @type {ComptanarState["conflict"]} */
+    export let conflict;
     /** @type {Personne[]} */
     export let personnes;
 
+    /** @type {Promise<void> | undefined} */
     let editPromise;
     /** @type {Personne} */
-    let personneEnModification;
-    let nom;
+    let personneEnModification = créerPersonneVide();
 
+    /** @type {HTMLElement} */
     let formStart;
+    /** @type {any} */
     let table;
+    /** @type {any} */
     let tableConfig;
-    let type;
 
-    function enFaireUnClient(e){
+    function enFaireUnClient(){
+        //@ts-expect-error TypeScript doesn't understand that after .filter(x => !!x), all values are strings
         const prochainCompteClient = créerProchainCompteClient(personnes.map(({compteClient}) => compteClient).filter(x => !!x))
         personneEnModification.compteClient = prochainCompteClient
     }
 
-    function enFaireUnFournisseur(e){
+    function enFaireUnFournisseur(){
+        //@ts-expect-error TypeScript doesn't understand that after .filter(x => !!x), all values are strings
         const prochainCompteFournisseur = créerProchainCompteFournisseur(personnes.map(({compteFournisseur}) => compteFournisseur).filter(x => !!x))
         personneEnModification.compteFournisseur = prochainCompteFournisseur
     }
 
     function sauvegarderFormulaire() {
-        editPromise = envoyerPersonne({
-            ...personneEnModification,
-            type,
-            nom,
-        });
+        editPromise = envoyerPersonne(personneEnModification);
 
         editPromise.then(() => {
             editPromise = undefined;
@@ -54,10 +62,12 @@
         });
     }
 
+    /**
+     * 
+     * @param {Personne} personne
+     */
     async function màjFormulaire(personne) {
         personneEnModification = personne ?? créerPersonneVide();
-
-        nom = personneEnModification.nom;
 
         await tick();
         formStart?.focus();
@@ -75,10 +85,9 @@
         columns: ["Nom"],
         data: personnes.map((p) => [{ content: p.nom }]),
     };
-    $: console.log(personnes);
 </script>
 
-<Skeleton {login} {logout} {org} {repo} fullwidth>
+<Skeleton {user} {logout} {org} {repo} {conflict} fullwidth>
     <Tableau
         {...tableConfig}
         bind:this={table}
@@ -97,13 +106,13 @@
                         <div>Nom</div>
                         <input
                             bind:this={formStart}
-                            bind:value={nom}
+                            bind:value={personneEnModification.nom}
                             type="text"
                         />
                     </label>
                     <label>
                         <div>Type</div>
-                        <select bind:value={type}>
+                        <select bind:value={personneEnModification.type}>
                             <option value="Morale">Morale</option>
                             <option value="Physique">Physique</option>
                         </select>

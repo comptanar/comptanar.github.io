@@ -12,17 +12,26 @@
         displayDate,
         formatDate,
         formatMontant
-    } from "../../stringifiers";
+    } from "../../stringifiers.js";
     import {
         envoyerFicheDePaie,
         supprimerOpérationHautNiveau
-    } from "../../actions";
+    } from "../../actions/exercices.js";
     import { créerFicheDePaieVide } from "../../../format-données/opérationsHautNiveau";
 
-    export let login;
-    export let logout;
-    export let org;
-    export let repo;
+
+    /** @typedef {import("../../store.js").ComptanarState} ComptanarState */
+
+    /** @type {ComptanarState['user']} */
+    export let user
+    /** @type {() => void} */
+    export let logout
+    /** @type {ComptanarState['org']} */
+    export let org
+    /** @type {ComptanarState['repo']} */
+    export let repo
+    /** @type {ComptanarState["conflict"]} */
+    export let conflict;
     /** @type {Personne[]} */
     export let personnes = [];
     /** @type {Salariat[]} */
@@ -30,9 +39,13 @@
     /** @type {ÉmissionFicheDePaie[]} */
     export let fichesDePaie;
 
+    /** @type {Promise<void> | undefined} */
     let editPromise;
+    
+    /** @type {any} */
     let table;
 
+    /** @type {Set<Salariat['idPersonne']>} */
     let salariatsIds
     /** @type {Personne[]} */
     let salarié·es
@@ -46,21 +59,37 @@
     /** @type {Personne} */
     let salarié·e
 
-    function majsalarié·e(ficheEnModification){
+    /**
+     * 
+     * @param {ÉmissionFicheDePaie} ficheEnModification
+     */
+    function majSalarié·e(ficheEnModification){
+        // @ts-expect-error it will be found
         salarié·e = salarié·es.find(({identifiant}) => ficheEnModification.salarié·e === identifiant);
     }
 
     $: ficheEnModification.salarié·e = salarié·e?.identifiant
-    $: majsalarié·e(ficheEnModification)
+    $: majSalarié·e(ficheEnModification)
     
+    /** @type {number} */
     let année;
+    /** @type {number} */
     let mois;
 
+    /**
+     * 
+     * @param {Date} débutPériode
+     */
     function remplirMoisEtAnnée(débutPériode){
         année = débutPériode.getFullYear()
         mois = débutPériode.getMonth()
     }
 
+    /**
+     * 
+     * @param {number} mois
+     * @param {number} année
+     */
     function préRemplirPériode(mois, année){
         ficheEnModification.débutPériode = startOfMonth(new Date(année, mois));
         ficheEnModification.finPériode = endOfMonth(new Date(année, mois));
@@ -76,12 +105,13 @@
      */
     function nomSalarié·eForFiche(fiche) {
         const personne = salarié·es.find(({identifiant}) => fiche.salarié·e === identifiant);
-        return personne?.nom;
+        return personne?.nom || `Personne inconnue ${fiche.salarié·e}`; 
     }
 
     function sauvegarderFiche() {
         editPromise = envoyerFicheDePaie(
             ficheEnModification, 
+            //@ts-expect-error it will be found
             personnes.find(({identifiant}) => ficheEnModification.salarié·e === identifiant)
         )
 
@@ -111,6 +141,7 @@
         table.edit(undefined);
     }
 
+    /** @type {any} */
     let tableConfig;
     $: tableConfig = {
         placeholder:
@@ -119,7 +150,7 @@
         globalActions: [
             action(() => table.edit(-1), "Nouvelle fiche", "Alt+N"),
         ],
-        data: fichesDePaie?.map((fiche) => [
+        data: fichesDePaie?.sort((a, b) => b.date.getTime() - a.date.getTime()).map((fiche) => [
             {
                 content: displayDate(fiche.date),
                 title: formatDate(fiche.date),
@@ -135,7 +166,7 @@
     };
 </script>
 
-<Skeleton {login} {logout} {org} {repo} fullwidth>
+<Skeleton {user} {logout} {org} {repo} {conflict} fullwidth>
     <Tableau
         {...tableConfig}
         bind:this={table}

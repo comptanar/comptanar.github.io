@@ -1,16 +1,9 @@
 <script>
     import Loader from "./Loader.svelte";
-    import { ConflictError } from "../actions";
 
+    /** @type {Promise<void> | undefined} */
     export let promise;
 
-    function displayErr(e) {
-        if (e instanceof ConflictError) {
-            return "Une autre personne a modifié ces données entre temps. Recharge la page pour voir la nouvelle version.";
-        }
-
-        return e.toString();
-    }
 </script>
 
 <div class="button-with-loader">
@@ -19,7 +12,7 @@
         <Loader />
     {:catch err}
         <p class="error">
-            Problème avec la sauvegarde : {displayErr(err)}
+            Problème avec la sauvegarde : {err.toString()}
         </p>
     {/await}
 </div>

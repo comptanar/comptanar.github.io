@@ -1,7 +1,7 @@
 <script>
     // @ts-check
 
-    import { tick } from 'svelte'
+    import { SvelteComponent, tick } from 'svelte'
 
     import Skeleton from '../Skeleton.svelte'
     import Tableau, { action } from '../Tableau.svelte'
@@ -10,21 +10,31 @@
 
     import { déduireTauxTVA, calculTVALigne, calculTTCFacture, calculTVAFacture, tauxTVAPossibles } from '../../../format-données/comptabilité/main.js'
     import { planDeCompte, isAchat } from '../../../format-données/comptabilité/planDeCompte.js'
-    import { créerAchatVide } from '../../../format-données/opérationsHautNiveau'
-    import { displayDate, formatDate, formatMontant } from '../../stringifiers'
-    import { envoyerAchat, supprimerOpérationHautNiveau } from '../../actions'
+    import { créerAchatVide } from '../../../format-données/opérationsHautNiveau.js'
+    import { displayDate, formatDate, formatMontant } from '../../stringifiers.js'
+    import { envoyerAchat, supprimerOpérationHautNiveau } from '../../actions/exercices.js'
 
-    export let login
+    /** @typedef {import("../../store.js").ComptanarState} ComptanarState */
+
+    /** @type {ComptanarState['user']} */
+    export let user
+    /** @type {() => void} */
     export let logout
+    /** @type {ComptanarState['org']} */
+    export let org
+    /** @type {ComptanarState['repo']} */
+    export let repo
+    /** @type {ComptanarState["conflict"]} */
+    export let conflict;
+
     /** @type {RéceptionFactureFournisseur[]} */
     export let achats
-    export let org
-    export let repo
-    /** @type {Personne[] | undefined} */
+    /** @type {ComptanarState['personnes']} */
     export let personnes
 
-    let formStart
+    /** @type {SvelteComponent} */
     let table
+    /** @type {Promise<void> | undefined} */
     let editPromise
     /** @type {RéceptionFactureFournisseur} */
     let achatEnÉdition = créerAchatVide()
@@ -65,32 +75,28 @@
     }
 
     /** @type { LigneAchat[] } */
-    let lignesAchats;
+    let lignesAchats = [];
     /**
-     * @param {RéceptionFactureFournisseur} achatEnÉdition
+     * @param {typeof achatEnÉdition} _achatEnÉdition
     */
-    function réceptionFactureFournisseurToLignesAchats(achatEnÉdition){
-        if(!achatEnÉdition){
-            lignesAchats = undefined
-            return
-        }
-
-        lignesAchats = achatEnÉdition.lignes.map(ligneFactureToLigneAchat)
+    function réceptionFactureFournisseurToLignesAchats(_achatEnÉdition){
+        lignesAchats = (_achatEnÉdition.lignes || []).map(ligneFactureToLigneAchat)
     }
     $: réceptionFactureFournisseurToLignesAchats(achatEnÉdition)
 
-    function lignesAchatsToLignesFactures(lignesAchats){
-        if(!lignesAchats || !achatEnÉdition){
-            return
-        }
-
-        achatEnÉdition.lignes = lignesAchats.map(ligneAchatToLigneFacture)
+    /**
+     * 
+     * @param { typeof lignesAchats } _lignesAchats
+     */
+    function lignesAchatsToLignesFactures(_lignesAchats){
+        achatEnÉdition.lignes = _lignesAchats.map(ligneAchatToLigneFacture)
     }
     $: lignesAchatsToLignesFactures(lignesAchats)
 
     /** @type {Personne} */
     let fournisseur
-    $: achatEnÉdition.compteFournisseur = fournisseur?.compteFournisseur
+    //@ts-expect-error On sait que la personne fournisseur a un compte fournisseur qui n'est pas undefined
+    $: {if(fournisseur){ achatEnÉdition.compteFournisseur = fournisseur.compteFournisseur} }
 
     /**
      * @param {LigneAchat} ligneAchat
@@ -118,18 +124,24 @@
         })
     }
 
+    /**
+     * @param {RéceptionFactureFournisseur} achat
+     */
     async function màjFormulaire(achat) {
         achatEnÉdition = achat ?? créerAchatVide()
 
         await tick()
-        formStart?.focus()
     }
 
     function ajouterLigneFacture(){
-        lignesAchats.push({montantTTC: undefined, montantTVA: undefined, compteProduit: undefined})
+        lignesAchats.push({montantTTC: 0, montantTVA: 0, compteProduit: ''})
         lignesAchats = lignesAchats; // re-render component
     }
 
+    /**
+     * 
+     * @param {LigneAchat} ligne
+     */
     function supprimerLigneAchat(ligne){
         const index = lignesAchats.indexOf(ligne);
 
@@ -144,21 +156,22 @@
         table.edit(undefined)
     }
 
+    /** @type {any} */
     let tableConfig
     $: tableConfig = {
         globalActions: [ action(() => table.edit(-1), 'Nouvel achat', 'Alt+N') ],
         placeholder: 'Sélectionne un achat dans la liste pour en voir le détail ou le modifier',
         columns: ['Date', 'Fournisseur', 'Montant TTC', 'Montant TVA'],
-        data: achats.map(a => [
+        data: achats.sort((a, b) => b.date.getTime() - a.date.getTime()).map(a => [
             { content: displayDate(a.date), title: formatDate(a.date) },
-            { content: fournisseurs.find(f => f.compteFournisseur === a.compteFournisseur)?.nom || `client non trouvé (${a.compteFournisseur})` },
+            { content: fournisseurs && fournisseurs.find(f => f.compteFournisseur === a.compteFournisseur)?.nom || `client non trouvé (${a.compteFournisseur})` },
             { content: formatMontant(calculTTCFacture(a)) },
             { content: formatMontant(calculTVAFacture(a)) },
         ])
     }
 </script>
 
-<Skeleton {login} {logout} {org} {repo} fullwidth>
+<Skeleton {user} {logout} {org} {repo} {conflict} fullwidth>
     <Tableau bind:this={table} on:edit={e => màjFormulaire(achats[e.detail])} {...tableConfig}>
         <h1 slot="header">Achats réalisés par {org}</h1>
         <h2 slot="form-header">Achat</h2>
@@ -212,12 +225,12 @@
                         {/if}
 
                         {#if lignesAchats.length >= 2}
-                            <button type="button" on:click={e => supprimerLigneAchat(ligne)}>Supprimer ligne</button>    
+                            <button type="button" on:click={_ => supprimerLigneAchat(ligne)}>Supprimer ligne</button>    
                         {/if}
                     </fieldset>
                 {/each}
                 
-                <button type="button" on:click={e => ajouterLigneFacture()}>Ajouter ligne</button>
+                <button type="button" on:click={_ => ajouterLigneFacture()}>Ajouter ligne</button>
 
                 <SaveButton bind:promise={editPromise} />
                 <button type="button" on:click={_ => table.edit(undefined)}>Abandonner les modifications</button>

@@ -18,10 +18,10 @@ Un compte de charges augmente avec un débit diminue avec un crédit.
 Un compte de produits augmente avec un crédit diminue avec un débit.
 
  * @param {OpérationDeCompte[]} opérationsDeCompte 
- * @returns {Map<string, number>}
+ * @returns {Map<Compte, Montant>}
  */
 export default opérationsDeCompte => {
-  /** @type {Map<string, number>} */
+  /** @type {Map<Compte, Montant>} */
   const étatDesComptes = new Map()
   console.log(opérationsDeCompte)
 

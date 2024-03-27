@@ -9,7 +9,7 @@ import { parse } from 'yaml'
  * @param {string} str le YAML à parser
  * @param {string} descriptionFormatAttendu une explication textuelle de ce qui est attendu (exemple : « une liste de factures »)
  * @param {(element: any) => boolean} prédicat valide le type de chaque élément de la liste
- * @param {((key, value) => unknown) | undefined} reviver? applique des transformations à chaque élément parsé
+ * @param {((key: unknown, value: any) => unknown) | undefined} reviver applique des transformations à chaque élément parsé
  * @returns {T[]} la liste parsée
  */
 export function parseYamlArray(

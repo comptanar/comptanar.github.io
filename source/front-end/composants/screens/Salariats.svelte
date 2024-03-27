@@ -4,44 +4,52 @@
     import Skeleton from "../Skeleton.svelte"
     import Tableau, { action } from "../Tableau.svelte"
     import SaveButton from "../SaveButton.svelte"
-    import { créerSalariatVide } from '../../../format-données/salariat'
-    import { tick } from "svelte";
+    import DateInput from "../DateInput.svelte"
+    import { créerSalariatVide } from '../../../format-données/salariats'
+    import { SvelteComponent, tick } from "svelte";
     import { format } from "date-fns";
     import { displayDate } from "../../stringifiers";
     import { fr } from "date-fns/locale";
-    import { envoyerSalariat, supprimerSalariat } from "../../actions";
+    import { envoyerSalariat, supprimerSalariat } from "../../actions/salariats";
 
-    export let login
+    /** @typedef {import("../../store.js").ComptanarState} ComptanarState */
+
+    /** @type {ComptanarState['user']} */
+    export let user
+    /** @type {() => void} */
     export let logout
+    /** @type {ComptanarState['org']} */
     export let org
+    /** @type {ComptanarState['repo']} */
     export let repo
+    /** @type {ComptanarState["conflict"]} */
+    export let conflict;
     /** @type {Personne[]} */
     export let personnes
     /** @type {Salariat[]} */
     export let salariats
 
+    /** @type {Personne[]} */
     let personnesPhysiques
-
     $: personnesPhysiques = personnes.filter(({type}) => type === 'Physique')
 
+    /** @type {SvelteComponent} */
     let table
+    /** @type {any} */
     let tableConfig
+    /** @type {any} */
     let formStart
 
-    let salariatEnÉdition
+    let salariatEnÉdition = créerSalariatVide()
+    /** @type {Promise<void> | undefined} */
     let editPromise
 
+    /** @type {Personne | undefined} */
     let personne
-    let débutContrat
-    let finContrat
+    $: {if(personne){ salariatEnÉdition.idPersonne = personne.identifiant}}
 
     function sauvegarderSalariat() {
-        editPromise = envoyerSalariat({
-            identifiant: salariatEnÉdition.identifiant,
-            idPersonne: personne.identifiant,
-            débutContrat: new Date(débutContrat),
-            finContrat: new Date(finContrat)
-        })
+        editPromise = envoyerSalariat(salariatEnÉdition)
 
         editPromise.then(() => {
             editPromise = undefined
@@ -49,12 +57,14 @@
         })
     }
 
+    /**
+     * 
+     * @param {Salariat} sal
+     */
     async function màjFormulaire(sal) {
         salariatEnÉdition = sal ?? créerSalariatVide()
         
         personne = personnePour(salariatEnÉdition)
-        débutContrat = format(salariatEnÉdition.débutContrat, 'yyyy-MM-dd')
-        finContrat = !salariatEnÉdition.finContrat ? undefined : format(sal.finContrat, 'yyyy-MM-dd')
 
         await tick()
         formStart?.focus()
@@ -68,7 +78,7 @@
     /**
      * 
      * @param {Salariat} salariat
-     * @return {Personne}
+     * @return {Personne | undefined}
      */
     const personnePour = (salariat) => personnes.find(p => p.identifiant === salariat.idPersonne)
 
@@ -87,12 +97,12 @@
     }
 </script>
 
-<Skeleton {login} {logout} {org} {repo} fullwidth>
+<Skeleton {user} {logout} {org} {repo} {conflict} fullwidth>
     <Tableau {...tableConfig} bind:this={table} on:edit={(e) => màjFormulaire(salariats[e.detail])}>
         <h1 slot="header">Liste des salariats</h1>
         <svelte:fragment slot="form-header">
             {#if salariatEnÉdition && salariatEnÉdition.idPersonne !== '' }
-                <h1>Modifier « { personnePour(salariatEnÉdition).nom } »</h1>
+                <h1>Modifier « { personnePour(salariatEnÉdition)?.nom } »</h1>
             {:else}
                 <h1>Ajouter un salariat</h1>
             {/if}
@@ -107,13 +117,15 @@
                         {/each}
                     </select>
                 </label>
+                <!-- svelte-ignore a11y-label-has-associated-control -->
                 <label>
                     <div>Début du contrat</div>
-                    <input bind:value={débutContrat} type="date">
+                    <DateInput bind:date={salariatEnÉdition.débutContrat} />
                 </label>
+                <!-- svelte-ignore a11y-label-has-associated-control -->
                 <label>
                     <div>Fin du contrat</div>
-                    <input bind:value={finContrat} type="date">
+                    <DateInput bind:date={salariatEnÉdition.finContrat} />
                 </label>
 
                 <SaveButton bind:promise={editPromise} />

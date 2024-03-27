@@ -9,24 +9,32 @@
 
     import Tableau, { action } from '../Tableau.svelte';
     import { displayDate, formatMontant } from '../../stringifiers'
-    import { supprimerOpérationHautNiveau, sauvegarderEnvoiFactureÀClient } from '../../actions'
+    import { supprimerOpérationHautNiveau, sauvegarderEnvoiFactureÀClient } from '../../actions/exercices.js'
     import { créerEnvoiFactureÀClientVide } from '../../../format-données/opérationsHautNiveau';
     import { calculTTCFacture, calculHTFacture, calculTVALigne, calculTTCLigne, tauxTVAPossibles } from '../../../format-données/comptabilité/main.js'
 
     import '../../../format-données/types/main.js'
     
-    export let login
+    /** @typedef {import("../../store.js").ComptanarState} ComptanarState */
+
+    /** @type {ComptanarState['user']} */
+    export let user
+    /** @type {() => void} */
     export let logout
+    /** @type {ComptanarState['org']} */
     export let org
+    /** @type {ComptanarState['repo']} */
     export let repo
+    /** @type {ComptanarState["conflict"]} */
+    export let conflict;
     /** @type {EnvoiFactureÀClient[]} */
     export let envoiFactureàClients
-    /** @type {Personne[] | undefined} */
-    export let personnes 
+    /** @type {Personne[]} */
+    export let personnes = []
 
-    /** @type {Personne[] | undefined} */
+    /** @type {Personne[]} */
     let clients
-    $: clients = personnes?.filter(({compteClient}) => !!compteClient)
+    $: clients = personnes.filter(({compteClient}) => !!compteClient)
 
 
     /** @type {EnvoiFactureÀClient} */
@@ -38,7 +46,8 @@
 
     /** @type {Personne} */
     let client
-    $: factureEnModification.compteClient = client?.compteClient
+    //@ts-expect-error il y a toujours un compte client
+    $: {if(client) factureEnModification.compteClient = client.compteClient}
 
     /**
      * 
@@ -53,14 +62,15 @@
         }
     }
     function ajouterLigneFacture(){
-        factureEnModification.lignes.push({montantHT: undefined, tauxTVA: undefined, compteProduit: undefined})
+        factureEnModification.lignes.push({montantHT: 0, tauxTVA: 20, compteProduit: '7'})
         factureEnModification = factureEnModification; // re-render component
     }
 
-    let factureSent = undefined;
+    
 
-    /** @type Tableau */
+    /** @type {Tableau} */
     let table
+    /** @type {any} */
     let tableConfig
 
     $: tableConfig = {
@@ -78,6 +88,9 @@
                 { content: formatMontant(calculHTFacture(facture)) },
             ])
     }
+
+    /** @type {Promise<void> | undefined} */
+    let factureSent = undefined;
 
     /**
      * Cette fonction enregistre (ou enregistre les modifications apportées à) une facture
@@ -119,7 +132,7 @@
     }
 </script>
 
-<Skeleton {login} {logout} {org} {repo} fullwidth>
+<Skeleton {user} {logout} {org} {repo} {conflict} fullwidth>
     <Tableau bind:this={table} on:edit={(e) => { màjFormulaire(envoiFactureàClients[e.detail]) }} {...tableConfig}>
         <h1 slot="header">
             Voici la liste des factures (ventes) pour 
@@ -160,7 +173,7 @@
                         <input bind:value={dateFacture} type="date">
                     </label>
 
-                    {#each factureEnModification.lignes as ligne, i}
+                    {#each factureEnModification.lignes as ligne}
                         <fieldset class="ligne-facture">
                             <label>
                                 <div>Compte Produit</div>
@@ -189,10 +202,10 @@
                                 <div>Montant TTC</div>
                                 <output>{formatMontant(calculTTCLigne(ligne))}</output>
                             </label>
-                            <button type="button" on:click={e => supprimerLigneFacture(ligne)}>Supprimer ligne</button>
+                            <button type="button" on:click={() => supprimerLigneFacture(ligne)}>Supprimer ligne</button>
                         </fieldset>
                     {/each}
-                    <button type="button" on:click={e => ajouterLigneFacture()}>Ajouter ligne</button>
+                    <button type="button" on:click={() => ajouterLigneFacture()}>Ajouter ligne</button>
                     
                     <SaveButton bind:promise={factureSent} />
                     

@@ -1,11 +1,9 @@
 import svelte from 'rollup-plugin-svelte'
 import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
-import json from '@rollup/plugin-json'
-
-//import livereload from 'rollup-plugin-livereload';
-import { terser } from 'rollup-plugin-terser'
-
+import nodePolyfills from 'rollup-plugin-polyfill-node';
+import terser from '@rollup/plugin-terser'
+//import analyze from 'rollup-plugin-analyzer'
 import css from 'rollup-plugin-css-only'
 import sveltePreprocess from 'svelte-preprocess'
 
@@ -16,9 +14,10 @@ export default {
   output: {
     sourcemap: !production,
     format: 'es',
-    file: 'build/rollup-bundle.js',
+    file: 'build/rollup-bundle.js'
   },
   plugins: [
+    //analyze(),
     svelte({
       compilerOptions: {
         // enable run-time checks when not in production
@@ -39,11 +38,7 @@ export default {
       dedupe: ['svelte'],
     }),
     commonjs(),
-    json(),
-
-    // Watch the `_site` directory and refresh the
-    // browser on changes when not in production
-    //!production && livereload('_site'),
+    nodePolyfills(),
 
     // If we're building for production (npm run build
     // instead of npm run dev), minify

@@ -4,14 +4,23 @@
     import DateInput from "../DateInput.svelte";
 
     import {créerLigneBancaireVide} from '../../../format-données/opérationsHautNiveau.js'
-    import { sauvegarderLignesBancaires } from '../../actions.js'
+    import { sauvegarderLignesBancaires } from '../../actions/exercices.js'
     import { displayDate, formatMontant } from '../../stringifiers'
 
+    import '../../types.js'
+    
+    /** @typedef {import("../../store.js").ComptanarState} ComptanarState */
 
-    export let login;
-    export let logout;
-    export let org;
-    export let repo;
+    /** @type {ComptanarState['user']} */
+    export let user
+    /** @type {() => void} */
+    export let logout
+    /** @type {ComptanarState['org']} */
+    export let org
+    /** @type {ComptanarState['repo']} */
+    export let repo
+    /** @type {ComptanarState["conflict"]} */
+    export let conflict;
     export let lignesBancairesParAnnée = new Map();
 
     /** @type {LigneBancaire[]} */
@@ -56,7 +65,7 @@
 
 </script>
 
-<Skeleton {login} {logout} {org} {repo}>
+<Skeleton {user} {logout} {org} {conflict} {repo}>
     <h1>Import bancaire</h1>
     <p>Par ici, on importe les données bancaires et on essaye de les classifier</p>
     <p>Pour le moment, y'a que un import Anytime qui fonctionne. L'idée, c'est d'ouvrir un pdf et de copier/coller le tableau en texte</p>
@@ -127,10 +136,10 @@
 </Skeleton>
 
 <style>
-    textarea{
+    /*textarea{
         margin-left: 3rem;
         min-width: 50vw;
         height: 10rem;
-    }
+    }*/
 
 </style>

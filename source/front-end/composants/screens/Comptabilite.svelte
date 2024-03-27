@@ -1,13 +1,23 @@
 <script>
   //@ts-check
   import Skeleton from "../Skeleton.svelte";
-  export let login;
-  export let logout;
-  export let org;
-  export let repo;
+  import '../../types.js'
+    
+    /** @typedef {import("../../store.js").ComptanarState} ComptanarState */
+
+    /** @type {ComptanarState['user']} */
+    export let user
+    /** @type {() => void} */
+    export let logout
+    /** @type {ComptanarState['org']} */
+    export let org
+    /** @type {ComptanarState['repo']} */
+    export let repo
+    /** @type {ComptanarState["conflict"]} */
+    export let conflict;
 </script>
 
-<Skeleton {login} {logout} {org} {repo}>
+<Skeleton {user} {logout} {org} {repo} {conflict}>
   <h1>Voici la comptabilité de l'organisation <code>{org}</code></h1>
   <section>
     <a href="/comptabilite/personnes?org={org}&repo={repo}">

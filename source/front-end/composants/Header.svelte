@@ -1,23 +1,46 @@
 <script>
     //@ts-check
 
-    export let login = undefined;
-    export let repo = undefined;
+    /** @typedef {import("../store.js").ComptanarState} ComptanarState */
+
+    /** @type {ComptanarState['user']} */
+    export let user = undefined;
+
+    /** @type {ComptanarState['org']} */
     export let org = undefined;
 
-    export let logout;
+    /** @type {ComptanarState['repo']} */
+    // PPP : rajouter l'org actuelle dans le header + bouton pour changer d'org facilement
+    export let repo = undefined;
 
-    const scopesList = ["public_repo", "read:org"];
+    /** @type {(() => void) | undefined} */
+    export let logout;
+    /** @type {ComptanarState["conflict"]} */
+    export let conflict;
+
+    const scopesList = ["public_repo", "read:org", "user:email"];
     const scopes = scopesList.join(",");
 
-    const toctoctoc_origin = "https://ttt.olibri.us";
-    const client_id = "fe09b09c65edef4ec9cc";
-    const destination = `${location.origin}/`;
+    const toctoctoc_origin = "https://toctoctoc.lechappeebelle.team";
+    const client_id = "64ecce0b01397c2499a6";
+    const destination = `${location.origin}/after-oauth-login`;
     const redirect_uri = `${toctoctoc_origin}/github-callback?destination=${destination}`;
 
     const href = `https://github.com/login/oauth/authorize?client_id=${client_id}&scope=${scopes}&redirect_uri=${redirect_uri}`;
 
-    // PPP : rajouter l'org actuelle dans le header + bouton pour changer d'org facilement
+    /**
+     *
+     * @param {string} org
+     * @param {string} repo
+     * @returns {string}
+     */
+    function makeResolutionDesynchronisationURL(org, repo) {
+        return `/resolution-desynchronisation?org=${org}&repo=${repo}`
+    }
+
+    /** @type {string} */
+    let resolutionURL;
+    $: resolutionURL = makeResolutionDesynchronisationURL(org || '', repo || '')
 </script>
 
 <header>
@@ -30,18 +53,18 @@
     {/if}
 
     <div>
-        {#if login}
-            {#await login}
+        {#if user}
+            {#await user}
                 ... recherche du nom d'utilisateur.rice Github ...
-            {:then l}
+            {:then user}
                 <div class="user">
                     <div>
-                        <p>{l}</p>
+                        <p>{user.login}</p>
                         <button on:click={logout}>Se déconnecter</button>
                     </div>
                     <img
                         class="avatar small"
-                        src={`https://github.com/${l}.png`}
+                        src={user.avatarUrl}
                         alt=""
                     />
                 </div>
@@ -57,6 +80,15 @@
         {/if}
     </div>
 </header>
+
+{#if conflict}
+  <section class="warning">
+    <p>⚠️ Attention ! Cet ordinateur ne peut plus se synchroniser avec la comptabilité collective parce que les versions
+    de l'un et de l'autre sont irréconciliables. La comptabilité collective ne va plus se mettre à jour</p>
+
+    <p><a href={resolutionURL}>Aller sur la page dédiée de résolution du problème</a></p>
+  </section>
+{/if}
 
 <style lang="scss">
     header {
@@ -81,6 +113,19 @@
             border: none;
             padding: 0;
             text-decoration: underline;
+        }
+    }
+
+    .warning{
+        max-width: 80%;
+        margin: 1rem auto;
+        margin-bottom: 0;
+        background-color: orange;
+        padding: 1rem;
+        border-radius: 1rem;
+
+        p{
+            margin: 0;
         }
     }
 </style>

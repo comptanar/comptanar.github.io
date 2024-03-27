@@ -3,13 +3,13 @@
 import { stringify } from 'yaml'
 
 import { isOpérationDeCompte } from './predicates.js'
-import { parseArray } from './utils.js'
+import { parseYamlArray } from './utils.js'
 /**
  * @param {string} str
  * @returns {OpérationDeCompte[]}
  */
 export const parseOpérationsDeCompteYaml = str =>
-  parseArray(str, "une liste d'opérations de compte", isOpérationDeCompte)
+  parseYamlArray(str, "une liste d'opérations de compte", isOpérationDeCompte)
 
 /**
  * @param {OpérationDeCompte[]} o

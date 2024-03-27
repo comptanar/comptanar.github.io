@@ -7,41 +7,56 @@
 
     import githubAsDatabase from "../../githubAsDatabase.js";
 
-    export let login;
-    export let logout;
-    export let possibleOrganisations = [];
+    import '../../types.js'
+    
+    /** @typedef {import("../../store.js").ComptanarState} ComptanarState */
+
+    /** @type {NonNullable<ComptanarState['user']>} */
+    export let user
+    /** @type {() => void} */
+    export let logout
+    /** @type {NonNullable<ComptanarState['userOrgs']>} */
+    export let possibleOrganisations;
 
     const DEFAULT_REPO_NAME = "comptabilite";
 
+    /** @type {GithubUserOrgForComptanar | undefined} */
     let chosenOrg = undefined;
     let chosenRepo = DEFAULT_REPO_NAME; // PPP hardcoded. Write selection
+    /** @type {Promise<any>} */
     let orgComptabiliteRepo;
 
+    /**
+     * 
+     * @param {GithubUserOrgForComptanar} org
+     */
     function selectOrg(org) {
         chosenOrg = org;
 
-        const repoP = githubAsDatabase.getRepo(chosenOrg.login, chosenRepo);
-
-        orgComptabiliteRepo = repoP
-            .then((_) => {
-                page(
-                    `/comptabilite/?org=${chosenOrg.login}&repo=${chosenRepo}`
+        orgComptabiliteRepo = githubAsDatabase.getRepo(chosenOrg.login, chosenRepo)
+        .then((_) => {
+            page(
+                `/comptabilite/?org=${org.login}&repo=${chosenRepo}`
+            );
+        })
+        .catch((err) => {
+            if (err.status === 404) {
+                // repo does not exist
+                console.info(
+                    "Expected error trying to find a repo that may not exist"
                 );
-            })
-            .catch((err) => {
-                if (err.status === 404) {
-                    // repo does not exist
-                    console.info(
-                        "Expected error trying to find a repo that may not exist"
-                    );
-                    return undefined;
-                } else throw err;
-            });
+                return undefined;
+            } else throw err;
+        });
     }
 
+    /** @type {Promise<any> | undefined} */
     let creatingOrgComptabilite;
 
     function createComptabiliteRepo() {
+        if(!chosenOrg)
+            throw new TypeError('Missing chosenOrg')
+
         creatingOrgComptabilite = githubAsDatabase.createComptabilityRepo(
             chosenOrg.login,
             DEFAULT_REPO_NAME
@@ -49,10 +64,10 @@
     }
 </script>
 
-<Skeleton {login} {logout}>
+<Skeleton {user} {logout}>
     {#if !chosenOrg}
         <h1 transition:fade>
-            Yello {login}, tu veux faire de la comptabilité sur quelle
+            Yello {user.login}, tu veux faire de la comptabilité sur quelle
             organisation ?
         </h1>
 
@@ -62,11 +77,11 @@
             <section transition:fade>
                 <p>Voici les organisations possibles&nbsp;:</p>
                 <div class="choices">
-                    {#each orgs as org}
-                        <a href="#" on:click={() => selectOrg(org)}>
+                    {#each orgs || [] as org}
+                        <a href="#" on:click|preventDefault={() => selectOrg(org)}>
                             <img
                                 class="avatar big"
-                                src={`https://github.com/${org.login}.png`}
+                                src={org.avatar_url}
                                 alt=""
                             />
                             <span>{org.login}</span>
@@ -119,7 +134,7 @@
                             >{chosenOrg.login}/{DEFAULT_REPO_NAME}</code
                         >...)
                     </section>
-                {:then orgs}
+                {:then}
                     <section transition:fade>
                         <p>Repo créé !</p>
                         <a

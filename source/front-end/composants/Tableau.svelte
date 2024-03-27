@@ -1,6 +1,20 @@
 <script context="module">
+    /**
+     * Une action correspondra à un bouton (et un éventuel raccourci clavier) dans l'interface
+     *
+     * @typedef {((...data: any[]) => void) & { shortcut?: string }} Action
+     */
+
+    /**
+     * @template {(...args: any[]) => any} F 
+     * @param {F} f
+     * @param {string} name
+     * @param {string} shortcut
+     * @returns {Action}
+     */
     export function action(f, name, shortcut) {
         Object.defineProperty(f, "name", { value: name });
+        //@ts-expect-error the shortcut property shouldn't exist on functions, but that's okay for us
         f.shortcut = shortcut;
         return f;
     }
@@ -9,20 +23,15 @@
 <script>
     // @ts-check
 
-    import Keybinding from "keybinding";
+    //import Keybinding from "keybinding";
     import { createEventDispatcher, tick } from "svelte";
     import Loader from "./Loader.svelte";
 
-    /**
-     * Une action correspondra à un bouton (et un éventuel raccourci clavier) dans l'interface
-     *
-     * @template P
-     * @typedef {((data: P?) => void) & { shortcut?: string }} Action
-     */
+
 
     /**
      * Les actions disponibles de manière générale sur les données (exemple : création d'un nouvel item)
-     * @type Action<undefined>[]
+     * @type {Action[]}
      */
     export let globalActions;
 
@@ -50,17 +59,17 @@
     /**
      * L'indice de l'item qu'on est en train de modifier
      *
-     * @type number
+     * @type {number | undefined}
      */
     let editing;
 
-    /** @type {(key: string, item: number) => boolean} */
+    /** @type {(key: string, item: number | undefined) => boolean} */
     const dispatch = createEventDispatcher();
 
     /**
      * Change l'item en cours d'édition
      *
-     * @param {number} item
+     * @param {number | undefined} item
      */
     export async function edit(item) {
         editing = item;
@@ -77,7 +86,10 @@
 
     // Gestion des raccourcis clavier
 
-    const keybinder = new Keybinding({ filterEditable: false });
+    // PPP pour le moment, cette question clavier dérange l'édition, donc elle est désactivée pour le moment
+
+
+    /*const keybinder = new Keybinding({ filterEditable: false });
     for (const action of globalActions) {
         if (action.shortcut) {
             keybinder.on(action.shortcut, action);
@@ -100,7 +112,7 @@
         }
 
         edit(item);
-    });
+    });*/
 </script>
 
 <div class="tableau-editable">

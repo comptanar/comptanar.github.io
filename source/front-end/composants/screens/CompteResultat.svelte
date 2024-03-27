@@ -2,47 +2,65 @@
   // @ts-check
 
   import Skeleton from "../Skeleton.svelte";
-  import EtatDesComptes from "../../../format-données/produireEtatDesComptes";
+  import fabriqueÉtatDesComptes from "../../../format-données/produireEtatDesComptes";
   import OpHautNiveauVersOpDeCompte from "../../../format-données/traduireOpérationsHautNiveauEnOpérationsDeCompte";
   import { formatMontant, libelleCompte } from "../../stringifiers";
 
-  export let login;
-  export let logout;
-  export let opHautNiveau;
+  import '../../types.js'
+    
+  /** @typedef {import("../../store.js").ComptanarState} ComptanarState */
 
-  let data;
-  let annee;
+  /** @type {ComptanarState['user']} */
+  export let user
+  /** @type {() => void} */
+  export let logout
+  /** @type {ComptanarState["conflict"]} */
+  export let conflict;
+
+  /** @type {ComptanarState["opérationsHautNiveauByYear"]} */
+  export let opérationsHautNiveauByYear;
+
+  /** @type {Map<Compte, Montant>} */
+  let étatDesComptes;
+  /** @type {number} */
+  let année;
+  /** @type {number[]} */
   let listeAnnees = [];
 
   function chargerAnnee() {
-    if (opHautNiveau !== undefined) {
-      let listeOpHautNiveau = opHautNiveau.get(annee);
+    if (opérationsHautNiveauByYear !== undefined) {
+      let opérationsHautNiveau = opérationsHautNiveauByYear.get(année);
+      if(!opérationsHautNiveau){
+        throw new TypeError(`opérationsHautNiveauByYear n'a pas de données pour l'année ${année}`)
+      }
+
       let listeOpDeCompte = OpHautNiveauVersOpDeCompte(
-        listeOpHautNiveau.opérationsHautNiveau
+        opérationsHautNiveau
       );
       try {
-        data = EtatDesComptes(listeOpDeCompte);
+        étatDesComptes = fabriqueÉtatDesComptes(listeOpDeCompte);
       } catch (err) {
         console.error(err);
       }
     } else {
-      data = [];
+      étatDesComptes = new Map();
     }
   }
 
   $: {
-    if (opHautNiveau !== undefined && annee === undefined) {
-      listeAnnees = [...opHautNiveau.keys()];
-      annee = listeAnnees.at(-1);
+    if (opérationsHautNiveauByYear !== undefined && année === undefined) {
+      listeAnnees = [...opérationsHautNiveauByYear.keys()];
+      //@ts-expect-error il y a toujours au moins une année
+      année = listeAnnees.at(-1);
     }
     chargerAnnee();
   }
 </script>
 
-<Skeleton {login} {logout} fullwidth>
+<Skeleton {user} {logout} {conflict} fullwidth>
   <label>
     <div>Année</div>
-    <select bind:value={annee}>
+    <select bind:value={année}>
       {#each listeAnnees as a}
         <option value={a}>{a}</option>
       {/each}
@@ -57,7 +75,7 @@
       </tr>
     </thead>
     <tbody>
-      {#each [...data] as row}
+      {#each [...étatDesComptes] as row}
         <tr>
           <td>{row[0]}</td>
           <td>{libelleCompte(row[0])}</td>
