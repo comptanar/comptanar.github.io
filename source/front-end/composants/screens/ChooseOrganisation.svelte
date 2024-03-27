@@ -16,7 +16,7 @@
     /** @type {() => void} */
     export let logout
     /** @type {NonNullable<ComptanarState['userOrgs']>} */
-    export let possibleOrganisations = [];
+    export let possibleOrganisations;
 
     const DEFAULT_REPO_NAME = "comptabilite";
 
@@ -33,23 +33,21 @@
     function selectOrg(org) {
         chosenOrg = org;
 
-        orgComptabiliteRepo = githubAsDatabase.getRepo(chosenOrg.login, chosenRepo);
-
-        orgComptabiliteRepo
-            .then((_) => {
-                page(
-                    `/comptabilite/?org=${org.login}&repo=${chosenRepo}`
+        orgComptabiliteRepo = githubAsDatabase.getRepo(chosenOrg.login, chosenRepo)
+        .then((_) => {
+            page(
+                `/comptabilite/?org=${org.login}&repo=${chosenRepo}`
+            );
+        })
+        .catch((err) => {
+            if (err.status === 404) {
+                // repo does not exist
+                console.info(
+                    "Expected error trying to find a repo that may not exist"
                 );
-            })
-            .catch((err) => {
-                if (err.status === 404) {
-                    // repo does not exist
-                    console.info(
-                        "Expected error trying to find a repo that may not exist"
-                    );
-                    return undefined;
-                } else throw err;
-            });
+                return undefined;
+            } else throw err;
+        });
     }
 
     /** @type {Promise<any> | undefined} */
@@ -79,8 +77,8 @@
             <section transition:fade>
                 <p>Voici les organisations possibles&nbsp;:</p>
                 <div class="choices">
-                    {#each orgs as org}
-                        <a href="#" on:click={() => selectOrg(org)}>
+                    {#each orgs || [] as org}
+                        <a href="#" on:click|preventDefault={() => selectOrg(org)}>
                             <img
                                 class="avatar big"
                                 src={org.avatar_url}
