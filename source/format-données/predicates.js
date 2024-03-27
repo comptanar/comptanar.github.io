@@ -65,12 +65,12 @@ const isValidDate = date => !Number.isNaN(date.getTime())
  * @returns {s is Salariat}
  */
 export function estSalariat(s) {
+
   return Object(s) === s &&
     s.débutContrat instanceof Date &&
     isValidDate(s.débutContrat) &&
-    s.finContrat !== null
-    ? s.finContrat instanceof Date && isValidDate(s.finContrat)
-    : true && typeof s.idPersonne === 'string'
+    (!s.finContrat || (s.finContrat instanceof Date && isValidDate(s.finContrat))) && 
+    typeof s.idPersonne === 'string'
 }
 
 /**
