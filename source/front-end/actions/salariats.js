@@ -16,13 +16,19 @@ async function getSalariatsFromRepo() {
   if (!gitAgent)
     throw new TypeError('Missing gitAgent')
 
-  const fileContent = await gitAgent.getFile(salariatsPath)
-  if (fileContent) {
-    return parseSalariats(fileContent)
+  try{
+    const fileContent = await gitAgent.getFile(salariatsPath)
+    return fileContent ? parseSalariats(fileContent) : []
   }
-  else {
-    return []
+  catch(e){
+    // @ts-ignore
+    if(e.code === "ENOENT")// no file
+      return []
+    else
+      throw e
   }
+
+  
 }
 
 export function salariatsRepoToStore(){
