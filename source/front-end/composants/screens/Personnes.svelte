@@ -85,7 +85,6 @@
         columns: ["Nom"],
         data: personnes.map((p) => [{ content: p.nom }]),
     };
-    $: console.log(personnes);
 </script>
 
 <Skeleton {user} {logout} {org} {repo} {conflict} fullwidth>
